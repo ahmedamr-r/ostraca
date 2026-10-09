@@ -1,0 +1,445 @@
+{
+  "shelves": [
+    {
+      "key": "messages",
+      "title": "Messages",
+      "why": "Inboxes, notifications, email and comments are where most products first show an empty screen, and where people land again each time they catch up.",
+      "figures": [
+        {
+          "name": "inbox",
+          "title": "Inbox",
+          "use": "Inbox zero, no messages yet, new mail coming in, a message that failed to send",
+          "drawn": "Being drawn by the engine. A letter tray in two tiers on a low stand, front on: each tray a shallow box with a back taller than its front lip, letters lying in it as thin sheets with a corner showing past the lip, the upper tray carried on four short posts. If the engine settles on the pigeonhole instead: a cabinet of open boxes three across and two high, a letter standing in some of them. About 120 by 80; a worker is 45 tall. Reads by the stepped trays and the sheets in them.",
+          "courses": "Stand, lower tray, its letters, posts, upper tray, its letters. Loading goes up beside a ladder on the right.",
+          "revise": "The top letter in the upper tray",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the trays from the right. Loading: a carrier on the ladder holds the next letter over the top tray; with no value, a hauler at the gin wheel. Idle: a sitter on the upper tray's back. Success: the sitter stays. Changed: the letterer at the cloud. Error: a shrugger beside the plumb line.",
+          "value": "Count: unread messages, one letter each up to about eight; past that, the real number on a short dimension chain beside the trays."
+        },
+        {
+          "name": "bell",
+          "title": "Bell",
+          "use": "Notifications, all caught up, alerts muted, a reminder going out",
+          "drawn": "A bell hung in a timber A frame, front on: two legs splayed on the ground and tied by a cross bar halfway up, a headstock across the apex, the bell under it with a crown, a waist and a flared lip, the clapper's ball just below the lip, a pull cord hanging from the headstock down past one leg. About 90 by 105. Reads by the bell's flared outline, the shape every notification icon uses.",
+          "courses": "Feet and legs, cross bar, headstock, bell, clapper, cord. Loading goes up beside a ladder leaned on the right leg.",
+          "revise": "The bell",
+          "error": "lean",
+          "crew": "Empty: a letterer pegs out the frame. Loading: a carrier on the ladder holds a piece of the headstock up; with no value, a hauler at the gin wheel. Idle: a leaner against the left leg. Success: a rope holder on the cord, and the tick lands. Changed: the letterer at the cloud round the bell. Error: a shrugger beside the plumb line.",
+          "value": "Count: unread notifications as a mono figure on a short dimension chain under the bell, left off at zero."
+        },
+        {
+          "name": "mailbox",
+          "title": "Mailbox",
+          "use": "Email, newsletters, subscribe forms, a confirmation sent, an address that bounced",
+          "drawn": "A roadside mailbox on a post, seen from the side: a long box with a flat floor and a rounded top, the door at the front end with a small pull, a flag on a pivot on the near side, the post planted in the ground with one short brace. The flag stands up when the app passes something new and lies flat when not. About 100 by 95. Reads by the rounded top and the flag.",
+          "courses": "Post and brace, box floor, rounded top, door, flag. Loading goes up beside a ladder at the back end.",
+          "revise": "The flag",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the post. Loading: a carrier on the ladder holds the door up to the box; with no value, a hauler at the gin wheel. Idle: a leaner on the post. Success: a caller by the post with the can to the ear, and the tick lands. Changed: the letterer at the cloud round the flag. Error: a shrugger beside the plumb line.",
+          "value": "The flag: up when the app passes an unread count above zero. No number is drawn."
+        },
+        {
+          "name": "noticeboard",
+          "title": "Noticeboard",
+          "use": "Comments, feedback, announcements, notes and idea boards with nothing pinned yet",
+          "drawn": "A noticeboard on two legs, front on: a framed board standing on legs with small feet, cards pinned to it at slight angles in loose rows, each card a small rectangle with two or three faint lines and a round pin head at its top edge. About 130 by 105. Reads by the tilted cards and their pins.",
+          "courses": "Feet and legs, frame, board, then the cards row by row from the bottom. Loading goes up under a scaffold bay on the right.",
+          "revise": "One pinned card, the comment that was edited",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the board. Loading: a carrier on the scaffold board holds the next card up to pin; with no value, a hauler at the gin wheel. Idle: a leaner at the left leg. Success: a sitter on the frame's top edge, and the tick lands. Changed: the letterer at the cloud round the card. Error: a shrugger beside the plumb line.",
+          "value": "Count: comments, one card each up to nine; past that, the real total on a dimension chain across the board."
+        }
+      ]
+    },
+    {
+      "key": "files",
+      "title": "Files",
+      "why": "Keeping, finding, charting and throwing away. Every workspace has an empty folder, a search that found nothing, a report with no data yet and a bin.",
+      "figures": [
+        {
+          "name": "filing-cabinet",
+          "title": "Filing cabinet",
+          "use": "Documents, folders, records, no files yet, a file that failed to save",
+          "drawn": "A four drawer filing cabinet seen from the side, on a low plinth: the tall body with the drawer fronts as thin plates on its front face and a handle on each, the top drawer pulled out on its runners with hanging folders standing in it, their tabs sticking up at staggered places. About 120 by 115 with the drawer out. Reads by the open drawer and the folder tabs.",
+          "courses": "Plinth, drawers from the bottom up, top, then the open drawer and its folders. Loading goes up under a scaffold bay at the back.",
+          "revise": "The folders in the open drawer",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the cabinet. Loading: a carrier on the scaffold board holds the next drawer front up; with no value, a hauler at the gin wheel. Idle: a sitter on top. Success: the sitter stays, and the tick lands. Changed: the letterer at the cloud round the folders. Error: a pusher at the open drawer, shoulder to the leaning cabinet.",
+          "value": "Count: files in the folder, one tab each up to about eight."
+        },
+        {
+          "name": "magnifier",
+          "title": "Magnifier",
+          "use": "Search, no results, filters that matched nothing, explore",
+          "drawn": "A large magnifying glass standing upright on its handle, front on: a round lens ring drawn as two circles close together, one faint curved line inside for the glass, a collar where the ring meets the handle, the handle running straight down into a heavy round foot. About 80 by 125. Reads by the ring on a stick, the shape every search icon uses.",
+          "courses": "Foot, handle, collar, the ring's lower half, its upper half, the glass line. Loading goes up beside a ladder on the right.",
+          "revise": "The lens",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the ring. Loading: a carrier on the ladder holds the next piece of the ring up; with no value, a hauler at the gin wheel. Idle: a leaner against the handle. Success: a sitter on top of the ring, and the tick lands. Changed: the letterer at the cloud round the lens. Error: a shrugger beside the plumb line.",
+          "value": "Count: results, the real number on a dimension chain across the lens, including 0 when the search found nothing."
+        },
+        {
+          "name": "bin",
+          "title": "Bin",
+          "use": "Trash, deleted items, an empty bin, restore, deleted for good",
+          "drawn": "A wheelie bin seen from the side: a tall body a little wider at the top, two faint ribs down it, a lid with an overhanging front lip hinged at the back, a handle bar behind the hinge, one wheel at the back foot and a short front foot. About 75 by 115. Reads by the wheel, the handle and the lid's lip.",
+          "courses": "Wheel and front foot, body in three bands from the bottom, rim, lid, handle. Loading goes up beside a ladder at the front.",
+          "revise": "The lid",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the bin. Loading: a carrier on the ladder holds the lid up; with no value, a hauler at the gin wheel. Idle: a pusher at the handle. Success: a sitter on the shut lid, and the tick lands. Changed: the letterer at the cloud round the lid. Error: a shrugger beside the plumb line.",
+          "value": "Chain: the days until the bin empties itself, when the app passes its real retention. None otherwise."
+        },
+        {
+          "name": "flip-chart",
+          "title": "Flip chart",
+          "use": "Analytics, reports, dashboards and charts with no data yet",
+          "drawn": "A flip chart on a tripod easel, front on: two splayed front legs with the back leg showing between them, a ledge across the legs, a backing board, a pad of paper held at the top under a clamp bar, the top sheet carrying a bar chart of four or five bars on a base line, the edges of the sheets behind just showing at the pad's foot. About 105 by 135. Reads by the tripod, the clamp bar and the bars.",
+          "courses": "Legs, ledge, backing board, pad, clamp bar, then the bars from left to right. Loading goes up beside a ladder on the right.",
+          "revise": "One bar, a figure that was revised",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the easel. Loading: a carrier on the ladder holds the next sheet up; with no value, a hauler at the gin wheel. Idle: a leaner at a front leg. Success: the letterer at the pad, and the tick lands. Changed: the letterer at the cloud round the bar. Error: a shrugger beside the plumb line.",
+          "value": "Series: the app's own values set the bar heights. Without them the bars are drawn faint and no axis figures appear."
+        }
+      ]
+    },
+    {
+      "key": "people",
+      "title": "People",
+      "why": "Anything with accounts has an empty team, a missing profile photo and a page someone may not open. Apps that reward use add a first achievement.",
+      "figures": [
+        {
+          "name": "seats",
+          "title": "Seats",
+          "use": "Team members, invites, seats on a plan, attendees, a waiting list",
+          "drawn": "A row of waiting room seats on one beam, front on: four to eight identical chairs, each a back panel over a seat, fixed along a long beam that stands on a pair of splayed legs at each end. About 170 by 70. Reads by the repeated chair backs on one beam.",
+          "courses": "End legs, beam, then each seat and its back from left to right. Loading goes up under a scaffold bay at the right end.",
+          "revise": "One seat, a member whose role changed",
+          "error": "sag",
+          "crew": "Empty: a letterer sets out the beam. Loading: a carrier on the scaffold board holds the next seat back up; with no value, a hauler at the gin wheel. Idle: one sitter on each taken seat. Success: the sitters stay, and the tick lands. Changed: the letterer at the cloud round the seat. Error: a shrugger at the end of the row.",
+          "value": "Count: seats on the plan, one chair each up to eight; the taken ones drawn solid and the free ones set out, from the app's real used and total."
+        },
+        {
+          "name": "bust",
+          "title": "Bust",
+          "use": "Profile, account, no photo yet, finish your profile, a deleted account",
+          "drawn": "A sculptor's bust on a plinth, front on: a plain oval head with no features, a neck, shoulders cut straight across the chest, set on a plinth with a moulded cap and a base. About 70 by 125. Reads by the head and shoulders on a plinth, the shape of a default avatar.",
+          "courses": "Plinth base, plinth, cap, shoulders, neck, head. Loading goes up beside a ladder on the right.",
+          "revise": "The head, a new photo",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the plinth. Loading: a carrier on the ladder holds a piece of the shoulders up; with no value, a hauler at the gin wheel. Idle: a leaner on the plinth. Success: a sitter on the plinth's cap, and the tick lands. Changed: the letterer at the cloud round the head. Error: a shrugger beside the plumb line.",
+          "value": "None. A profile's share filled in can drive loading's value."
+        },
+        {
+          "name": "gate",
+          "title": "Gate",
+          "use": "Sign in, private pages, permission needed, locked features, access denied",
+          "drawn": "A field gate between two posts, front on: square posts with caps, a top rail and a bottom rail with upright bars between them and one diagonal brace, two hinge straps on the left post, a hasp on the right post with a padlock hanging from it. About 150 by 80. Reads by the bars, the brace and the padlock.",
+          "courses": "Posts, bottom rail, bars from the hinge side, top rail, brace, hinges, hasp, padlock. Loading goes up under a scaffold bay on the latch side.",
+          "revise": "The padlock, a changed password or new permissions",
+          "error": "sag",
+          "crew": "Empty: a letterer sets out the posts. Loading: a carrier on the scaffold board holds the next bar up; with no value, a hauler at the gin wheel. Idle: a leaner on the hinge post. Success: a sitter on the top rail, and the tick lands. Changed: the letterer at the cloud round the padlock. Error: the gate drops at its latch end under a taut string line from post to post, and a pusher lifts it.",
+          "value": "None"
+        },
+        {
+          "name": "trophy",
+          "title": "Trophy",
+          "use": "Achievements, rewards, goals reached, streaks, leaderboards",
+          "drawn": "A two handled cup, front on, twice a worker's height: a stepped square base, a short stem with a knot halfway, the bowl widening to a rolled rim, a handle looping out from each side of the bowl. About 95 by 100. Reads by the handles and the stem.",
+          "courses": "Base steps from the bottom up, stem, knot, bowl, rim, handles. Loading goes up beside a ladder on the right.",
+          "revise": "The bowl, a record beaten",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the base. Loading: a carrier on the ladder holds a handle up; with no value, a hauler at the gin wheel. Idle: a sitter on the base's top step. Success: the sitter stays, and the tick lands. Changed: the letterer at the cloud round the bowl. Error: a shrugger beside the plumb line.",
+          "value": "Count: a real streak, rank or score from the app, as a mono figure on a dimension chain up the base."
+        }
+      ]
+    },
+    {
+      "key": "money",
+      "title": "Money",
+      "why": "Payments, balances, savings and receipts, for fintech apps and for any product that charges a card.",
+      "figures": [
+        {
+          "name": "card-reader",
+          "title": "Card reader",
+          "use": "Checkout, a payment going through, card added, payment declined, subscriptions",
+          "drawn": "A payment terminal standing in its dock, front on: a tall body with rounded top corners, a small screen near the top, a keypad of three by four small keys below it, a card pushed half into a slot at the top, the dock a low block under the body. About 65 by 120. Reads by the keypad and the card standing out of the top.",
+          "courses": "Dock, body, keypad rows from the bottom up, screen, card. Loading goes up beside a ladder on the right.",
+          "revise": "The card, a payment method changed",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the body. Loading: a carrier on the ladder holds the card over the slot; with no value, a hauler at the gin wheel. Idle: a leaner against the dock. Success: a sitter on the dock, and the tick lands. Changed: the letterer at the cloud round the card. Error: a shrugger beside the plumb line.",
+          "value": "Chain: the amount as the app formats it, with its currency, on a dimension chain across the screen."
+        },
+        {
+          "name": "coins",
+          "title": "Coins",
+          "use": "Balance, savings, earnings, points, cashback, top ups",
+          "drawn": "Stacks of coins side by side on the ground, front on: three to five stacks of different heights, each coin a thin slab with short milled lines along its edge, the top coin of each stack showing its rim as a second line. About 120 by 85. Reads by the milled edges and the stepped stacks.",
+          "courses": "One coin at a time from the bottom, across the stacks from left to right. Loading goes up under a scaffold bay on the right.",
+          "revise": "The top coins of one stack",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the stacks. Loading: a carrier on the scaffold board holds the next coin over a stack; with no value, a hauler at the gin wheel. Idle: a sitter on the tallest stack. Success: the sitter stays, and the tick lands. Changed: the letterer at the cloud. Error: the tallest stack leans off the plumb line and a pusher holds it with both hands.",
+          "value": "Series: stack heights from the app's own amounts, one stack per period. Chain: the balance on a dimension chain up the tallest stack."
+        },
+        {
+          "name": "safe",
+          "title": "Safe",
+          "use": "Savings goals, vaults, secure storage, backups, encrypted or private data",
+          "drawn": "A strongbox on four short feet, front on: a thick door set inside the body's frame, two hinge knuckles down the left side, a round dial with short ticks round its rim and a pointer above it, a spoked handle beside the dial. About 95 by 105. Reads by the dial and the hinges.",
+          "courses": "Feet, body, door, hinges, dial, handle. Loading goes up under a scaffold bay on the right.",
+          "revise": "The dial, a changed code or password",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the box. Loading: a carrier on the scaffold board holds the door panel up; with no value, a hauler at the gin wheel. Idle: a sitter on top. Success: the sitter stays, and the tick lands. Changed: the letterer at the cloud round the dial. Error: a shrugger beside the plumb line.",
+          "value": "Chain: a saved amount or a goal from the app, on a dimension chain up the door."
+        },
+        {
+          "name": "receipt",
+          "title": "Receipt",
+          "use": "Invoices, receipts, billing history, statements, refunds",
+          "drawn": "A receipt printer on a short stand, front on: a squat box with a slot across its top, a strip of paper rising out of the slot and curling over to hang down the front past the stand, ruled with short faint lines, its free end torn in a zigzag. About 75 by 115. Reads by the zigzag torn edge.",
+          "courses": "Stand, box, slot, then the strip line by line as it prints, from the slot out to the torn end. Loading goes up beside a ladder on the left.",
+          "revise": "One line on the strip, a charge that changed",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the printer. Loading: a carrier on the ladder holds the paper roll up to the box; with no value, a hauler at the gin wheel. Idle: a leaner by the stand. Success: a sitter on the box, and the tick lands. Changed: the letterer at the cloud round the line. Error: a shrugger beside the plumb line.",
+          "value": "Count: line items, one ruled line each up to about ten. Chain: the total along the strip's foot."
+        }
+      ]
+    },
+    {
+      "key": "shopping",
+      "title": "Shopping",
+      "why": "Carts, orders, shop fronts and food on the stove: the screens shopping and food ordering apps pass through on every order.",
+      "figures": [
+        {
+          "name": "trolley",
+          "title": "Trolley",
+          "use": "Shopping cart, wishlist, saved for later, checkout, an item out of stock",
+          "drawn": "A supermarket trolley seen from the side: a wire basket wider at the top than at its floor with its wires as faint uprights, a handle bar at the back top, a chassis under the basket carrying a lower tray, two castors on short forks, the basket's front leaning out. About 125 by 100. Reads by the slanted basket over small wheels and the handle.",
+          "courses": "Castors, chassis and lower tray, basket floor, basket frame, wires, handle, then the items in the basket. Loading goes up under a scaffold bay behind the handle.",
+          "revise": "The items in the basket, a cart that changed",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the trolley. Loading: a carrier on the scaffold board holds the next box over the basket; with no value, a hauler at the gin wheel. Idle: a pusher at the handle. Success: the pusher stays, and the tick lands. Changed: the letterer at the cloud round the basket. Error: a shrugger beside the plumb line.",
+          "value": "Count: items in the cart, one box in the basket each up to about six; past that, the real total on a dimension chain above the basket."
+        },
+        {
+          "name": "parcel",
+          "title": "Parcel",
+          "use": "Orders, shipping, delivery tracking, returns, a delivery that failed",
+          "drawn": "Parcels on a hand cart, seen from the side: a two wheeled sack barrow with an upright frame, two handle grips at its top, a toe plate at its foot and one large wheel behind on a short axle, with two or three boxes stacked on the toe plate, each with a taped seam along its top and a strip of tape down its face. About 80 by 115. Reads by the stacked boxes and their tape on the wheeled frame.",
+          "courses": "Wheel and axle, toe plate, frame, handles, then the parcels from the bottom box up. Loading goes up beside a ladder on the far side.",
+          "revise": "The top parcel",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the barrow. Loading: a carrier on the ladder holds the next box over the stack; with no value, a hauler at the gin wheel. Idle: a leaner at the handles. Success: a pusher at the handles, and the tick lands. Changed: the letterer at the cloud round the top parcel. Error: a shrugger beside the plumb line.",
+          "value": "Count: parcels in the order, one box each up to three."
+        },
+        {
+          "name": "market-stall",
+          "title": "Market stall",
+          "use": "Storefront, seller dashboard, product catalogue, a shop with no products yet, store closed",
+          "drawn": "A market stall, front on: a counter box with a plain front panel, a post rising from each end, a sloping awning on the posts with a straight valance hung in vertical stripes, and goods along the counter as small crates and rows of round fruit. The valance is never scalloped, so it cannot be mistaken for a revision cloud. About 160 by 115. Reads by the striped awning over goods on a counter.",
+          "courses": "Counter base, counter top, posts, awning frame, valance, then the goods from left to right. Loading goes up under a scaffold bay on the right.",
+          "revise": "One crate, a product that was edited",
+          "error": "sag",
+          "crew": "Empty: a letterer sets out the stall. Loading: a carrier on the scaffold board holds the next crate over the counter; with no value, a hauler at the gin wheel. Idle: a leaner at a post. Success: a caller behind the counter with the can raised, and the tick lands. Changed: the letterer at the cloud round the crate. Error: the counter and awning sag between the posts under a taut string line, and a shrugger stands under it.",
+          "value": "Count: products, one crate or fruit each up to about eight."
+        },
+        {
+          "name": "stove",
+          "title": "Stove",
+          "use": "Food orders being cooked, recipes, meal plans, a kitchen closed for the night",
+          "drawn": "A cooking range with a pot on it, front on: the oven body on short feet, an oven door with a window and a bar handle, a row of round knobs above the door, the hob top, and on the hob a big pot with a handle each side and a lid with a knob, three faint wisps of steam over the lid. About 105 by 125. Reads by the oven window, the knobs and the lidded pot.",
+          "courses": "Feet, oven body, door and window, knobs, hob, pot, lid, steam. Loading goes up beside a ladder on the right.",
+          "revise": "The pot, an order changed while it cooks",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the range. Loading: a carrier on the ladder holds the lid over the pot; with no value, a hauler at the gin wheel. Idle: a leaner at the oven door. Success: a sitter on the hob's corner, and the tick lands. Changed: the letterer at the cloud round the pot. Error: a shrugger beside the plumb line.",
+          "value": "Chain: the time left as the app estimates it, on a dimension chain over the pot."
+        }
+      ]
+    },
+    {
+      "key": "time",
+      "title": "Time",
+      "why": "Calendars, countdowns, reminders and time away. Booking and scheduling products often open on an empty week.",
+      "figures": [
+        {
+          "name": "calendar",
+          "title": "Calendar",
+          "use": "Schedule, bookings, events, no meetings today, a booking that failed",
+          "drawn": "A standing desk calendar, front on, as tall as a door: a row of binding rings along the top edge, a header band under them, a grid of day cells seven across and five down, the frame splaying into a foot at each side. Cells stay empty; no day numbers are drawn unless the app passes a date. About 105 by 115. Reads by the rings over the grid.",
+          "courses": "Feet, frame, grid rows from the bottom up, header band, rings. Loading goes up under a scaffold bay on the right.",
+          "revise": "One day cell, an event that moved",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the page. Loading: a carrier on the scaffold board holds the next row of cells up; with no value, a hauler at the gin wheel. Idle: a leaner by a foot. Success: the letterer at the ringed day, and the tick lands. Changed: the letterer at the cloud round the cell. Error: a shrugger beside the plumb line.",
+          "value": "A date: the app's real date rings its cell and puts the day's number in it in mono, and the month's real length sets how many cells are drawn."
+        },
+        {
+          "name": "hourglass",
+          "title": "Hourglass",
+          "use": "Waiting, a trial ending, a session timing out, rate limited, try again later",
+          "drawn": "An hourglass in its frame, front on: a top plate and a bottom plate wider than the glass, two turned posts at the sides, the glass as two bulbs meeting at a narrow neck, the sand as a level line in the upper bulb, a heap in the lower one and a thin thread falling between. About 75 by 115. Reads by the pinched glass between two plates.",
+          "courses": "Bottom plate, posts, lower bulb, neck, upper bulb, top plate, then the sand. Loading goes up beside a ladder on the right.",
+          "revise": "The upper bulb, time that was added or taken off",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the frame. Loading: a carrier on the ladder holds the top plate up; with no value, a hauler at the gin wheel. Idle: a sitter on the top plate. Success: the sitter stays, and the tick lands. Changed: the letterer at the cloud round the upper bulb. Error: a shrugger beside the plumb line.",
+          "value": "Share of the time gone, 0 to 1, sets the two sand lines. Chain: the time left as the app writes it, beside the lower bulb."
+        },
+        {
+          "name": "alarm-clock",
+          "title": "Alarm clock",
+          "use": "Reminders, alarms, due soon, snooze, deadlines",
+          "drawn": "A twin bell alarm clock, front on, twice a worker's height: a round body on two splayed legs, two bells on top with a hammer between them, a carrying handle arching over, a face ring with twelve short ticks and no numerals, and two hands. About 95 by 110. Reads by the twin bells and the legs.",
+          "courses": "Legs, the body's lower half, its upper half, face ring and ticks, bells, hammer, handle, hands. Loading goes up under a scaffold bay on the right.",
+          "revise": "The hands, a reminder moved to another time",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the body. Loading: a carrier on the scaffold board holds a bell up; with no value, a hauler at the gin wheel. Idle: a leaner on a leg. Success: a sitter on the handle, and the tick lands. Changed: the letterer at the cloud round the hands. Error: a shrugger beside the plumb line.",
+          "value": "A time: the hands point at the real hour and minute the app passes. With none, the hands are left off."
+        },
+        {
+          "name": "deck-chair",
+          "title": "Deck chair",
+          "use": "Away, out of office, time off, do not disturb, quiet hours",
+          "drawn": "A deck chair under a parasol, seen from the side: the chair's two crossed frames with the canvas sling hanging between its top rail and front rail in a shallow curve, an arm rest, and beside it a parasol pole planted in the ground with a low cone of canopy on ribs and a finial on top. About 125 by 115. Reads by the sling chair and the parasol over it.",
+          "courses": "Chair legs, chair frame, sling, parasol pole, ribs, canopy, finial. Loading goes up beside a ladder against the pole.",
+          "revise": "The canopy",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the chair. Loading: a carrier on the ladder holds a canopy panel up; with no value, a hauler at the gin wheel. Idle: a sitter in the chair. Success: the sitter stays, and the tick lands. Changed: the letterer at the cloud round the canopy. Error: the parasol leans off the plumb line while the chair stays put, and a shrugger stands by.",
+          "value": "Chain: the return date the app passes, along the ground under the chair."
+        }
+      ]
+    },
+    {
+      "key": "devices",
+      "title": "Devices",
+      "why": "The laptop and phone an app runs on, the camera it asks to use and the servers behind it: install screens, permissions, sync and the maintenance page.",
+      "figures": [
+        {
+          "name": "laptop",
+          "title": "Laptop",
+          "use": "Desktop app, install, signing in on a new computer, sync, a device gone offline",
+          "drawn": "Being drawn by the engine: an open laptop on a desk line. Front on: the lid as a screen with an inner bezel line and a few faint rows on it, the base as a shallow deck with a faint row of keys, both standing on a desk top carried on two trestles. Reads by the lid over the keyboard deck.",
+          "courses": "Trestles, desk top, base, lid, screen rows. Loading goes up beside a ladder at the desk's end.",
+          "revise": "The screen",
+          "error": "sag",
+          "crew": "Empty: a letterer sets out the desk. Loading: a carrier on the ladder holds the lid up; with no value, a hauler at the gin wheel. Idle: a sitter on the desk's end. Success: the sitter stays, and the tick lands. Changed: the letterer at the cloud round the screen. Error: the desk top sags under a taut string line with the laptop riding it down, and a shrugger stands under it.",
+          "value": "None"
+        },
+        {
+          "name": "phone",
+          "title": "Phone",
+          "use": "Mobile app, scan to install, a code sent by text, two step sign in, push notifications",
+          "drawn": "A smartphone standing in a dock, front on: a tall rounded rectangle, an earpiece slot near the top edge, a short home bar near the bottom, a few faint rows on the screen, the dock a low wedge holding its foot. About 60 by 120. Reads by the rounded corners, the earpiece and the home bar.",
+          "courses": "Dock, body from the bottom up, screen, earpiece, home bar. Loading goes up beside a ladder on the right.",
+          "revise": "The screen",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the phone. Loading: a carrier on the ladder holds the screen panel up; with no value, a hauler at the gin wheel. Idle: a leaner on the dock. Success: a caller beside it with the can to the ear, and the tick lands. Changed: the letterer at the cloud round the screen. Error: a shrugger beside the plumb line.",
+          "value": "None"
+        },
+        {
+          "name": "camera",
+          "title": "Camera",
+          "use": "Photos, video, media library, camera access, a photo upload",
+          "drawn": "A camera on a tripod, seen from the side: three legs with two splayed and the third showing between them, a centre column, a pan head with a short handle out the back, the camera body as a box with a viewfinder hump on top, a lens barrel pointing left in two steps, a shutter button on top. About 95 by 125. Reads by the lens on the box over the three legs.",
+          "courses": "Feet and legs, centre column, head, body, viewfinder, lens, handle. Loading goes up beside a ladder at the back.",
+          "revise": "The lens",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the tripod. Loading: a carrier on the ladder holds the body up to the head; with no value, a hauler at the gin wheel. Idle: a leaner behind the tripod at the viewfinder. Success: the leaner stays, and the tick lands. Changed: the letterer at the cloud round the lens. Error: a shrugger beside the plumb line.",
+          "value": "None"
+        },
+        {
+          "name": "server-rack",
+          "title": "Server rack",
+          "use": "Maintenance, status pages, outages, deploys, self hosting",
+          "drawn": "A server rack, front on: a tall cabinet frame on four short feet, a stack of server units inside, each a slab with a row of vent slots and two small round lights at one end drawn as plain circles, a blank panel between groups, a door hinge line down the left. About 85 by 135. Reads by the stacked slabs with their lights.",
+          "courses": "Feet, base of the frame, units from the bottom up, top of the frame. Loading goes up under a scaffold bay on the right.",
+          "revise": "One unit, a service that was updated",
+          "error": "lean",
+          "crew": "Empty: a letterer sets out the cabinet. Loading: a carrier on the scaffold board holds the next unit up to its slot; with no value, a hauler at the gin wheel. Idle: a leaner against the side. Success: a sitter on top, and the tick lands. Changed: the letterer at the cloud round the unit. Error: a pusher at the side, holding the leaning rack.",
+          "value": "Count: services from the app's status list, one unit each up to eight."
+        }
+      ]
+    },
+    {
+      "key": "site",
+      "title": "Site",
+      "why": "The six subjects from the first prototype, unchanged: lists, onboarding, integrations, live connections, missing pages and uploads.",
+      "figures": [
+        {
+          "name": "wall",
+          "title": "Wall",
+          "use": "Lists, tables and rows still loading",
+          "drawn": "Courses of block on a footing, front on: six courses of six blocks with the joints staggered course to course, the footing proud of the wall at both ends, a short hatch of earth under it.",
+          "courses": "Footing, then each course from the bottom up. Loading goes up under a scaffold bay off the right face, its board rising with the work; with no count, the gin wheel bucket loops.",
+          "revise": "Two blocks at the right end of the third course",
+          "error": "lean",
+          "crew": "Empty and changed: a letterer at the right. Loading: a carrier on the scaffold board holds the next block out; with no value, a hauler at the gin wheel. Idle and success: a sitter on top. Error: a shrugger at the left.",
+          "value": "Count: rows, one course each. Loading's value: rows loaded over the total."
+        },
+        {
+          "name": "stair",
+          "title": "Stair",
+          "use": "Onboarding checklists and first run setup",
+          "drawn": "A flight of stone steps, one tread per task, each step a block with its beds showing faint.",
+          "courses": "One tread at a time from the bottom step up.",
+          "revise": "Not used on the stair's sheet yet; it shows empty, loading and success only.",
+          "error": "lean",
+          "crew": "Empty: a carrier at the foot. Loading: a carrier on the last finished tread holds the next one out over the gap. Idle and success: a sitter on the top step.",
+          "value": "Count: tasks, one tread each. Loading's value: done over tasks. The tick lands on the top step only when every task is done."
+        },
+        {
+          "name": "bridge",
+          "title": "Bridge",
+          "use": "Integrations, connections and sync",
+          "drawn": "A truss of eight panels on two masonry banks over a cut, with hatched earth under the banks and the cut.",
+          "courses": "Bank bearings, then panels in pairs from both banks toward the middle, over two falsework towers.",
+          "revise": "The two middle panels",
+          "error": "sag",
+          "crew": "None. The bridge is drawn with nobody on site.",
+          "value": "The app's revision letter, in the cloud's tag."
+        },
+        {
+          "name": "tin-can-line",
+          "title": "Tin can line",
+          "use": "Live connections and offline",
+          "drawn": "Two posts, a can hung on each, a string between them.",
+          "courses": "Near post, then far post with its can.",
+          "revise": "The far post's can",
+          "error": "sag",
+          "crew": "A caller at the near post in every state, can to the ear.",
+          "value": "Chain: seconds to the next retry, shortening once a second while the app counts."
+        },
+        {
+          "name": "door-frame",
+          "title": "Door frame",
+          "use": "Not found, moved and deleted pages",
+          "drawn": "A door frame standing on its own on a step, propped either side, the door ajar with its leaf swung toward us.",
+          "courses": "Step, jambs and props, head, leaf. Loading goes up beside a ladder.",
+          "revise": "The door leaf",
+          "error": "lean",
+          "crew": "None.",
+          "value": "None. A lettered phrase with an arrow can stand beside it."
+        },
+        {
+          "name": "ramp",
+          "title": "Ramp",
+          "use": "Uploads and imports",
+          "drawn": "A dressed stone on a sledge, hauled up a 9 degree ramp by rope, the angle dimensioned at the foot and a bollard at the top.",
+          "courses": "The stone rides up the ramp in heaves, one for each whole eighth of the file.",
+          "revise": "Not used on the ramp's sheet yet.",
+          "error": "sag",
+          "crew": "Empty and loading: a pusher behind the sledge and three haulers on the rope. Idle, success and changed: a sitter on the sledge and a leaner. Error: a shrugger and a leaner, the rope gone slack under a taut line.",
+          "value": "Chain: the file's real size in megabytes. Loading's value: sent over size. Lettered: to the server."
+        }
+      ]
+    }
+  ],
+  "newPoseRequests": [
+    "Walker: a plain stride in two drawings with the hands free, for a parcel arriving or someone coming to the door. There is no walking pose.",
+    "Climber: on a ladder with one hand on a rung above the head and one foot a rung higher, for the tall figures that go up by ladder.",
+    "Reader: standing with a sheet held open at chest height in both hands, head tipped down, for the inbox, receipts and documents.",
+    "Kneeler: one knee on the ground and the hands at knee height, for packing a parcel, opening the bottom drawer or checking a wheel.",
+    "Typist: sat on a stool with both forearms out at desk height, for the laptop and the card reader.",
+    "Lifter: both arms straight up holding something overhead, for raising the trophy or setting the last box on a stack.",
+    "Pointer: one arm straight out with an open hand toward a part, for search results, help and showing what changed.",
+    "Greeter: one hand raised in a wave with nothing held, for welcome screens and accepted invites. The caller waves but holds a can.",
+    "Peerer: bent forward at the waist looking into something low, for the magnifier, the mailbox and the oven door."
+  ]
+}

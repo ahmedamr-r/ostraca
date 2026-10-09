@@ -1,0 +1,64 @@
+{
+  "name": "ostraca",
+  "version": "0.1.0",
+  "description": "Illustrations for every state your product is in, drawn as building elevations.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Ahmed Amr",
+  "homepage": "https://github.com/ahmedamr-r/ostraca",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahmedamr-r/ostraca.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ahmedamr-r/ostraca/issues"
+  },
+  "keywords": [
+    "illustration",
+    "svg",
+    "empty-state",
+    "loading",
+    "error-state",
+    "react"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./react": {
+      "types": "./src/react.d.ts",
+      "default": "./src/react.js"
+    },
+    "./styles.css": "./src/styles.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "registry": "node scripts/registry.mjs",
+    "check": "node scripts/check.mjs",
+    "sheet": "node scripts/sheet.mjs",
+    "site": "node scripts/build-site.mjs",
+    "site:serve": "node scripts/serve-site.mjs 4321"
+  }
+}

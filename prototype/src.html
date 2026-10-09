@@ -1,0 +1,1353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ostraca</title>
+<meta name="description" content="Prototype for review: an illustration library drawn as building elevations, one drawing for every state a product is in.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap" rel="stylesheet">
+<style>
+/*FONTS*/
+
+/* ---------------------------------------------------------------------------
+   Tokens. The site's own values (app/globals.css), as light-dark() pairs, so the
+   theme is one `color-scheme` and no script reads it. The catalogue's grounds
+   are the site's --paper-tone: the cream pad in light, the blueprint in dark.
+   --------------------------------------------------------------------------- */
+:root {
+  color-scheme: light dark;
+  --sans: "Cubit Sans", ui-sans-serif, system-ui, sans-serif;
+  --mono: "Cubit Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --paper: light-dark(#eee6d6, #1f3b5c);
+  --ink: light-dark(oklch(28% 0.02 72), oklch(93% 0.004 307));
+  --muted: light-dark(oklch(44% 0.021 72), oklch(83% 0.02 250));
+  --faint: light-dark(oklch(50% 0.021 72), oklch(76% 0.03 250));
+  --notes-ink: light-dark(oklch(57% 0.09 243), oklch(80% 0.075 243));
+  --rule: light-dark(oklch(57% 0.09 243 / 0.32), oklch(100% 0 0 / 0.2));
+  --rule-strong: light-dark(oklch(57% 0.09 243 / 0.7), oklch(100% 0 0 / 0.42));
+
+  /* The library's own tokens, as the package would ship them. */
+  --wd-thing: var(--notes-ink);
+  --wd-crew: var(--ink);
+  --wd-ground: light-dark(oklch(74% 0.016 80), oklch(100% 0 0 / 0.34));
+  --wd-label: var(--muted);
+  --wd-paper: var(--paper);
+  --wd-temp: 0.6;
+  --wd-faint: 0.35;
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 16px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; }
+button, input { font: inherit; color: inherit; }
+.tnum { font-feature-settings: "tnum" 1; }
+.mono { font-family: var(--mono); }
+
+.page { max-width: 1200px; margin: 0 auto; padding: 0 32px 96px; }
+@media (max-width: 640px) { .page { padding: 0 16px 64px; } }
+
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+.bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 22px 0 0; flex-wrap: wrap;
+}
+.bar p { margin: 0; font-size: 13px; color: var(--faint); }
+.toggles { display: flex; gap: 14px; flex-wrap: wrap; }
+.seg { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; }
+.seg span { color: var(--faint); margin-right: 6px; }
+.seg button {
+  border: 0; background: none; padding: 3px 8px; border-radius: 999px; cursor: pointer; color: var(--muted);
+}
+.seg button[aria-pressed="true"] { color: var(--ink); box-shadow: inset 0 0 0 1px var(--rule-strong); }
+.seg button:focus-visible { outline: 1px solid var(--notes-ink); outline-offset: 2px; }
+
+.head { padding: 72px 0 8px; display: grid; gap: 0 48px; grid-template-columns: minmax(0, 1fr); }
+.head h1 {
+  margin: 0; font-weight: 500; letter-spacing: -0.035em; line-height: 1.02;
+  font-size: clamp(2.5rem, 6vw, 4.25rem);
+}
+.head h1 small { display: block; font-size: 13px; letter-spacing: 0; font-weight: 400; color: var(--faint); margin-top: 10px; }
+.lede { margin: 18px 0 0; font-size: 1.25rem; line-height: 1.5; max-width: 40ch; text-wrap: balance; }
+.sub { margin: 14px 0 0; color: var(--muted); max-width: 58ch; }
+
+.plate { margin: 40px 0 0; }
+.plate figcaption { margin-top: 10px; font-size: 14px; color: var(--muted); }
+@media (max-width: 640px) {
+  #plate-drawing { overflow-x: auto; margin: 0 -16px; padding: 0 16px; scrollbar-width: none; }
+  #plate-drawing .wd { min-width: 820px; }
+}
+
+/* The contents, as the site's ledger rows: open ruled rows, no cards. */
+.register { margin: 48px 0 0; border-top: 1px solid var(--rule); }
+.register a {
+  display: grid; grid-template-columns: 88px 150px 1fr; gap: 12px; align-items: baseline;
+  padding: 11px 0; border-bottom: 1px solid var(--rule); text-decoration: none;
+}
+.register a:hover .reg-name, .register a:focus-visible .reg-name { color: var(--notes-ink); }
+.register a:focus-visible { outline: 1px solid var(--notes-ink); outline-offset: 2px; }
+.reg-no { font-size: 13px; color: var(--faint); }
+.reg-name { font-weight: 500; }
+.reg-for { color: var(--muted); }
+@media (max-width: 640px) {
+  .register a { grid-template-columns: 70px 1fr; }
+  .reg-for { grid-column: 2; }
+}
+
+/* --------------------------------------------------------------------------
+   A drawing sheet
+   -------------------------------------------------------------------------- */
+.sheet {
+  margin: 72px 0 0; border: 1px solid var(--rule-strong);
+  scroll-margin-top: 24px;
+}
+.sheet-body { display: grid; grid-template-columns: minmax(0, 1fr) 290px; }
+@media (max-width: 960px) { .sheet-body { grid-template-columns: minmax(0, 1fr); } }
+.drawing { padding: 28px 28px 0; min-width: 0; display: flex; flex-direction: column; }
+@media (max-width: 640px) { .drawing { padding: 20px 12px 16px; } }
+.side { border-left: 1px solid var(--rule); display: flex; flex-direction: column; }
+@media (max-width: 960px) { .side { border-left: 0; border-top: 1px solid var(--rule); } }
+
+.controls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+  margin-top: 14px; font-size: 14px; color: var(--muted);
+}
+.controls .sim { flex-basis: 100%; font-size: 13px; color: var(--faint); margin: 0; }
+.btn {
+  border: 1px solid var(--rule-strong); background: transparent; border-radius: 999px;
+  padding: 4px 12px; cursor: pointer; color: var(--ink); font-size: 14px;
+}
+.btn:hover { border-color: var(--notes-ink); }
+.btn:focus-visible { outline: 1px solid var(--notes-ink); outline-offset: 2px; }
+.btn[disabled] { opacity: 0.45; cursor: default; }
+.check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.check input { accent-color: var(--notes-ink); width: 15px; height: 15px; margin: 0; }
+.stepper { display: inline-flex; align-items: center; gap: 8px; }
+.stepper button { width: 26px; height: 26px; padding: 0; border-radius: 50%; }
+.stepper output { min-width: 4.5ch; text-align: center; color: var(--ink); }
+.file { position: relative; overflow: hidden; }
+.file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.field { display: inline-flex; align-items: center; gap: 8px; }
+.field input[type="text"] {
+  width: 3.2em; padding: 2px 6px; border: 1px solid var(--rule-strong); background: transparent;
+  border-radius: 4px; text-align: center; font-size: 13px;
+}
+.field input[type="text"]:focus-visible { outline: 1px solid var(--notes-ink); }
+
+/* The checklist on the stair's sheet: the "app" the drawing reads from. */
+.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); flex-basis: 100%; }
+@media (max-width: 640px) { .checklist { grid-template-columns: minmax(0, 1fr); } }
+.checklist li { border-bottom: 1px solid var(--rule); padding: 5px 0; }
+.checklist label { display: flex; gap: 10px; align-items: center; cursor: pointer; color: var(--ink); }
+.checklist input { margin: 0; }
+/* Checkboxes drawn in the page's own lines: the native unchecked box is a
+   grey slab on the blueprint. */
+.check input, .checklist input {
+  appearance: none; -webkit-appearance: none; flex: none; width: 15px; height: 15px; margin: 0;
+  border: 1px solid var(--rule-strong); border-radius: 3px; background: transparent;
+  display: inline-grid; place-content: center; cursor: pointer;
+}
+.check input:checked, .checklist input:checked { background: var(--notes-ink); border-color: var(--notes-ink); }
+.check input:checked::after, .checklist input:checked::after {
+  content: ""; width: 7px; height: 3.5px; border: solid var(--paper); border-width: 0 0 1.6px 1.6px;
+  transform: translateY(-1px) rotate(-45deg);
+}
+.check input:focus-visible, .checklist input:focus-visible { outline: 1px solid var(--notes-ink); outline-offset: 2px; }
+
+/* The revision table, which is also the state switch. */
+.revs { border: 0; margin: 0; padding: 20px 20px 16px; min-width: 0; }
+.revs legend { padding: 0; font-size: 12px; color: var(--faint); margin-bottom: 4px; float: left; width: 100%; }
+.revs legend + * { clear: both; }
+.rev {
+  position: relative; display: grid; grid-template-columns: 34px 1fr; gap: 0 10px; align-items: center;
+  padding: 8px 8px; margin: 0 -8px; cursor: pointer;
+}
+.rev + .rev { border-top: 1px solid var(--rule); }
+.rev input { position: absolute; opacity: 0; pointer-events: none; }
+.rev svg { width: 34px; height: 22px; overflow: visible; grid-row: span 2; }
+.rev b { font-weight: 500; font-size: 14px; line-height: 1.3; }
+.rev i { font-style: normal; grid-column: 2; font-size: 13px; color: var(--muted); line-height: 1.35; }
+.revs[data-readout] .rev { cursor: default; }
+.rev[data-off] { opacity: 0.42; }
+
+/* The selection mark the site's index rows use for focus: a fine line box with a
+   handle on each corner, knocked out of the paper (`.select-mark`). */
+.rev::before, .rev::after { content: ""; position: absolute; pointer-events: none; opacity: 0; }
+.rev::before { inset: 2px 0; border: 1px solid var(--notes-ink); }
+.rev::after {
+  inset: -1px -3px;
+  background:
+    linear-gradient(var(--paper), var(--paper)) left 1px top 1px / 5px 5px no-repeat,
+    linear-gradient(var(--paper), var(--paper)) right 1px top 1px / 5px 5px no-repeat,
+    linear-gradient(var(--paper), var(--paper)) left 1px bottom 1px / 5px 5px no-repeat,
+    linear-gradient(var(--paper), var(--paper)) right 1px bottom 1px / 5px 5px no-repeat,
+    linear-gradient(var(--notes-ink), var(--notes-ink)) left top / 7px 7px no-repeat,
+    linear-gradient(var(--notes-ink), var(--notes-ink)) right top / 7px 7px no-repeat,
+    linear-gradient(var(--notes-ink), var(--notes-ink)) left bottom / 7px 7px no-repeat,
+    linear-gradient(var(--notes-ink), var(--notes-ink)) right bottom / 7px 7px no-repeat;
+  inset: -1px -3px;
+}
+.rev:has(input:checked)::before, .rev:has(input:checked)::after { opacity: 1; }
+.rev:has(input:focus-visible) b { text-decoration: underline; text-decoration-color: var(--notes-ink); text-underline-offset: 3px; }
+.rev:has(input:checked) + .rev { border-top-color: transparent; }
+
+.notes { border-top: 1px solid var(--rule); padding: 14px 0 18px; margin: 22px 0 0; }
+.notes ol { columns: 2 260px; column-gap: 32px; }
+.notes li { break-inside: avoid; }
+.notes h3 { margin: 0 0 6px; font-size: 12px; font-weight: 400; color: var(--faint); }
+.notes ol { margin: 0; padding: 0 0 0 18px; font-size: 13px; color: var(--muted); line-height: 1.45; }
+.notes li + li { margin-top: 6px; }
+.notes code { font-family: var(--mono); font-size: 11.5px; color: var(--ink); word-break: break-word; }
+
+/* The title block, in the Decision block's idiom: frame, field labels, a
+   double rule. */
+.titleblock {
+  margin: 0; display: grid; border-top: 3px double var(--notes-ink);
+  grid-template-columns: 1.1fr 1.6fr 0.95fr 0.5fr 0.75fr 2.1fr;
+}
+.titleblock > div { padding: 10px 16px 12px; min-width: 0; }
+.titleblock > div + div { border-left: 1px solid var(--rule); }
+.titleblock dt { font-size: 12px; color: var(--faint); }
+.titleblock dd { margin: 3px 0 0; font-size: 14px; line-height: 1.4; }
+.titleblock .drawing-name { font-weight: 500; font-size: 16px; }
+.titleblock .remark { color: var(--muted); }
+@media (max-width: 960px) {
+  .titleblock { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .titleblock > div:nth-child(-n + 2) { grid-column: span 3; }
+  .titleblock > div:nth-child(n + 3) { grid-column: span 2; border-top: 1px solid var(--rule); }
+  .titleblock > div:nth-child(3) { border-left: 0; }
+  .titleblock > div.wide { grid-column: span 6; border-left: 0; }
+}
+
+.colophon { margin: 80px 0 0; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--faint); max-width: 70ch; }
+
+/* --------------------------------------------------------------------------
+   The drawings. Everything below this line is what the package's styles.css
+   would carry.
+   -------------------------------------------------------------------------- */
+@property --wd-built { syntax: "<number>"; inherits: true; initial-value: 1; }
+
+.wd { display: block; width: 100%; height: auto; overflow: visible; color: var(--wd-crew); }
+.sheet [data-drawing] .wd, .plate .wd { overflow: hidden; }
+.wd :is(path, rect, circle, line) { vector-effect: non-scaling-stroke; }
+.wd .ink { fill: none; stroke: var(--wd-thing); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; }
+.wd .paper { fill: var(--wd-paper); }
+.wd .gnd { fill: none; stroke: var(--wd-ground); stroke-width: 1; stroke-linecap: round; }
+.wd .temp { opacity: var(--wd-temp); }
+.wd .faint { opacity: var(--wd-faint); }
+.wd .fig {
+  font-family: var(--mono); font-size: 10px; fill: var(--wd-thing); stroke: none;
+  font-feature-settings: "tnum" 1; letter-spacing: 0.04em;
+}
+.wd .lbl { font-family: var(--sans); font-size: 12px; fill: var(--wd-label); stroke: none; }
+/* Lettering is the one line that scales with the drawing, as a font would:
+   a marker's weight, about an eighth of the cap height, at any size. (The
+   pen group carries .ink, whose 1px would otherwise win by inheritance.) */
+.wd .lt .lt-pen { stroke-width: 1.3; }
+.wd .lt .lt-pen path { vector-effect: none; }
+.wd .lt-font { display: none; font-family: "Architects Daughter", var(--sans); fill: var(--wd-thing); stroke: none; }
+:root[data-lettering="font"] .wd .lt-pen { display: none; }
+:root[data-lettering="font"] .wd .lt-font { display: inline; }
+
+/* The crew: two weights of line, in the ink of the text. */
+.wd .crew-g { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+.wd .crew-key { stroke-width: 1.6; opacity: 0.82; }
+.wd .crew-hair { stroke-width: 1; opacity: 0.45; }
+.wd .crew-g [data-pose="b"] { opacity: 0; }
+
+/* ONE NUMBER: every course is drawn twice, set out and built, and the built
+   copy shows when --wd-built has passed its place in the order. */
+.wd-sub { --wd-built: 1; transition: --wd-built var(--wd-t, 900ms) var(--wd-ease, cubic-bezier(0.2, 0.7, 0.3, 1)); }
+.wd .c { opacity: clamp(0, calc((var(--wd-built) * var(--n) - var(--i)) * 4), 1); }
+
+/* What each state shows. Delays on entry only. */
+.wd .L-setout { transition: opacity 260ms ease; }
+.wd-sub:is([data-state="built"], [data-state="signed-off"], [data-state="revised"]) .L-setout { opacity: 0; }
+.wd .st, .wd .mk { opacity: 0; transition: opacity 160ms ease; }
+.wd .L-scaffold { opacity: 0; transition: opacity 200ms ease; }
+.wd-sub[data-state="rising"] .L-scaffold { opacity: 1; transition: opacity 240ms ease; }
+.wd .L-gin { display: none; }
+.wd-sub[data-state="rising"][data-unknown] .L-gin { display: inline; }
+.wd-sub[data-crew="off"] .L-crew, .wd-sub[data-crew="off"] .rest-on, .wd-sub[data-crew="on"] .rest-off { display: none; }
+
+/* Standards grow up from the ground; lifts come one ahead of the work. */
+.wd .std { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform 300ms ease-out; }
+.wd-sub[data-state="rising"] .std { transform: scaleY(1); }
+.wd .lift { transition: opacity 200ms ease, translate 200ms ease; }
+.wd-sub:not([data-state="rising"]) .lift { opacity: 0; translate: 0 2px; transition-delay: calc((12 - var(--j, 0)) * 90ms); }
+.wd .board { transition: transform 240ms cubic-bezier(0.16, 0.84, 0.44, 1); }
+
+/* The tick: two strokes, the short one then the long one, each drawn from
+   its start by a scale rather than a dash offset. */
+.wd .tick path { stroke-width: 1.4; transform-box: fill-box; transform: scale(0); transition: transform 0ms; }
+.wd .tick .t1 { transform-origin: 0% 0%; }
+.wd .tick .t2 { transform-origin: 0% 100%; }
+.wd-sub[data-state="signed-off"] .tick path { transform: scale(1); transition: transform 160ms ease-out 260ms; }
+.wd-sub[data-state="signed-off"] .tick .t2 { transition-delay: 420ms; }
+
+/* The cloud: its scallops in clockwise order. */
+.wd .cloud path { opacity: 0; transition: opacity 120ms ease; }
+.wd-sub[data-state="revised"] .cloud path { opacity: 1; transition-delay: calc(var(--k) * 30ms + 120ms); }
+.wd .tag { opacity: 0; translate: 0 -4px; transition: opacity 160ms ease, translate 160ms ease; }
+.wd-sub[data-state="revised"] .tag { opacity: 1; translate: 0 0; transition-delay: var(--tag-at, 700ms); }
+
+/* The true line: the plumb line drops from its bracket and the bob swings
+   in and settles on the home hero's spring, damped harder. */
+.wd .lean { transition: transform 1.6s var(--spring-lean, ease-out); }
+.wd-sub[data-state="out-of-true"] .lean { transform: skewX(var(--lean)); }
+.wd .cord { transform-box: fill-box; transform-origin: 50% 0%; transform: scaleY(0); transition: transform 0ms; }
+.wd-sub[data-state="out-of-true"] .cord { transform: scaleY(1); transition: transform 380ms cubic-bezier(0.2, 0.8, 0.3, 1) 260ms; }
+.wd .bob { opacity: 0; }
+.wd-sub[data-state="out-of-true"] .bob { opacity: 1; transition: opacity 120ms ease 560ms; }
+.wd-sub[data-state="out-of-true"] .swing { animation: wd-swing 2.2s var(--spring-bob, ease-out) 560ms both; }
+@keyframes wd-swing { from { transform: rotate(9deg); } to { transform: rotate(0deg); } }
+.wd .sag { transition: d 1.5s var(--spring-sag, ease-out); }
+
+.wd .heave { transition: transform 240ms cubic-bezier(0.16, 0.84, 0.44, 1), d 240ms cubic-bezier(0.16, 0.84, 0.44, 1); }
+.wd .chainline { transition: d 280ms cubic-bezier(0.2, 0.8, 0.3, 1); }
+.wd .xfade { transition: opacity 220ms ease; }
+
+/* The gin wheel's load: the only loop, because there, work is going on. */
+.wd .gin-load { animation: wd-gin 1.6s ease-in-out infinite alternate; }
+.wd .gin-fall { transform-box: fill-box; transform-origin: 50% 0%; animation: wd-gin-fall 1.6s ease-in-out infinite alternate; }
+@keyframes wd-gin { from { transform: translateY(0); } to { transform: translateY(var(--gin-span)); } }
+@keyframes wd-gin-fall { from { transform: scaleY(1); } to { transform: scaleY(var(--gin-scale)); } }
+
+/* The worker's beat: two drawings, 3.4s, 64/36, a 2% smear. */
+@media (prefers-reduced-motion: no-preference) {
+  .wd .crew-g [data-pose="a"] { animation: crew-pose-a 3.4s steps(1) var(--crew-delay, 0s) infinite; }
+  .wd .crew-g [data-pose="b"] { animation: crew-pose-b 3.4s steps(1) var(--crew-delay, 0s) infinite; }
+  .wd-sub[data-busy] .crew-g [data-pose="a"] { animation: crew-pose-a 0.62s steps(1) 0s infinite; }
+  .wd-sub[data-busy] .crew-g [data-pose="b"] { animation: crew-pose-b 0.62s steps(1) 0s infinite; }
+}
+@keyframes crew-pose-a { 0% { opacity: 0.62; } 2% { opacity: 1; } 62% { opacity: 0.42; } 64% { opacity: 0; } }
+@keyframes crew-pose-b { 0% { opacity: 0.42; } 2% { opacity: 0; } 62% { opacity: 0.62; } 64% { opacity: 1; } }
+
+/* Arrival: the drawing opens as its plan on two faint guides and inks in
+   the order it would be built. */
+.wd .guides { opacity: 0; transition: opacity 400ms ease; }
+.wd-sub[data-plan] .guides { opacity: 1; transition: none; }
+.wd-sub[data-plan] .L-setout { opacity: 1 !important; transition: none; }
+.wd-sub[data-plan] :is(.L-marks, .L-crew, .letter) { opacity: 0; transition: none; }
+.wd .letter { transition: opacity 300ms ease var(--letter-at, 0ms); }
+
+@media (prefers-reduced-motion: reduce) {
+  .wd-sub, .wd *, .wd *::before { transition-duration: 0ms !important; transition-delay: 0ms !important; }
+  .wd .swing, .wd .gin-load, .wd .gin-fall { animation: none !important; }
+  .wd .gin-load { transform: translateY(var(--gin-span)); }
+  .wd .gin-fall { transform: scaleY(var(--gin-scale)); }
+}
+/*STATECSS*/
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="bar">
+    <p>Prototype for review, 9 October 2026</p>
+    <div class="toggles">
+      <div class="seg" role="group" aria-label="Theme" id="theme">
+        <span>Theme</span>
+        <button type="button" data-v="light">Light</button>
+        <button type="button" data-v="dark">Dark</button>
+        <button type="button" data-v="system">System</button>
+      </div>
+      <div class="seg" role="group" aria-label="Lettering" id="lettering">
+        <span>Lettering</span>
+        <button type="button" data-v="pen">Drawn pen</button>
+        <button type="button" data-v="font">Architects Daughter</button>
+      </div>
+    </div>
+  </div>
+
+  <header class="head">
+    <h1>Ostraca</h1>
+    <p class="lede">Illustrations for every state your product is in.</p>
+    <p class="sub">Six subjects, each drawn in six construction states: set out, rising, built, signed off, revised and out of true. Your app passes the state and its real values, and the drawing follows.</p>
+  </header>
+
+  <figure class="plate" id="plate">
+    <div id="plate-drawing"></div>
+    <figcaption>Street elevation. The six subjects built on one ground line, with the workers on site.</figcaption>
+  </figure>
+
+  <nav class="register" aria-label="Sheets" id="register"></nav>
+
+  <main id="sheets"></main>
+
+  <p class="colophon">Prototype. The worker poses, the revision cloud and tag, the tick, the selection mark, the dimension chain, the ramp and the plumb bob are retyped from the drawing kit on ahmedamr.com. Nothing here is uploaded or sent anywhere. Set in Cubit Sans and Cubit Mono.</p>
+</div>
+
+<script>
+/* ===========================================================================
+   Geometry, retyped from ahmedamr.com:
+   lib/masthead-scenes.ts (n, line, arrow, chain, pinch, onRamp, haulHatch),
+   components/drawn/draw.tsx (SET_OUT, cloud, RevisionTag, Tick, Selection),
+   lib/sketch.ts (seedFrom, mulberry32), lib/motion.ts (stepSpring),
+   lib/plumb-line.ts (the bob), components/crew/figures.tsx (the poses).
+   =========================================================================== */
+const n = (v) => Math.round(v * 100) / 100;
+const line = (x1, y1, x2, y2) => `M${n(x1)} ${n(y1)}L${n(x2)} ${n(y2)}`;
+const ARROW_LONG = 7, ARROW_WIDE = 3, DIM_TICK = 5;
+function arrow(x, y, dx, dy) {
+  const bx = x - dx * ARROW_LONG, by = y - dy * ARROW_LONG;
+  const nx = -dy * ARROW_WIDE, ny = dx * ARROW_WIDE;
+  return `${line(x, y, bx + nx, by + ny)}${line(x, y, bx - nx, by - ny)}`;
+}
+function chain(x1, y1, x2, y2, gap = 16) {
+  const length = Math.hypot(x2 - x1, y2 - y1);
+  const dx = (x2 - x1) / length, dy = (y2 - y1) / length;
+  const nx = -dy * DIM_TICK, ny = dx * DIM_TICK;
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  return [
+    line(x1 - nx, y1 - ny, x1 + nx, y1 + ny),
+    line(x2 - nx, y2 - ny, x2 + nx, y2 + ny),
+    line(x1, y1, mx - dx * gap, my - dy * gap),
+    line(mx + dx * gap, my + dy * gap, x2, y2),
+    arrow(x1, y1, -dx, -dy),
+    arrow(x2, y2, dx, dy),
+  ].join("");
+}
+const SET_OUT = "4 3";
+function seedFrom(text) {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i += 1) { hash ^= text.charCodeAt(i); hash = Math.imul(hash, 0x01000193); }
+  return hash >>> 0;
+}
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const stepSpring = (s, to, omega, zeta, dt) => {
+  s.velocity += (omega * omega * (to - s.value) - 2 * zeta * omega * s.velocity) * dt;
+  s.value += s.velocity * dt;
+};
+/* A spring sampled into CSS linear(), so the browser plays it with no loop. */
+function springEasing(omega, zeta, seconds, samples = 56) {
+  const s = { value: 0, velocity: 0 };
+  const dt = 1 / 600, out = [];
+  let t = 0, next = 0;
+  while (out.length < samples) {
+    if (t >= next - 1e-9) { out.push(s.value); next += seconds / (samples - 1); }
+    stepSpring(s, 1, omega, zeta, dt); t += dt;
+  }
+  out[out.length - 1] = 1;
+  return `linear(${out.map((v) => Math.round(v * 1000) / 1000).join(", ")})`;
+}
+{
+  const root = document.documentElement.style;
+  root.setProperty("--spring-lean", springEasing(5.2, 0.42, 1.6));
+  // The hero plumb line's spring: omega 3.3 at a 220 cord, by the root of
+  // 220 over this cord's length (about 60), damped harder than the hero's.
+  root.setProperty("--spring-bob", springEasing(3.3 * Math.sqrt(220 / 60), 0.22, 2.2));
+  root.setProperty("--spring-sag", springEasing(6, 0.3, 1.5));
+}
+
+/* The revision cloud, retyped from draw.tsx, with each scallop its own path
+   so the cloud can be walked round clockwise. */
+function cloudArcs(x, y, w, h, bump = 9) {
+  const points = [];
+  const edge = (x0, y0, x1, y1) => {
+    const steps = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) / bump));
+    for (let i = 0; i < steps; i++) points.push([x0 + ((x1 - x0) * i) / steps, y0 + ((y1 - y0) * i) / steps]);
+  };
+  edge(x, y, x + w, y); edge(x + w, y, x + w, y + h); edge(x + w, y + h, x, y + h); edge(x, y + h, x, y);
+  const arcs = [];
+  for (let i = 1; i <= points.length; i++) {
+    const [px, py] = points[i % points.length];
+    const [qx, qy] = points[i - 1];
+    const r = n(Math.hypot(px - qx, py - qy) * 0.6);
+    arcs.push(`M${n(qx)} ${n(qy)}A${r} ${r} 0 0 1 ${n(px)} ${n(py)}`);
+  }
+  return arcs;
+}
+
+/* ---------------------------------------------------------------------------
+   The crew, path for path from components/crew/figures.tsx. Feet at y = 0,
+   facing left, two complete drawings each.
+   --------------------------------------------------------------------------- */
+const K = (d) => `<path class="crew-key" d="${d}"/>`;
+const Hd = (cx, cy) => `<circle class="crew-key" cx="${cx}" cy="${cy}" r="4"/>`;
+const Hr = (d) => `<path class="crew-hair" d="${d}"/>`;
+const POSES = {
+  sitter: [
+    Hd(-1, -25) + K("M0 -21 L2 -3 L-10 -9 L-13 0 M0 -16 L-9 -10") + Hr("M2 -3 L-6 -7 L-8 0"),
+    Hd(-2, -25) + K("M-1 -21 L2 -3 L-10 -9 L-13 0 M0 -16 L-8 -15 L-11 -22") + Hr("M2 -3 L-6 -7 L-8 0"),
+  ],
+  leaner: [
+    Hd(3, -40) + K("M3 -36 L1 -19 M2 -31 L-7 -25 L-1 -21 M1 -19 L-5 0 M1 -19 L6 0") + Hr("M2 -31 L9 -24 L7 -17"),
+    Hd(1, -41) + K("M1 -37 L1 -19 M1 -32 L-8 -27 L-4 -34 M1 -19 L5 0 M1 -19 L-3 0") + Hr("M1 -32 L8 -25 L6 -18"),
+  ],
+  carrier: [
+    Hd(0, -41) + K("M0 -37 L0 -20 M0 -32 L-9 -26 M0 -20 L-7 0 M0 -20 L8 -2") + Hr("M-22 -34 H-8 V-16 H-22 Z"),
+    Hd(-1, -41) + K("M-1 -37 L0 -20 M0 -32 L-9 -31 M0 -20 L-6 0 M0 -20 L7 0") + Hr("M-22 -40 H-8 V-22 H-22 Z"),
+  ],
+  shrugger: [
+    Hd(0, -41) + K("M0 -37 L0 -20 M0 -32 L-9 -25 M0 -32 L9 -25 M0 -20 L-6 0 M0 -20 L6 0"),
+    Hd(0, -40) + K("M0 -36 L0 -20 M0 -33 L-8 -30 L-13 -38 M0 -33 L8 -30 L13 -38 M0 -20 L-6 0 M0 -20 L6 0"),
+  ],
+  rope: [
+    Hd(0, -41) + K("M0 -37 L0 -20 M0 -32 L14 -30 M0 -20 L-6 0 M0 -20 L6 0") + Hr("M0 -32 L-7 -25 L-5 -18"),
+    Hd(-3, -40) + K("M-3 -36 L0 -20 M-2 -31 L14 -30 M0 -20 L-8 0 M0 -20 L5 0") + Hr("M-2 -31 L-11 -33 L-14 -40"),
+  ],
+  hauler: [
+    Hd(-7, -37) + K("M-5 -33 L2 -19 M-3 -29 L9 -25 M2 -19 L-7 0 M2 -19 L11 -1"),
+    Hd(-6, -38) + K("M-4 -34 L2 -19 M-2 -30 L9 -25 M2 -19 L-1 0 M2 -19 L6 0"),
+  ],
+  pusher: [
+    Hd(-8, -36) + K("M-6 -32 L2 -19 M-4 -29 L-13 -27 M2 -19 L-5 0 M2 -19 L11 -1"),
+    Hd(-7, -37) + K("M-5 -33 L2 -19 M-3 -30 L-13 -27 M2 -19 L0 0 M2 -19 L6 0"),
+  ],
+  letterer: [
+    Hd(0, -41) + K("M0 -37 L0 -20 M0 -32 L-9 -30 L-16 -34.5 M0 -20 L-6 0 M0 -20 L6 0") + Hr("M-16 -34.5 L-20.8 -35.4 M0 -32 L6 -25 L4 -19"),
+    Hd(-1, -41) + K("M-1 -37 L0 -20 M0 -32 L-8 -27 L-15 -30 M0 -20 L-6 0 M0 -20 L6 0") + Hr("M-15 -30 L-19.5 -31.5 M0 -32 L6 -25 L4 -19"),
+  ],
+  caller: [
+    Hd(0, -41) + K("M0 -37 L0 -20 M0 -32 L-7 -29 L-9 -37 M0 -20 L-6 0 M0 -20 L6 0") + Hr("M-15 -40 H-9 V-35 H-15 Z M0 -32 L7 -25 L5 -18"),
+    Hd(-1, -41.5) + K("M-1 -37.5 L0 -20 M0 -32 L-7 -29 L-9 -37 M0 -32 L8 -36 L11 -44 M0 -20 L-7 0 M0 -20 L5 0") + Hr("M-15 -40 H-9 V-35 H-15 Z"),
+  ],
+};
+/* A worker at a station: a place and a facing, nothing else. */
+function worker(pose, x, y, { flip = false, scale = 1, seed = "" } = {}) {
+  const r = rng(seedFrom(seed || `${pose}${x}${y}`));
+  const delay = -(r() * 3.4).toFixed(2);
+  const sx = (flip ? -1 : 1) * scale;
+  return `<g class="crew-g" transform="translate(${n(x)} ${n(y)}) scale(${sx} ${scale})" style="--crew-delay:${delay}s"><g data-pose="a">${POSES[pose][0]}</g><g data-pose="b">${POSES[pose][1]}</g></g>`;
+}
+const station = (states, inner, extra = "") => `<g class="st" data-st="${states}" ${extra}>${inner}</g>`;
+
+/* ---------------------------------------------------------------------------
+   Lettering. Architect Pro cannot ship, so the kit carries its own single
+   stroke capitals: one 1.4 line, drawn on a cap height of 10, each letter
+   nudged by a seed so no two words are lettered alike.
+   --------------------------------------------------------------------------- */
+const GLYPHS = {
+  A: [7, "M0 0L3.5 -10L7 0M1.4 -4H5.6"],
+  B: [6.2, "M0 0V-10H3.4Q5.8 -10 5.8 -7.6Q5.8 -5.3 3.3 -5.3H0M3.3 -5.3Q6.2 -5.3 6.2 -2.6Q6.2 0 3.4 0H0"],
+  C: [6.4, "M6.3 -8.3Q5.4 -10 3.5 -10Q0 -10 0 -5Q0 0 3.5 0Q5.4 0 6.3 -1.7"],
+  D: [6.6, "M0 0V-10H2.6Q6.6 -10 6.6 -5Q6.6 0 2.6 0Z"],
+  E: [5.6, "M5.6 -10H0V0H5.6M0 -5.3H4.3"],
+  F: [5.4, "M5.4 -10H0V0M0 -5.3H4.2"],
+  G: [6.6, "M6.3 -8.3Q5.4 -10 3.5 -10Q0 -10 0 -5Q0 0 3.5 0Q6.6 0 6.6 -3.4V-4.6H3.9"],
+  H: [6.4, "M0 0V-10M6.4 0V-10M0 -5.3H6.4"],
+  I: [0, "M0 0V-10"],
+  J: [5, "M5 -10V-3.2Q5 0 2.5 0Q0 0 0 -2.8"],
+  K: [6.2, "M0 0V-10M6 -10L0 -3.8M2.2 -6L6.2 0"],
+  L: [5.2, "M0 -10V0H5.2"],
+  M: [7.8, "M0 0V-10L3.9 -3.2L7.8 -10V0"],
+  N: [6.4, "M0 0V-10L6.4 0V-10"],
+  O: [7.4, "M3.7 -10Q0 -10 0 -5Q0 0 3.7 0Q7.4 0 7.4 -5Q7.4 -10 3.7 -10Z"],
+  P: [6, "M0 0V-10H3.4Q6 -10 6 -7.4Q6 -4.8 3.4 -4.8H0"],
+  Q: [7.6, "M3.7 -10Q0 -10 0 -5Q0 0 3.7 0Q7.4 0 7.4 -5Q7.4 -10 3.7 -10ZM4.4 -2.8L7.6 0.6"],
+  R: [6.2, "M0 0V-10H3.4Q6 -10 6 -7.5Q6 -5 3.4 -5H0M3 -5L6.2 0"],
+  S: [6, "M5.8 -8.5Q5 -10 3.1 -10Q0.3 -10 0.3 -7.6Q0.3 -5.6 3.1 -5.2Q6 -4.8 6 -2.5Q6 0 3 0Q0.9 0 0 -1.6"],
+  T: [6.6, "M0 -10H6.6M3.3 -10V0"],
+  U: [6.4, "M0 -10V-3.4Q0 0 3.2 0Q6.4 0 6.4 -3.4V-10"],
+  V: [6.8, "M0 -10L3.4 0L6.8 -10"],
+  W: [9.2, "M0 -10L2.3 0L4.6 -7.4L6.9 0L9.2 -10"],
+  X: [6.4, "M0 -10L6.4 0M6.4 -10L0 0"],
+  Y: [6.6, "M0 -10L3.3 -5L6.6 -10M3.3 -5V0"],
+  Z: [6.2, "M0 -10H6.2L0 0H6.2"],
+  ".": [0.4, "M0.2 -0.2h.01"],
+};
+/* `x, y` is the baseline's left end; returns the markup and the width. */
+function letter(text, x, y, { size = 15, angle = -2, seed = text, arrowAfter = false, underline = false } = {}) {
+  const s = (size * 0.7) / 10;
+  const r = rng(seedFrom(seed));
+  let cx = 0, out = "";
+  for (const word of text.toUpperCase().split(" ")) {
+    [...word].forEach((ch, i) => {
+      const g = GLYPHS[ch];
+      if (!g) return;
+      const k = (i === 0 ? 1.17 : 1) * (1 + (r() - 0.5) * 0.07);
+      const dy = (r() - 0.5) * 0.9;
+      const rot = (r() - 0.5) * 5;
+      out += `<path transform="translate(${n(cx)} ${n(dy)}) rotate(${n(rot)}) scale(${n(k)})" d="${g[1]}"/>`;
+      cx += g[0] * k + 2.7;
+    });
+    cx += 4.6;
+  }
+  const w = (cx - 7.3) * s;
+  let extra = "";
+  const mid = -size * 0.34;
+  if (arrowAfter) extra += `<path d="M${n(w + 8)} ${n(mid)}H${n(w + 40)}${arrow(w + 40, mid, 1, 0)}" style="stroke-width:1.25"/>`;
+  if (underline) extra += `<path d="M-2 5H${n(w + 2)}M-2 8H${n(w + 2)}"/>`;
+  return {
+    w,
+    svg: `<g class="lt" transform="translate(${n(x)} ${n(y)}) rotate(${angle})"><g class="ink lt-pen" transform="scale(${n(s)})">${out}</g><text class="lt-font" x="0" y="0" font-size="${n(size * 1.02)}" textLength="${n(w)}" lengthAdjust="spacingAndGlyphs">${text.toUpperCase()}</text>${extra ? `<g class="ink">${extra}</g>` : ""}</g>`,
+  };
+}
+
+/* ---------------------------------------------------------------------------
+   The marks, each spent once.
+   --------------------------------------------------------------------------- */
+const tickMark = (x, y) =>
+  `<g class="mk tick ink" data-st="signed-off"><path class="t1" d="M${n(x - 3.5)} ${n(y - 3.5)}L${n(x)} ${n(y)}"/><path class="t2" d="M${n(x)} ${n(y)}L${n(x + 7)} ${n(y - 8)}"/></g>`;
+function cloudMark([x, y, w, h], tagAt, rev) {
+  const arcs = cloudArcs(x, y, w, h).map((d, k) => `<path d="${d}" style="--k:${k}"/>`).join("");
+  const tag = rev && tagAt
+    ? `<g class="tag" style="--tag-at:${cloudArcs(x, y, w, h).length * 30 + 160}ms"><path class="paper" d="M${tagAt[0]} ${tagAt[1] - 10}L${tagAt[0] + 10} ${tagAt[1] + 6}H${tagAt[0] - 10}Z"/><text class="fig rev-letter" x="${tagAt[0]}" y="${n(tagAt[1] + 4.2)}" text-anchor="middle" style="font-size:8px;letter-spacing:0">${rev}</text></g>`
+    : "";
+  return `<g class="mk ink" data-st="revised"><g class="cloud">${arcs}</g>${tag}</g>`;
+}
+/* The bob is the hero's (lib/plumb-line.ts) at this cord's size. */
+function plumbMark(bx, by, len, w = 8, h = 19) {
+  const half = w / 2, cap = half * 0.42, y0 = len;
+  const yCap = y0 + h * 0.14, ySh = y0 + h * 0.3, tip = y0 + h;
+  return `<g class="mk ink" data-st="out-of-true"><g transform="translate(${n(bx)} ${n(by)})"><g class="swing"><path class="cord" d="M0 0V${n(len)}"/><g class="bob"><path class="paper" d="M${n(-cap)} ${n(y0)}H${n(cap)}V${n(yCap)}L${n(half)} ${n(ySh)}L0 ${n(tip)}L${n(-half)} ${n(ySh)}L${n(-cap)} ${n(yCap)}Z"/><path d="M${n(-cap)} ${n(yCap)}H${n(cap)}M${n(-half)} ${n(ySh)}H${n(half)}" opacity="0.6"/></g></g></g></g>`;
+}
+/* Earth: one short stroke every 16, at the faint step (haulHatch). */
+const hatch = (from, to, y = 3) => {
+  let d = "";
+  for (let x = from; x <= to; x += 16) d += `M${n(x)} ${y}l-6 7`;
+  return `<path class="ink faint" d="${d}"/>`;
+};
+/* Scaffold: standards, a lift every 14, a brace per bay across the bottom
+   lift only (under the lowest board), all at 0.6. The brace goes with the
+   board: with nobody up on a lift, the worker stands in the bottom bay. */
+function scaffold({ xs, base = 0, top, lifts, liftIndex }) {
+  let std = "", lift = "";
+  xs.forEach((x) => { std += `<path class="std" d="M${x} ${base}V${top}"/>`; });
+  for (let j = 1; j <= lifts; j++) {
+    const y = base - 14 * j;
+    const i = liftIndex(j);
+    lift += `<path class="lift c" style="--i:${i};--j:${j}" d="M${xs[0] - 2} ${y}H${xs[xs.length - 1] + 2}"/>`;
+  }
+  let brace = "";
+  for (let b = 0; b < xs.length - 1; b++) brace += `M${xs[b]} ${base}L${xs[b + 1]} ${base - 14}`;
+  return `<g class="ink temp">${std}${lift}<g style="opacity:var(--board-on, 1);transition:opacity 200ms ease"><path class="std" d="${brace}"/></g></g>`;
+}
+
+/* ---------------------------------------------------------------------------
+   A subject's sheet drawing: one group, one state, one number.
+   --------------------------------------------------------------------------- */
+function compose(s, { state = "built", crew = "on", built = null, unknown = false, plan = false, label = "" } = {}) {
+  const b = built ?? ({ "set-out": 0, rising: 0.5 }[state] ?? 1);
+  const lean = s.lean
+    ? `<g transform="translate(${s.lean.pivot[0]} ${s.lean.pivot[1]})"><g class="lean" style="--lean:${-s.lean.angle}deg"><g transform="translate(${-s.lean.pivot[0]} ${-s.lean.pivot[1]})">${s.leaning}</g></g></g>`
+    : s.leaning || "";
+  return `<g class="wd-sub" data-sub="${s.id}" data-state="${state}" data-crew="${crew}" ${unknown ? "data-unknown" : ""} ${plan ? "data-plan" : ""} style="--n:${s.n};--wd-built:${b}">
+    ${s.guides ? `<g class="guides">${s.guides}</g>` : ""}
+    ${s.under || ""}
+    <g class="L-setout ink">${s.setout}</g>
+    <g class="L-built ink">${s.fixed || ""}${lean}</g>
+    <g class="L-scaffold">${s.scaffold || ""}</g>
+    <g class="L-gin">${s.gin || ""}</g>
+    <g class="L-rest ink">${s.rest || ""}</g>
+    <g class="L-crew">${s.stations || ""}</g>
+    <g class="L-marks">${s.marks || ""}</g>
+    ${s.letter ? `<g class="letter">${s.letter}</g>` : ""}
+  </g>`;
+}
+function svg({ W, A, B, inner, label, id = "" }) {
+  return `<svg class="wd" ${id ? `id="${id}"` : ""} viewBox="0 ${-A} ${W} ${A + B}" role="img" aria-label="${label}"><g transform="translate(0.5 -0.5)">${inner}</g></svg>`;
+}
+
+/* ===========================================================================
+   SUBJECTS. Neutral, drawn fresh; only the poses and the helpers are lifted.
+   =========================================================================== */
+
+/* WALL: courses of block on a footing. Lists, tables, skeleton rows. */
+function wall({ x0 = 170, cols = 6, rows = 6, bw = 36, bh = 13, foot = 8, rev = "", stations = true, plate = false } = {}) {
+  const w = cols * bw, x1 = x0 + w, top = -foot - rows * bh;
+  const fx0 = x0 - 8, fx1 = x1 + 8;
+  const courseY = (r) => -foot - (r + 1) * bh;
+  const joints = (r) => {
+    let d = "";
+    const off = r % 2 ? bw / 2 : 0;
+    for (let x = x0 + off + (off ? 0 : bw); x < x1 - 1; x += bw) d += `M${n(x)} ${n(courseY(r))}v${bh}`;
+    return d;
+  };
+  let inside = "", courses = "";
+  for (let r = 0; r < rows; r++) {
+    inside += `M${x0} ${courseY(r) + bh}H${x1}` + joints(r);
+    courses += `<g class="c" style="--i:${r + 1}"><rect class="paper" x="${x0}" y="${courseY(r)}" width="${w}" height="${bh}"/><path d="${joints(r)}" opacity="0.55"/></g>`;
+  }
+  const setout = `<path d="M${fx0} 0V${-foot}H${x0}V${top}H${x1}V${-foot}H${fx1}V0" stroke-dasharray="${SET_OUT}"/><path class="faint" d="${inside}"/>`;
+  const footing = `<g class="c" style="--i:0"><path class="paper" d="M${fx0} 0V${-foot}H${fx1}V0Z"/></g>`;
+  // Scaffold: one bay off the right face, standards 5 out, wide enough that
+  // the block held out over the work sits clear of both standards.
+  const sx = [x1 + 5, x1 + 40];
+  const lifts = Math.ceil((-top + 6) / 14);
+  const liftTop = -14 * lifts;
+  const scaf = scaffold({ xs: sx, top: liftTop - 8, lifts, liftIndex: (j) => Math.max(0, Math.ceil((14 * j - foot) / bh) - 1) });
+  const board = `<g class="board ink temp" style="transform:translateY(var(--work-y, 0px));opacity:var(--board-on, 1)"><path class="paper" d="M${sx[0] - 3} -2.5H${sx[1] + 3}V0H${sx[0] - 3}Z"/></g>`;
+  // The gin wheel, for when nobody knows how far it has got.
+  const wx = sx[1] + 15, wy = liftTop + 4;
+  const ginSpan = -(-liftTop - 22);
+  const loadTop = -10;
+  const fallLen = loadTop - (wy + 3);
+  const gin = `<g class="ink temp"><path d="M${sx[1]} ${liftTop}H${wx + 3}M${wx} ${liftTop}V${wy - 3.5}"/><circle cx="${wx}" cy="${wy}" r="3.5"/></g>
+    <g class="ink" style="--gin-span:${ginSpan}px;--gin-scale:${n((fallLen + ginSpan) / fallLen)}">
+      <path class="gin-fall temp" d="M${wx - 3.5} ${wy}V${loadTop}"/>
+      <g class="gin-load"><path class="paper" d="M${wx - 8} ${loadTop}H${wx + 1}L${wx} ${loadTop + 8}H${wx - 7}Z"/><path d="M${wx - 7.5} ${loadTop}Q${wx - 3.5} ${loadTop - 5} ${wx + 0.5} ${loadTop}" opacity="0.6"/></g>
+    </g>
+    <path class="ink temp rest-on" d="M${wx + 3.5} ${wy}L${x1 + 91} -25"/>
+    <path class="ink temp rest-off" d="M${wx + 3.5} ${wy}V-14M${wx + 0.5} -14H${wx + 6.5}"/>`;
+  const leaning = courses + `<g class="mk ink" data-st="out-of-true"><path d="M${x1} ${top}H${x1 + 12}V${top + 3}"/></g>`;
+  // Where the bracket's end lands once the courses lean 6 degrees.
+  const bx = x1 + 12 + (-top - foot) * Math.tan((6 * Math.PI) / 180), by = top + 3;
+  const r2 = courseY(2);
+  const marks = tickMark(x1 + 6, top - 7) +
+    cloudMark([x1 - 2 * bw - 5, r2 - 5, 2 * bw + 10, bh + 10], [x1 + 18, r2 - 9], rev) +
+    plumbMark(bx, by, -by - 26);
+  let st = "";
+  if (stations) {
+    st += station("set-out revised", worker("letterer", x1 + 20.8, 0, { seed: "wall-letterer" }));
+    st += station("rising", `<g class="board-rider" style="transform:translateY(var(--work-y, 0px))">${worker("carrier", x1 + 30, -2.5, { seed: "wall-carrier" })}</g>`, "data-known");
+    st += station("rising", worker("hauler", x1 + 100, 0, { flip: true, seed: "wall-hauler" }), "data-unknown-only");
+    st += station("built signed-off", worker("sitter", x0 + 46, top, { flip: true, seed: "wall-sitter" }));
+    st += station("out-of-true", worker("shrugger", x0 - 34, 0, { seed: "wall-shrug" }));
+  }
+  return {
+    id: "wall", n: rows + 1, rows, foot, bh, top, x1,
+    under: hatch(fx0 + 8, fx1),
+    setout, fixed: footing, leaning,
+    lean: { pivot: [x1, -foot], angle: 6 },
+    scaffold: scaf + board, gin, marks, stations: st,
+  };
+}
+
+/* STAIR: a flight of stone steps, one tread per real task. */
+function stair({ cx = 290, steps = 5, g = 24, r = 13, stations = true, sitterOnly = false } = {}) {
+  const x0 = n(cx - (steps * g) / 2), xe = x0 + steps * g, H = steps * r;
+  let profile = `M${x0} 0`;
+  for (let i = 0; i < steps; i++) profile += `V${-(i + 1) * r}H${x0 + (i + 1) * g}`;
+  profile += "V0";
+  let inside = "", courses = "";
+  for (let i = 0; i < steps; i++) {
+    const x = x0 + i * g, h = (i + 1) * r;
+    let beds = "";
+    for (let k = 1; k <= i; k++) beds += `M${x} ${-k * r}H${x + g}`;
+    inside += `M${x} 0V${-i * r}` + beds;
+    courses += `<g class="c" style="--i:${i}"><rect class="paper" x="${x}" y="${-h}" width="${g}" height="${h}"/>${beds ? `<path d="${beds}" opacity="0.35"/>` : ""}</g>`;
+  }
+  const setout = `<path d="${profile}" stroke-dasharray="${SET_OUT}"/><path class="faint" d="${inside}"/>`;
+  const marks = tickMark(xe + 6, -H - 6);
+  let st = "";
+  if (stations) {
+    if (!sitterOnly) {
+      st += station("set-out", worker("carrier", x0 - 28, 0, { flip: true, seed: "stair-carrier-0" }));
+      // On the last finished tread, the next one held out over the gap.
+      st += station("rising", `<g class="tread-rider" style="transform:translate(var(--tread-x, 0px), var(--tread-y, 0px))">${worker("carrier", x0 - 6, 0, { flip: true, seed: "stair-carrier" })}</g>`);
+    }
+    st += station("signed-off built", worker("sitter", xe - 7, -H, { seed: "stair-sitter" }));
+  }
+  return { id: "stair", n: steps, x0, g, r, setout, leaning: courses, marks, stations: st };
+}
+
+/* BRIDGE: a truss on two banks. Built from both banks toward the middle. */
+function bridge({ x0 = 140, span = 280, panels = 8, depth = 30, deckY = -6, floor = 26, rev = "" } = {}) {
+  const bankL = x0 + 9, bankR = x0 + span - 9;
+  const p = span / panels, xs = (i) => x0 + i * p, b = deckY, t = deckY - depth;
+  const xc = x0 + span / 2;
+  const sagAt = (x, amount) => amount * (1 - ((x - xc) / (span / 2)) ** 2);
+  const P = (i, y, sag) => `${n(xs(i))} ${n(y + sagAt(xs(i), sag))}`;
+  const panelPath = (i, sag) => {
+    let d = `M${P(i, b, sag)}L${P(i + 1, b, sag)}M${P(i, b - 3, sag)}L${P(i + 1, b - 3, sag)}`;
+    if (i === 0) d += `M${P(0, b - 3, sag)}L${P(1, t, sag)}L${P(1, b - 3, sag)}`;
+    else if (i === panels - 1) d += `M${P(panels, b - 3, sag)}L${P(panels - 1, t, sag)}`;
+    else {
+      d += `M${P(i, t, sag)}L${P(i + 1, t, sag)}`;
+      if (i + 1 < panels - 1 || true) d += `M${P(i + 1, t, sag)}L${P(i + 1, b - 3, sag)}`;
+      d += i < panels / 2 ? `M${P(i, t, sag)}L${P(i + 1, b - 3, sag)}` : `M${P(i + 1, t, sag)}L${P(i, b - 3, sag)}`;
+    }
+    return d;
+  };
+  const order = [];
+  for (let k = 0; k < panels / 2; k++) order.push(k, panels - 1 - k);
+  let courses = "", inside = "";
+  for (let i = 0; i < panels; i++) {
+    const rank = order.indexOf(i);
+    courses += `<g class="c" style="--i:${rank}"><path class="sag" data-d0="${panelPath(i, 0)}" data-d1="${panelPath(i, 10)}" d="${panelPath(i, 0)}"/></g>`;
+    inside += panelPath(i, 0);
+  }
+  const outline = `M${xs(0)} ${b}L${xs(1)} ${t}H${xs(panels - 1)}L${xs(panels)} ${b}Z`;
+  const setout = `<path d="${outline}" stroke-dasharray="${SET_OUT}"/><path class="faint" d="${inside}"/>`;
+  // Bearings and the banks' masonry faces: ground works, always there.
+  const fixed = `<path class="paper" d="M${bankL - 18} ${b}H${bankL}V0H${bankL - 18}Z"/><path class="paper" d="M${bankR} ${b}H${bankR + 18}V0H${bankR}Z"/>`;
+  const cut = `M0 0H${bankL}L${bankL + 22} ${floor}H${bankR - 22}L${bankR} 0H9999`;
+  // Falsework under the middle while it is going up.
+  const fw = (xa) => `<path class="std" d="M${xa} ${floor}V${b}M${xa + 20} ${floor}V${b}"/><path class="lift c" style="--i:0;--j:1" d="M${xa - 2} ${floor - 14}H${xa + 22}"/><path class="lift c" style="--i:0;--j:2" d="M${xa - 2} ${floor - 28}H${xa + 22}"/><path class="std" d="M${xa} ${floor}L${xa + 20} ${b}"/>`;
+  const scaf = `<g class="ink temp">${fw(xc - 50)}${fw(xc + 30)}</g>`;
+  const mid = xs(panels / 2);
+  const marks = tickMark(xs(panels) + 6, t - 6) +
+    cloudMark([mid - p * 0.75, t - 9, p * 1.5, 16], [mid + p * 0.75 + 15, t - 13], rev) +
+    `<g class="mk ink" data-st="out-of-true"><path class="temp" d="M${xs(0) - 6} ${b}H${xs(panels) + 6}M${xs(0) - 6} ${b - 5}V${b + 3}M${xs(panels) + 6} ${b - 5}V${b + 3}"/></g>`;
+  const ground = `<path class="gnd" d="${cut}"/>`;
+  const under = hatch(bankL - 56, bankL - 8) + hatch(bankL + 34, bankR - 22, floor + 3) + hatch(bankR + 22, bankR + 70);
+  return { id: "bridge", n: panels, ground, under, setout, fixed, leaning: courses, scaffold: scaf, marks, stations: "" };
+}
+
+/* TIN CAN LINE: two posts, a can on each, a string between. */
+function tincan({ pl = 140, pr = 420, h = 50, crewAt = 22 } = {}) {
+  const post = (x, dir) => `<path class="paper" d="M${x} 0V${-h}H${x + 3}V0Z"/><path d="M${x - 1} ${-h}H${x + 4}"/><path d="M${dir > 0 ? x + 3 : x} -44h${dir * 6}v3.5" />`;
+  const can = (x) => `<path class="paper" d="M${x} -40H${x + 6}V-35H${x}Z"/><path d="M${x + 1.2} -40V-35" opacity="0.5"/>`;
+  const L = [pl + 12, -37.5], Lc = [pl + crewAt + 15, -37.5], R = [pr - 12, -37.5];
+  const setout = `<path d="M${pl} 0V${-h}H${pl + 3}V0M${pr - 3} 0V${-h}H${pr}V0" stroke-dasharray="${SET_OUT}"/><path class="faint" d="M${L[0]} -37.5L${R[0]} -37.5"/>`;
+  const fixed = `<g class="c" style="--i:0">${post(pl, 1)}</g><g class="c" style="--i:1">${post(pr - 3, -1)}${can(pr - 12)}</g>`;
+  const marks = tickMark(pr + 8, -h - 6) + cloudMark([pr - 22, -50, 26, 22], [pr + 12, -58], "") +
+    `<g class="mk ink" data-st="out-of-true"><path class="temp true-line" d="M${Lc[0]} -37.5L${R[0]} -37.5"/></g>`;
+  const rest = `<g class="rest-off">${can(pl + 6)}</g>`;
+  const st = station("set-out rising built signed-off revised out-of-true", worker("caller", pl + crewAt, 0, { flip: true, seed: "tincan-caller" }));
+  return { id: "tincan", n: 2, L, Lc, R, setout, fixed, leaning: "", marks, rest, stations: st };
+}
+
+/* DOOR FRAME: a door frame on its own, the door ajar. Not found. */
+function doorframe({ cx = 210, rev = "" } = {}) {
+  const ox0 = cx - 18, ox1 = cx + 18, otop = -62, ix0 = cx - 13, ix1 = cx + 13, itop = -57;
+  const step = `<path class="paper" d="M${cx - 24} 0V-3H${cx + 24}V0Z"/>`;
+  const jambs = `<path class="paper" fill-rule="evenodd" d="M${ox0} -3V${otop + 5}H${ox1}V-3ZM${ix0} -3V${itop}H${ix1}V-3Z"/>`;
+  const props = `<path class="temp" d="M${ox0} -30L${ox0 - 22} 0M${ox0 - 24} -1V4M${ox1} -30L${ox1 + 22} 0M${ox1 + 24} -1V4"/>`;
+  const head = `<path class="paper" d="M${ox0 - 3} ${otop + 5}V${otop}H${ox1 + 3}V${otop + 5}Z"/>`;
+  // 26 across, swung toward us to about 70 degrees: a third of the face
+  // shows, then the leaf's own edge, then the opening, clearly wider than the
+  // leaf so it cannot read as the second half of a pair. Hinges on the jamb.
+  const lw = 9, te = 2.6;
+  const leaf = `<path class="paper" d="M${ix0} -3V${itop}H${ix0 + lw}V-3Z"/><path class="paper" d="M${ix0 + lw} -3V${itop}H${ix0 + lw + te}V-3Z"/><path d="M${ix0 + 1.8} ${itop + 5}H${ix0 + lw - 1.8}V${itop + 24}H${ix0 + 1.8}ZM${ix0 + 1.8} ${itop + 29}H${ix0 + lw - 1.8}V-9H${ix0 + 1.8}Z" opacity="0.4"/><circle cx="${ix0 + lw - 2}" cy="-30" r="1"/><path d="M${ix0 - 1} ${itop + 7}v5M${ix0 - 1} -16v5" style="stroke-width:1.4"/>`;
+  const stepCourse = `<g class="c" style="--i:0">${step}</g>`;
+  const courses = `<g class="c" style="--i:1">${props}${jambs}</g><g class="c" style="--i:2">${head}</g><g class="c" style="--i:3">${leaf}</g>`;
+  const setout = `<path d="M${ox0 - 3} -3V${otop}H${ox1 + 3}V-3" stroke-dasharray="${SET_OUT}"/><path class="faint" d="M${cx - 24} -3H${cx + 24}M${ix0} -3V${itop}H${ix1}V-3M${ix0 + lw} -3V${itop}"/>`;
+  const ladder = `<g class="ink temp"><path class="std" d="M${ox1 + 30} 0L${ox1 + 4} -62M${ox1 + 36} 0L${ox1 + 10} -62"/>${[1, 2, 3, 4, 5, 6, 7].map((k) => { const t = k / 8; return `<path d="M${n(ox1 + 30 - 26 * t)} ${n(-62 * t)}h6"/>`; }).join("")}</g>`;
+  const bx = ox1 + 12 + (-otop - 3) * Math.tan((4 * Math.PI) / 180), by = otop + 3;
+  const leaning = courses + `<g class="mk ink" data-st="out-of-true"><path d="M${ox1} ${otop}H${ox1 + 12}V${otop + 3}"/></g>`;
+  const marks = tickMark(ox1 + 9, otop - 6) + cloudMark([ix0 - 3, itop + 1, lw + 7, 52], [ix0 + lw + 30, itop + 8], rev) + plumbMark(bx, by, -by - 24, 7, 17);
+  const guides = `<path class="ink faint" d="M0 0H9999M0 -45H9999" stroke-dasharray="2 5"/>`;
+  return { id: "door", n: 4, setout, fixed: stepCourse, leaning, lean: { pivot: [ox1, -3], angle: 4 }, scaffold: ladder, marks, guides, stations: "" };
+}
+
+/* ===========================================================================
+   RAMP: the /work hero's haul, with a dressed stone where the window was.
+   Uploads and imports. The rig moves up the 9 degree ramp in heaves.
+   =========================================================================== */
+function rampGeo({ foot = 24, deg = 9 } = {}) {
+  const C = Math.cos((deg * Math.PI) / 180), S = Math.sin((deg * Math.PI) / 180);
+  return {
+    foot, deg,
+    on: (d, hh = 0) => [foot + d * C - hh * S, -(d * S + hh * C)],
+    along: (d) => [d * C, -d * S],
+  };
+}
+function ramp({ foot = 24, sledge = 144, load = { at: 160, w: 100, h: 58, lift: 6 }, pusher = 145, haulers = [352, 410, 468], travel = 120, bollard = 560, lettered = "to the server", W = 600, plate = false } = {}) {
+  const G = rampGeo({ foot });
+  const top = -(load.lift + load.h);
+  const prowAlong = sledge + 165, prowH = 19;
+  const local = (inner) => `<g transform="translate(${foot} 0) rotate(${-G.deg})">${inner}</g>`;
+  const ground = `<path class="ink" d="M${foot} 0H${foot + 168}" stroke-dasharray="4 5" opacity="0.7"/><path class="ink" d="M${foot + 120} 0A120 120 0 0 0 ${n(G.on(120)[0])} ${n(G.on(120)[1])}" opacity="0.7"/><text class="fig" x="${foot + 137}" y="-7" text-anchor="middle">9°</text>`;
+  const rampLine = local(`<path class="ink" d="M0 0H1400"/>${(() => { let d = ""; for (let i = 0; i < 88; i++) d += `M${70 + i * 16} 3l-6 7`; return `<path class="ink faint" d="${d}"/>`; })()}`);
+  // A block of limestone: its beds run across the face as broken lines, at
+  // the faint step, seeded so each size of stone is drawn the same way every
+  // time. A margin round the face read as a picture frame.
+  const beds = (() => {
+    const r = rng(seedFrom(`stone${load.w}x${load.h}`));
+    const x0 = load.at + 5, x1 = load.at + load.w - 5;
+    let d = "";
+    [0.3, 0.55, 0.78].forEach((f) => {
+      const y = n(top + load.h * f + (r() - 0.5) * 3);
+      let x = x0 + r() * 10;
+      while (x < x1 - 6) {
+        const len = Math.min(x1 - x, 10 + r() * 26);
+        d += `M${n(x)} ${y}h${n(len)}`;
+        x += len + 4 + r() * 9;
+      }
+    });
+    return d;
+  })();
+  const stone = (cls) => `<g class="${cls}"><rect class="paper" x="${load.at}" y="${top}" width="${load.w}" height="${load.h}"/><path class="faint" d="${beds}"/></g>`;
+  const sledgePath = `<path class="ink paper" d="M${sledge} -1h152c10 0 15 -7 16 -18h-6c-1 8 -6 13 -14 13h-148Z"/>`;
+  const rigLocal = local(`${sledgePath}
+    <g class="L-setout ink"><rect x="${load.at}" y="${top}" width="${load.w}" height="${load.h}" stroke-dasharray="${SET_OUT}"/><path class="faint" d="${beds}"/></g>
+    <g class="ink load-built xfade">${stone("")}</g>
+    <g class="chain-g ink xfade" style="opacity:0"><path class="chainline" d="${chain(load.at, top - 16, load.at + load.w, top - 16, 20)}" opacity="0.85"/><text class="fig size-fig" x="${load.at + load.w / 2}" y="${top - 12.5}" text-anchor="middle"></text></g>
+    ${tickMark(load.at + load.w + 7, top + 12)}`);
+  const hands = haulers.map((d) => { const [x, y] = G.on(d); return [x - 9, y - 25]; });
+  const prow = G.on(prowAlong, prowH);
+  const [lx, ly] = hands[hands.length - 1];
+  const [ox, oy] = G.along(1400);
+  const tautRope = `M${n(prow[0])} ${n(prow[1])}${hands.map(([x, y]) => `L${n(x)} ${n(y)}`).join("")}L${n(lx + ox)} ${n(ly + oy)}`;
+  // Slack: off the prow and down onto the ramp, lying there past the gang.
+  const lie = G.on(prowAlong + 70, 1.5), far = G.on(1400, 1.5);
+  const slackRope = `M${n(prow[0])} ${n(prow[1])}Q${n(prow[0] + 30)} ${n(prow[1] + 16)} ${n(lie[0])} ${n(lie[1])}L${n(far[0])} ${n(far[1])}`;
+  const trueLine = `M${n(prow[0])} ${n(prow[1])}L${n(hands[0][0])} ${n(hands[0][1])}`;
+  const gang = station("set-out rising", worker("pusher", ...G.on(pusher), { flip: true, seed: "ramp-pusher" }) + haulers.map((d, i) => worker("hauler", ...G.on(d), { flip: true, seed: `ramp-hauler-${i}` })).join("")) +
+    station("signed-off built revised", worker("sitter", ...G.on(sledge + 2, 1), { flip: true, seed: "ramp-sitter" }) + worker("leaner", ...G.on(haulers[0] + 6), { seed: "ramp-leaner" })) +
+    station("out-of-true", worker("shrugger", ...G.on(haulers[0]), { seed: "ramp-shrug" }) + worker("leaner", ...G.on(haulers[1] + 10), { flip: true, seed: "ramp-leaner-2" }));
+  const ropes = `<g class="ink">
+      <g class="rest-on"><path class="rope-taut xfade" d="${tautRope}"/><path class="rope-slack xfade" d="${slackRope}" style="opacity:0"/></g>
+      <g class="rest-off"><path class="rope-boll heave" d=""/></g>
+    </g>
+    <g class="mk ink" data-st="out-of-true"><path class="temp" d="${trueLine}"/></g>`;
+  const B = G.on(bollard);
+  const bollardMark = `<g class="ink rest-off"><path class="paper" d="M${n(B[0] - 3)} ${n(B[1])}V${n(B[1] - 12)}H${n(B[0] + 3)}V${n(B[1])}Z"/><path d="M${n(B[0] - 4.5)} ${n(B[1] - 12)}H${n(B[0] + 4.5)}M${n(B[0] - 3)} ${n(B[1] - 7)}L${n(B[0] + 3)} ${n(B[1] - 8.5)}M${n(B[0] - 3)} ${n(B[1] - 5)}L${n(B[0] + 3)} ${n(B[1] - 6.5)}"/></g>`;
+  const note = G.on(haulers[0] - 40, 96);
+  const lt = lettered ? letter(lettered, note[0], note[1], { angle: -G.deg, arrowAfter: true, seed: `ramp-${lettered}` }).svg : "";
+  return { G, prow, prowAlong, prowH, bollard: B, travel, ground, rampLine, rigLocal, gang, ropes, bollardMark, lt, load, top };
+}
+
+/* ===========================================================================
+   Building the page
+   =========================================================================== */
+const STATES = [
+  ["set-out", "Set out", "Planned, nothing made yet. Empty, first run."],
+  ["rising", "Rising", "In progress. Loading, uploading, syncing."],
+  ["built", "Built", "It exists and nothing is happening to it."],
+  ["signed-off", "Signed off", "Done and confirmed."],
+  ["revised", "Revised", "Changed since it was confirmed."],
+  ["out-of-true", "Out of true", "Something failed."],
+];
+const MEANING = Object.fromEntries(STATES.map(([k, , m]) => [k, m]));
+const NAME = Object.fromEntries(STATES.map(([k, v]) => [k, v]));
+const REMARKS = {
+  "set-out": "The lines are down. Everything else is still a rumour.",
+  rising: "Coming along. Please don't lean on it.",
+  built: "Nothing to report. We looked twice.",
+  "signed-off": "Signed and dated. We're not touching it again.",
+  revised: "It changed after we signed it, so we drew round the change.",
+  "out-of-true": "It looked straight from the van.",
+};
+
+/* State rules for stations and marks, generated once. */
+{
+  let css = "";
+  for (const [k] of STATES) {
+    css += `.wd-sub[data-state="${k}"] :is(.st, .mk)[data-st~="${k}"] { opacity: 1; transition: opacity 280ms ease 180ms; }\n`;
+  }
+  css += `.wd-sub[data-unknown] .st[data-known], .wd-sub:not([data-unknown]) .st[data-unknown-only] { opacity: 0 !important; }\n`;
+  document.querySelector("style").textContent += css;
+}
+
+/* The small marks drawn in the revision table, one per state. */
+const MARK_ICON = {
+  "set-out": `<rect x="5" y="4" width="24" height="15" stroke-dasharray="4 3"/>`,
+  rising: `<g opacity="0.75"><path d="M7 21V2M17 21V2M27 21V2M5 7H29M5 14H29M7 21L17 14"/></g>`,
+  built: `<rect class="paper" x="5" y="4" width="24" height="15"/>`,
+  "signed-off": `<path d="M11.5 9.5L15 13L22 5" style="stroke-width:1.4"/>`,
+  revised: `<path d="${cloudArcs(6, 5, 22, 12, 6).join("")}"/>`,
+  "out-of-true": `<path d="M8 3H17V5M17 3V13"/><path class="paper" d="M15.3 13H18.7V14.5L21 16.5L17 22L13 16.5L15.3 14.5Z"/>`,
+};
+function revTable(id, { readout = false, used = null } = {}) {
+  return `<fieldset class="revs" ${readout ? "data-readout" : ""}><legend>Revisions${readout ? ", set by the app" : ""}</legend>${STATES.map(([k, name, means]) => `
+    <label class="rev" ${used && !used.includes(k) ? "data-off" : ""}>
+      <input type="radio" name="${id}-state" value="${k}" ${readout ? "disabled" : ""}>
+      <svg viewBox="0 0 34 22" aria-hidden="true" class="wd"><g class="ink">${MARK_ICON[k]}</g></svg>
+      <b>${name}</b><i>${means}</i>
+    </label>`).join("")}</fieldset>`;
+}
+function titleBlock({ name, issued, scale = "Not to scale", rev = "A", sheet }) {
+  return `<dl class="titleblock">
+    <div><dt>Drawing</dt><dd class="drawing-name">${name}</dd></div>
+    <div><dt>Issued for</dt><dd>${issued}</dd></div>
+    <div><dt>Scale</dt><dd>${scale}</dd></div>
+    <div><dt>Rev</dt><dd data-rev-cell>${rev}</dd></div>
+    <div><dt>Sheet</dt><dd class="sheetno">${sheet}</dd></div>
+    <div class="wide"><dt>Remarks</dt><dd class="remark" data-remark></dd></div>
+  </dl>`;
+}
+function sheetShell({ id, sheet, name, issued, notes, revs, controls = "" }) {
+  return `<article class="sheet" id="${id}" aria-labelledby="${id}-title">
+    <h2 id="${id}-title" class="vh" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">${sheet} ${name}</h2>
+    <div class="sheet-body">
+      <div class="drawing"><div data-drawing></div><div class="controls">${controls}</div><div class="notes"><h3>General notes</h3><ol>${notes.map((x) => `<li>${x}</li>`).join("")}</ol></div></div>
+      <aside class="side">${revs}</aside>
+    </div>
+    ${titleBlock({ name, issued, sheet })}
+  </article>`;
+}
+const SHEETS = [
+  { id: "wd-101", sheet: "OS-101", name: "Wall", issued: "Lists, tables and rows still loading" },
+  { id: "wd-102", sheet: "OS-102", name: "Stair", issued: "Onboarding checklists and first-run setup" },
+  { id: "wd-103", sheet: "OS-103", name: "Bridge", issued: "Integrations, connections and sync" },
+  { id: "wd-104", sheet: "OS-104", name: "Tin can line", issued: "Live connections and offline" },
+  { id: "wd-105", sheet: "OS-105", name: "Door frame", issued: "Not found, moved and deleted pages" },
+  { id: "wd-106", sheet: "OS-106", name: "Ramp", issued: "Uploads and imports" },
+];
+document.getElementById("register").innerHTML = SHEETS.map((s) => `<a href="#${s.id}"><span class="reg-no">${s.sheet}</span><span class="reg-name">${s.name}</span><span class="reg-for">${s.issued}</span></a>`).join("");
+
+const code = (s) => `<code>${s.replace(/</g, "&lt;")}</code>`;
+const sheetsEl = document.getElementById("sheets");
+sheetsEl.innerHTML = [
+  sheetShell({ ...SHEETS[0], revs: revTable("wall"),
+    controls: `<span class="stepper" data-rows hidden><button class="btn" type="button" data-step="-1" aria-label="One row fewer">&minus;</button><output class="tnum" aria-live="polite"></output><button class="btn" type="button" data-step="1" aria-label="One row more">+</button></span>
+      <label class="check" data-unknown-box hidden><input type="checkbox"> Count not known yet</label>
+      <label class="check"><input type="checkbox" data-crewbox checked> Workers on site</label>`,
+    notes: [code(`<Wall state="rising" value={loaded / total} />`), "Set out stands in for the skeleton rows. Each row that lands inks one course.", "A failed load racks the wall off a plumb line. There is no error colour to set."] }),
+  sheetShell({ ...SHEETS[1], revs: revTable("stair", { readout: true, used: ["set-out", "rising", "signed-off"] }),
+    controls: `<span class="stepper" data-tasks><span>Tasks in the list</span><button class="btn" type="button" data-step="-1" aria-label="One task fewer">&minus;</button><output class="tnum" aria-live="polite"></output><button class="btn" type="button" data-step="1" aria-label="One task more">+</button></span>
+      <label class="check"><input type="checkbox" data-crewbox checked> Workers on site</label>
+      <ul class="checklist" data-list></ul>`,
+    notes: [code(`<Stair steps={tasks.length} value={done / tasks.length} />`), "One tread per task, so the flight is as long as the real checklist.", "The tick lands on the top step only when every task is done."] }),
+  sheetShell({ ...SHEETS[2], revs: revTable("bridge"),
+    controls: `<label class="field">Revision letter from the app <input type="text" maxlength="2" value="B" data-rev aria-describedby="rev-hint"></label><span id="rev-hint" style="font-size:13px;color:var(--faint)">No letter, no tag.</span>`,
+    notes: [code(`<Bridge state="revised" rev={settings.revision} />`), "It goes up from both banks toward the middle.", "Drawn with nobody on site, and it has no worker stations to turn on."] }),
+  sheetShell({ ...SHEETS[3], revs: revTable("tincan", { readout: true, used: ["rising", "built", "out-of-true"] }),
+    controls: `<button class="btn" type="button" data-drop>Drop the connection</button><button class="btn" type="button" data-now disabled>Reconnect now</button>
+      <label class="check"><input type="checkbox" data-crewbox checked> Workers on site</label>
+      <p class="sim">Simulated. The connection drops when you press the button, and the app retries after five seconds.</p>`,
+    notes: [code(`<TinCanLine state={online ? "built" : "out-of-true"} figure={{ value: retryIn, unit: "second" }} />`), "The chain shortens once a second, and only while the app is counting.", "With nobody on site, the near can hangs on its hook."] }),
+  sheetShell({ ...SHEETS[4], revs: revTable("door"),
+    controls: `<button class="btn" type="button" data-again>Draw it again</button>`,
+    notes: [code(`<DoorFrame preset="not-found" arrive />`), "With arrive on, the drawing opens as its plan and inks in the order it would be built, once, as it scrolls into view.", "Arrive stays off in product slots, so an empty state does not replay on every visit."] }),
+  sheetShell({ ...SHEETS[5], revs: revTable("ramp", { readout: true, used: ["set-out", "rising", "signed-off", "out-of-true"] }),
+    controls: `<span class="btn file">Choose a file<input type="file" data-file aria-label="Choose a file"></span><button class="btn" type="button" data-fail disabled>Make it fail</button><button class="btn" type="button" data-retry disabled>Retry</button>
+      <label class="check"><input type="checkbox" data-crewbox checked> Workers on site</label>
+      <p class="sim">Nothing is uploaded. The page reads your file in slow chunks, so the size on the chain and the progress are your file&rsquo;s own.</p>`,
+    notes: [code(`<Ramp state="rising" value={sent / size} figure={{ value: size, unit: "megabyte" }} lettered="to the server" />`), "The load moves in heaves, one for each whole eighth of the file.", "No file, no chain."] }),
+].join("");
+
+/* Shared sheet wiring. */
+function sheetApi(id, { onState } = {}) {
+  const el = document.getElementById(id);
+  const api = {
+    el,
+    sub: () => el.querySelector(".wd-sub"),
+    mark(state) {
+      el.querySelectorAll(`input[name="${id.split("-")[1] ? el.querySelector("input[type=radio]").name : ""}"]`);
+      el.querySelectorAll('.revs input[type="radio"]').forEach((r) => { r.checked = r.value === state; });
+      el.querySelector("[data-remark]").textContent = REMARKS[state];
+    },
+  };
+  el.querySelectorAll('.revs input[type="radio"]').forEach((r) => r.addEventListener("change", () => r.checked && onState && onState(r.value)));
+  return api;
+}
+function setLabel(svgEl, text) { svgEl.setAttribute("aria-label", text); }
+
+/* --------------------------------------------------------------- OS-101 Wall */
+(() => {
+  const W = 460, A = 126, B = 22;
+  const ROWS = 6;
+  const s = wall({ x0: 112, cols: 5 });
+  const host = document.querySelector("#wd-101 [data-drawing]");
+  host.innerHTML = svg({ W, A, B, label: "", inner: `<path class="gnd" d="M0 0H${W}"/>` + compose(s, { state: "built" }) });
+  const api = sheetApi("wd-101", { onState: (v) => set(v) });
+  const sub = api.sub(), svgEl = host.querySelector("svg");
+  const rowsEl = document.querySelector("#wd-101 [data-rows]");
+  const unkEl = document.querySelector("#wd-101 [data-unknown-box]");
+  let state = "built", rows = 3, unknown = false;
+  function paint(prev) {
+    const N = ROWS + 1;
+    const built = state === "set-out" ? 0 : state === "rising" ? (unknown ? 1 / N : (rows + 1) / N) : 1;
+    const from = parseFloat(getComputedStyle(sub).getPropertyValue("--wd-built")) || 0;
+    sub.style.setProperty("--wd-t", `${Math.max(240, Math.abs(built - from) * N * 240)}ms`);
+    sub.style.setProperty("--wd-built", built);
+    // The working lift: the board and the worker on it sit at the top course.
+    const reach = s.foot + rows * s.bh - 20;
+    const lift = state === "rising" && !unknown && reach > 0 ? -14 * Math.round(reach / 14) : 0;
+    // With no board up, the carrier stands on the ground: drop the board's
+    // thickness so the feet land on the ground line.
+    sub.style.setProperty("--work-y", `${lift || 2.5}px`);
+    sub.style.setProperty("--board-on", lift ? 1 : 0);
+    sub.dataset.state = state;
+    unknown ? sub.setAttribute("data-unknown", "") : sub.removeAttribute("data-unknown");
+    rowsEl.hidden = state !== "rising"; unkEl.hidden = state !== "rising";
+    rowsEl.querySelector("output").textContent = `${rows} of ${ROWS} rows`;
+    rowsEl.querySelectorAll("button").forEach((b) => { b.disabled = unknown; });
+    api.mark(state);
+    setLabel(svgEl, `Wall, ${NAME[state].toLowerCase()}: ${MEANING[state]}${state === "rising" && !unknown ? ` ${rows} of ${ROWS} rows loaded.` : ""}`);
+  }
+  function set(v) { state = v; paint(); }
+  rowsEl.addEventListener("click", (e) => { const b = e.target.closest("[data-step]"); if (!b) return; rows = Math.max(0, Math.min(ROWS, rows + Number(b.dataset.step))); if (rows === ROWS) { state = "signed-off"; } paint(); });
+  unkEl.querySelector("input").addEventListener("change", (e) => { unknown = e.target.checked; paint(); });
+  document.querySelector("#wd-101 [data-crewbox]").addEventListener("change", (e) => { sub.dataset.crew = e.target.checked ? "on" : "off"; });
+  window.__wall = { set: (v, r, u) => { state = v; if (r != null) rows = r; if (u != null) { unknown = u; unkEl.querySelector("input").checked = u; } paint(); } };
+  set("rising");
+})();
+
+/* -------------------------------------------------------------- OS-102 Stair */
+(() => {
+  const W = 460, A = 128, B = 22;
+  const TASKS = ["Name the project", "Choose a template", "Invite a teammate", "Connect a calendar", "Add a logo", "Set the time zone", "Turn on reminders", "Publish the first page"];
+  let count = 5, done = new Set([0, 1]);
+  const host = document.querySelector("#wd-102 [data-drawing]");
+  const api = sheetApi("wd-102");
+  const listEl = document.querySelector("#wd-102 [data-list]");
+  const tasksEl = document.querySelector("#wd-102 [data-tasks]");
+  let crew = "on", sub, s;
+  function build() {
+    s = stair({ cx: 232, steps: count });
+    host.innerHTML = svg({ W, A, B, label: "", inner: `<path class="gnd" d="M0 0H${W}"/>` + compose(s, { state: "rising", crew, built: 0 }) });
+    sub = host.querySelector(".wd-sub");
+    listEl.innerHTML = TASKS.slice(0, count).map((t, i) => `<li><label><input type="checkbox" data-i="${i}" ${done.has(i) ? "checked" : ""}> ${t}</label></li>`).join("");
+    tasksEl.querySelector("output").textContent = count;
+    requestAnimationFrame(() => paint(true));
+  }
+  function paint(fresh) {
+    // Treads fill from the bottom: done is a count, as a course is laid whole.
+    const k = [...done].filter((i) => i < count).length;
+    const state = k === 0 ? "set-out" : k === count ? "signed-off" : "rising";
+    sub.style.setProperty("--wd-t", fresh ? "0ms" : "360ms");
+    sub.style.setProperty("--wd-built", k / count);
+    sub.dataset.state = state;
+    sub.style.setProperty("--tread-x", `${(k - 1) * s.g + s.g / 2}px`);
+    sub.style.setProperty("--tread-y", `${-k * s.r}px`);
+    api.mark(state);
+    setLabel(host.querySelector("svg"), `Stair, ${NAME[state].toLowerCase()}: ${k} of ${count} tasks done.`);
+  }
+  listEl.addEventListener("change", (e) => { const i = Number(e.target.dataset.i); e.target.checked ? done.add(i) : done.delete(i); paint(); });
+  tasksEl.addEventListener("click", (e) => { const b = e.target.closest("[data-step]"); if (!b) return; count = Math.max(2, Math.min(8, count + Number(b.dataset.step))); build(); });
+  document.querySelector("#wd-102 [data-crewbox]").addEventListener("change", (e) => { crew = e.target.checked ? "on" : "off"; sub.dataset.crew = crew; });
+  window.__stair = { set: (c, d) => { count = c; done = new Set(d); build(); } };
+  build();
+})();
+
+/* ------------------------------------------------------------- OS-103 Bridge */
+(() => {
+  const W = 460, A = 66, B = 38;
+  const host = document.querySelector("#wd-103 [data-drawing]");
+  const revEl = document.querySelector("#wd-103 [data-rev]");
+  let state = "revised";
+  const api = sheetApi("wd-103", { onState: (v) => { state = v; paint(); } });
+  function build() {
+    const s = bridge({ x0: 86, span: 288, rev: revEl.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "") });
+    host.innerHTML = svg({ W, A, B, label: "", inner: s.ground + compose(s, { state }) });
+  }
+  function paint() {
+    const sub = host.querySelector(".wd-sub");
+    sub.style.setProperty("--wd-t", state === "rising" ? "900ms" : "700ms");
+    sub.style.setProperty("--wd-built", { "set-out": 0, rising: 0.5 }[state] ?? 1);
+    sub.dataset.state = state;
+    sub.querySelectorAll(".sag").forEach((p) => { p.style.d = `path("${state === "out-of-true" ? p.dataset.d1 : p.dataset.d0}")`; });
+    api.mark(state);
+    const rev = revEl.value.trim();
+    document.querySelector("#wd-103 [data-rev-cell]").textContent = rev.toUpperCase() || "A";
+    setLabel(host.querySelector("svg"), `Bridge, ${NAME[state].toLowerCase()}: ${MEANING[state]}${state === "revised" && rev ? ` Revision ${rev}.` : ""}`);
+  }
+  revEl.addEventListener("input", () => { build(); paint(); });
+  window.__bridge = { set: (v) => { state = v; paint(); } };
+  build(); paint();
+})();
+
+/* ------------------------------------------------------- OS-104 Tin can line */
+(() => {
+  const W = 460, A = 66, B = 28;
+  const host = document.querySelector("#wd-104 [data-drawing]");
+  const api = sheetApi("wd-104");
+  const s = tincan({ pl: 66, pr: 394 });
+  const chainY = 14, PER_S = 54;
+  host.innerHTML = svg({ W, A, B, label: "", inner: `<path class="gnd" d="M0 0H${W}"/>` + compose(s, { state: "built" }) });
+  const sub = host.querySelector(".wd-sub"), svgEl = host.querySelector("svg");
+  // The string, in the subject's own layer, so the marks draw over it.
+  const L = sub.querySelector(".L-built");
+  L.insertAdjacentHTML("beforeend", `<path class="sag string" d=""/>`);
+  sub.querySelector(".L-marks").insertAdjacentHTML("beforeend", `<g class="ink countdown xfade" style="opacity:0"><path class="chainline" d=""/><text class="secs" y="${chainY + 3.5}" text-anchor="middle"><tspan class="lbl" style="font-size:10px">retry in </tspan><tspan class="fig secs-fig"></tspan></text></g>`);
+  const stringEl = sub.querySelector(".string"), cd = sub.querySelector(".countdown");
+  let state = "built", crew = "on", timer = null, left = 0;
+  const fmt = new Intl.NumberFormat(undefined, { style: "unit", unit: "second", unitDisplay: "narrow" });
+  const start = () => (crew === "on" ? s.Lc : s.L);
+  const stringD = (sag) => { const [x0, y0] = start(), [x1, y1] = s.R; return `M${x0} ${y0}Q${n((x0 + x1) / 2)} ${n(y0 + sag * 2)} ${x1} ${y1}`; };
+  function chainFor(secs) { const x0 = start()[0], x1 = x0 + secs * PER_S; return chain(x0, chainY, x1, chainY, 32); }
+  function paint() {
+    sub.dataset.state = state; sub.dataset.crew = crew;
+    const sag = { "out-of-true": 30, rising: 12, "set-out": 34 }[state] ?? 0;
+    stringEl.style.d = `path("${stringD(sag)}")`;
+    sub.querySelector(".true-line").setAttribute("d", `M${start()[0]} -37.5L${s.R[0]} -37.5`);
+    api.mark(state);
+    setLabel(svgEl, `Tin can line, ${NAME[state].toLowerCase()}: ${MEANING[state]}${left > 0 ? ` Retrying in ${fmt.format(left)}.` : ""}`);
+  }
+  function tickDown() {
+    left -= 1;
+    if (left <= 0) { clearInterval(timer); timer = null; cd.style.opacity = 0; reconnect(); return; }
+    const path = cd.querySelector("path");
+    path.style.d = `path("${chainFor(left)}")`;
+    // The figure swaps once the witness tick has arrived.
+    setTimeout(() => { cd.querySelector(".secs-fig").textContent = fmt.format(left); cd.querySelector(".secs").setAttribute("x", start()[0] + (left * PER_S) / 2); }, 280);
+    paint();
+  }
+  function drop() {
+    clearInterval(timer); state = "out-of-true"; left = 5;
+    const path = cd.querySelector("path"); path.style.transition = "none"; path.style.d = `path("${chainFor(left)}")`; void path.getBoundingClientRect(); path.style.transition = "";
+    cd.querySelector(".secs-fig").textContent = fmt.format(left); cd.querySelector(".secs").setAttribute("x", start()[0] + (left * PER_S) / 2);
+    cd.style.opacity = 1;
+    timer = setInterval(tickDown, 1000);
+    document.querySelector("#wd-104 [data-drop]").disabled = true; document.querySelector("#wd-104 [data-now]").disabled = false;
+    paint();
+  }
+  function reconnect() {
+    clearInterval(timer); timer = null; left = 0; cd.style.opacity = 0;
+    state = "rising"; paint();
+    setTimeout(() => { state = "built"; paint(); document.querySelector("#wd-104 [data-drop]").disabled = false; }, 900);
+    document.querySelector("#wd-104 [data-now]").disabled = true;
+  }
+  document.querySelector("#wd-104 [data-drop]").addEventListener("click", drop);
+  document.querySelector("#wd-104 [data-now]").addEventListener("click", reconnect);
+  document.querySelector("#wd-104 [data-crewbox]").addEventListener("change", (e) => { crew = e.target.checked ? "on" : "off"; paint(); });
+  window.__tincan = { drop, reconnect, freeze: () => { clearInterval(timer); timer = null; } };
+  paint();
+})();
+
+/* --------------------------------------------------------- OS-105 Door frame */
+(() => {
+  const W = 360, A = 84, B = 12;
+  const host = document.querySelector("#wd-105 [data-drawing]");
+  let state = "built";
+  const api = sheetApi("wd-105", { onState: (v) => { state = v; paint(); } });
+  const s = doorframe({ cx: 222 });
+  const lt = letter("this way", 62, -27, { seed: "door-this-way", arrowAfter: true });
+  s.letter = lt.svg;
+  host.innerHTML = svg({ W, A, B, label: "", inner: `<path class="gnd" d="M0 0H${W}"/>` + compose(s, { state }) });
+  const sub = host.querySelector(".wd-sub");
+  function paint() {
+    sub.style.setProperty("--wd-t", "700ms");
+    sub.style.setProperty("--wd-built", { "set-out": 0, rising: 0.5 }[state] ?? 1);
+    sub.dataset.state = state; api.mark(state);
+    setLabel(host.querySelector("svg"), `Door frame, standing on its own with the door ajar, lettered "this way". ${NAME[state]}: ${MEANING[state]}`);
+  }
+  // Arrival: the plan first, then the courses in the order they are built.
+  function arrive() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    state = "built"; paint();
+    sub.style.setProperty("--wd-t", "0ms"); sub.style.setProperty("--wd-built", 0); sub.setAttribute("data-plan", "");
+    void sub.getBoundingClientRect();
+    setTimeout(() => {
+      sub.style.setProperty("--wd-ease", "linear"); sub.style.setProperty("--wd-t", `${s.n * 240 * 1.6}ms`); sub.style.setProperty("--wd-built", 1);
+      sub.style.setProperty("--letter-at", `${s.n * 240 * 1.6}ms`);
+      sub.removeAttribute("data-plan");
+      setTimeout(() => { sub.style.removeProperty("--wd-ease"); sub.style.removeProperty("--letter-at"); }, s.n * 400 + 600);
+    }, 700);
+  }
+  const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); arrive(); } }, { threshold: 0.6 });
+  io.observe(host);
+  document.querySelector("#wd-105 [data-again]").addEventListener("click", arrive);
+  window.__door = { set: (v) => { state = v; paint(); }, arrive, plan: () => { sub.style.setProperty("--wd-t", "0ms"); sub.style.setProperty("--wd-built", 0); sub.setAttribute("data-plan", ""); io.disconnect(); } };
+  paint();
+})();
+
+/* --------------------------------------------------------------- OS-106 Ramp */
+(() => {
+  const W = 600, A = 186, B = 18;
+  const host = document.querySelector("#wd-106 [data-drawing]");
+  const api = sheetApi("wd-106");
+  const R = ramp({ foot: 24 });
+  const inner = `<path class="gnd" d="M0 0H${W}"/>` + R.ground + `<g class="wd-sub" data-state="set-out" data-crew="on" style="--n:1">
+      ${R.rampLine}
+      ${R.bollardMark}
+      <g class="rig heave" style="transform:translate(0px,0px)">${R.rigLocal}${R.ropes}<g class="L-crew">${R.gang}</g></g>
+      <g class="letter">${R.lt}</g>
+    </g>`;
+  host.innerHTML = svg({ W, A, B, label: "", inner });
+  const sub = host.querySelector(".wd-sub"), rig = sub.querySelector(".rig"), svgEl = host.querySelector("svg");
+  const ropeBoll = sub.querySelector(".rope-boll");
+  const fileEl = document.querySelector("#wd-106 [data-file]");
+  const failEl = document.querySelector("#wd-106 [data-fail]"), retryEl = document.querySelector("#wd-106 [data-retry]");
+  let state = "set-out", file = null, sent = 0, reading = false, failed = false, crew = "on";
+  const STEPS = 8;
+  function fmtSize(bytes) {
+    const [unit, v] = bytes >= 1e9 ? ["gigabyte", bytes / 1e9] : bytes >= 1e6 ? ["megabyte", bytes / 1e6] : bytes >= 1e3 ? ["kilobyte", bytes / 1e3] : ["byte", bytes];
+    return new Intl.NumberFormat(undefined, { style: "unit", unit, unitDisplay: "short", maximumFractionDigits: v < 10 ? 1 : 0 }).format(v);
+  }
+  function paint() {
+    const v = file ? Math.floor((sent / file.size) * STEPS) / STEPS : 0;
+    const d = R.travel * v;
+    const [dx, dy] = R.G.along(d);
+    rig.style.transform = `translate(${n(dx)}px, ${n(dy)}px)`;
+    const prow = [R.prow[0] + dx, R.prow[1] + dy];
+    ropeBoll.setAttribute("d", `M${n(R.prow[0])} ${n(R.prow[1])}L${n(R.bollard[0] - dx)} ${n(R.bollard[1] - 9 - dy)}`);
+    sub.dataset.state = state; sub.dataset.crew = crew;
+    state === "rising" ? sub.setAttribute("data-busy", "") : sub.removeAttribute("data-busy");
+    sub.querySelector(".load-built").style.opacity = state === "set-out" ? 0 : 1;
+    const slack = state === "signed-off" || state === "out-of-true";
+    sub.querySelector(".rope-taut").style.opacity = slack ? 0 : 1;
+    sub.querySelector(".rope-slack").style.opacity = slack ? 1 : 0;
+    const ch = sub.querySelector(".chain-g");
+    if (file) {
+      ch.style.opacity = 1;
+      const label = fmtSize(file.size);
+      ch.querySelector(".size-fig").textContent = label;
+      const gap = label.length * 3.4 + 6;
+      ch.querySelector("path").setAttribute("d", chain(R.load.at, R.top - 16, R.load.at + R.load.w, R.top - 16, gap));
+    } else ch.style.opacity = 0;
+    api.mark(state);
+    setLabel(svgEl, `Ramp, lettered "to the server". ${NAME[state]}: ${MEANING[state]}${file ? ` File of ${fmtSize(file.size)}, ${Math.round((sent / file.size) * 100)} percent read.` : ""}`);
+  }
+  async function pump() {
+    if (reading || !file) return;
+    reading = true;
+    const chunk = Math.max(64 * 1024, Math.ceil(file.size / 40));
+    const pace = Math.max(60, 4200 / Math.ceil(file.size / chunk));
+    while (sent < file.size && !failed) {
+      const end = Math.min(file.size, sent + chunk);
+      await file.slice(sent, end).arrayBuffer(); // the file's own bytes, read and dropped
+      if (failed) break;
+      sent = end; paint();
+      await new Promise((r) => setTimeout(r, pace));
+    }
+    reading = false;
+    if (!failed && file && sent >= file.size) { state = "signed-off"; failEl.disabled = true; paint(); }
+  }
+  function start(f) {
+    file = f; sent = 0; failed = false; state = "rising";
+    failEl.disabled = false; retryEl.disabled = true; paint(); pump();
+  }
+  fileEl.addEventListener("change", () => fileEl.files[0] && start(fileEl.files[0]));
+  host.addEventListener("dragover", (e) => e.preventDefault());
+  host.addEventListener("drop", (e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) start(f); });
+  failEl.addEventListener("click", () => { failed = true; state = "out-of-true"; failEl.disabled = true; retryEl.disabled = false; paint(); });
+  retryEl.addEventListener("click", () => { failed = false; state = "rising"; retryEl.disabled = true; failEl.disabled = false; paint(); pump(); });
+  document.querySelector("#wd-106 [data-crewbox]").addEventListener("change", (e) => { crew = e.target.checked ? "on" : "off"; paint(); });
+  window.__ramp = { fake: (size, frac, st) => { file = size ? { size } : null; sent = size * frac; state = st; paint(); } };
+  paint();
+})();
+
+/* ------------------------------------------------------------- The plate */
+(() => {
+  // Laid out so the whole gang on the ramp is inside the frame, with room
+  // after the last hauler; the rope still runs off the edge, as on the hero.
+  const W = 1230, A = 124, B = 56;
+  const door = doorframe({ cx: 56 });
+  const w = wall({ x0: 150, cols: 5, rows: 5, stations: false });
+  w.stations = station("built", worker("sitter", 150 + 54, w.top, { flip: true, seed: "plate-wall-sitter" }));
+  const st = stair({ cx: 432, steps: 6, sitterOnly: true, stations: false });
+  st.stations = station("built", worker("letterer", st.x0 + 6 * st.g + 20.8, 0, { seed: "plate-letterer" }));
+  const tc = tincan({ pl: 562, pr: 712 });
+  const brX = 748, brSpan = 170;
+  const br = bridge({ x0: brX, span: brSpan, panels: 6, depth: 24, floor: 26 });
+  const R = ramp({ foot: 944, sledge: 8, load: { at: 30, w: 70, h: 44, lift: 6 }, pusher: 17, haulers: [200, 244], travel: 0, bollard: 400, lettered: "" });
+  const tcInner = compose(tc, { state: "built" }).replace("</g>\n  ", "</g>");
+  const title = letter("street elevation", 22, 46, { seed: "plate-title", underline: true, angle: -1.5 });
+  const bL = brX + 9, bR = brX + brSpan - 9;
+  const gnd = `<path class="gnd" d="M0 0H${bL}L${bL + 22} 26H${bR - 22}L${bR} 0H${W}"/>`;
+  const inner = gnd + compose(door, { state: "built" }) + compose(w, { state: "built" }) + compose(st, { state: "built" }) + tcInner + compose(br, { state: "built" }).replace(/<path class="gnd"[^>]*\/>/, "") +
+    `<g class="wd-sub" data-state="rising" data-crew="on">${R.ground}${R.rampLine}<g class="rig">${R.rigLocal.replace('class="ink load-built xfade"', 'class="ink load-built"')}${R.ropes}<g class="L-crew">${R.gang}</g></g></g>` +
+    `<g class="wd-sub">${title.svg}</g>`;
+  document.getElementById("plate-drawing").innerHTML = svg({ W, A, B, inner, label: "Street elevation: a door frame, a wall with a worker sitting on it, a stair with a worker lettering beside it, a tin can line with a worker calling down it, a bridge over a cutting, and a stone hauled up a ramp by two workers with one pushing. Lettered street elevation." });
+  // The tin can's string on the plate, taut.
+  const tcs = document.querySelector('#plate-drawing [data-sub="tincan"]');
+  tcs.querySelector(".L-built").insertAdjacentHTML("beforeend", `<path d="M${tc.Lc[0]} -37.5L${tc.R[0]} -37.5"/>`);
+  // Things on the plate stand still: a built drawing does not move.
+  document.querySelectorAll("#plate-drawing .wd-sub").forEach((g) => g.style.setProperty("--wd-t", "0ms"));
+})();
+
+/* ------------------------------------------------------------- Toggles */
+(() => {
+  const root = document.documentElement;
+  const theme = document.getElementById("theme"), lettering = document.getElementById("lettering");
+  const press = (group, v) => group.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === v)));
+  let saved = "system";
+  try { saved = localStorage.getItem("wd-theme") || "system"; } catch (e) {}
+  const applyTheme = (v) => { if (v === "system") root.removeAttribute("data-theme"); else root.dataset.theme = v; press(theme, v); try { localStorage.setItem("wd-theme", v); } catch (e) {} };
+  applyTheme(saved);
+  theme.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) applyTheme(b.dataset.v); });
+  const applyLettering = (v) => { root.dataset.lettering = v; press(lettering, v); };
+  applyLettering("pen");
+  lettering.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) applyLettering(b.dataset.v); });
+})();
+</script>
+</body>
+</html>

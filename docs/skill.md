@@ -14,6 +14,8 @@ It needs Node 22 and Google Chrome or Chromium on the machine, for the checks an
 
 ## Call it
 
+Ask your agent for an illustration, for an empty state, an upload screen, a 404 or anything else in your product, and it reaches for the skill. Or call it by name:
+
 ```
 /ostraca coffee cup
 ```
@@ -29,6 +31,21 @@ Name an object and the agent draws it. Name a moment instead and it offers you t
 > 3. A treadmill from the side: a run in progress, a plan finished. Builds deck, uprights, console; the cloud goes round the console; it leans.
 
 You pick one, and it carries on. Check the [figures](options.md#figures) first: the thing you want may already be on a shelf.
+
+### The options it asks for
+
+Before it draws, the agent asks what you need, in one message, with a default for each. Say "the defaults" and it draws all six states as a figure. Anything your request already said, it does not ask again.
+
+| Option | Choices | Default |
+| --- | --- | --- |
+| States | All six, or any of `idle`, `empty`, `loading`, `success`, `changed` and `error` | All six |
+| Output | A figure for your app, or one standalone SVG picture | A figure |
+| Theme, for a picture | Light, dark or both | Both |
+| Workers, for a picture | On or off | Off |
+| Background, for a picture | The paper colour, or transparent | Transparent |
+| Colours, for a picture | The library's, or any CSS colour for the lines, the workers and the paper | The library's |
+
+A figure does not need the last four: your app passes them when it draws it, with `crew`, `color`, `crewColor`, `paperColor` and your page's `color-scheme`.
 
 ### Only the states you need
 
@@ -56,7 +73,7 @@ The file needs no stylesheet and no JavaScript: every line has its colour writte
 
 ## What it does
 
-1. **Pins the subject.** The object, the product moments it serves, how it builds bottom first, which part changes, and whether it leans or sags when something goes wrong.
+1. **Pins the subject and asks for your options.** The object, the product moments it serves, how it builds bottom first, which part changes, and whether it leans or sags when something goes wrong. Then the states, a figure or a picture, and for a picture how it should look.
 2. **Writes one description file.** Geometry only: the pieces in build order, the dashed set-out, where the tick and the cloud land, where the workers stand, or only the parts the states you asked for use. The engine draws the states from it, so the file has no state code.
 3. **Checks it.** Every state it draws, workers on and off, mirrored, at no value and at 0 and 1. A broken rule fails the check, and the agent fixes it.
 4. **Draws contact sheets and looks at them.** Light and dark, every state it draws, then a list of questions on the actual pixels: can you name the object at 240px, is the bottom half built at 0.5, does the tick stay inside the frame. It expects two or three passes.

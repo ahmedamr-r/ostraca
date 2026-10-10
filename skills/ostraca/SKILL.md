@@ -1,7 +1,7 @@
 ---
 name: ostraca
-description: Draw a new Ostraca figure, an everyday object as a flat line elevation on a ground line that the Ostraca engine turns into product states (idle, empty, loading, success, changed, error), all six or only the ones asked for, and hand it over as a figure file or as one standalone SVG. Use when someone asks for a new Ostraca figure, an illustration in the Ostraca style, or a hand drawn blueprint style empty, loading or error state illustration for a product.
-argument-hint: "[subject], [states]"
+description: Draw an illustration in the Ostraca style, an everyday object as a fine line elevation on a ground line in blueprint blue, that the Ostraca engine turns into product states (idle, empty, loading, success, changed, error), all six or only the ones asked for, handed over as a figure file for an app or as one standalone SVG picture. Use whenever someone asks for an illustration, a drawing, a spot illustration, a picture or an SVG for a product, an app or a website, such as an empty state, a loading or upload screen, a success or error message, a 404 page, onboarding or a landing page, even if they do not name Ostraca, and for any new Ostraca figure. Before drawing, it asks which options they need.
+argument-hint: "[subject], [states], [figure or picture]"
 ---
 
 # Ostraca figures
@@ -35,9 +35,9 @@ Everything runs with Node 22 and Google Chrome or Chromium. Nothing to install. 
 
 ## Steps
 
-### 1. Pin the subject
+### 1. Pin the subject and ask for the options
 
-If the person named a concrete object ("a coffee cup", "a bicycle"), take it and go to step 2.
+If the person named a concrete object ("a coffee cup", "a bicycle"), take it.
 
 Otherwise offer two or three readings, one line each, and wait for a pick. Each reading names:
 
@@ -57,10 +57,15 @@ Never offer an object the library already has: alarm clock, bell, bin, bridge, b
 
 Stick to things anyone owns or has seen. No brand, no logo, no specific product someone could name.
 
-Then pin two more things from what the person said, without asking when it is clear:
+Then ask which options they need, before you draw anything. Ask in one message, give the default for each so that "the defaults" is a whole answer, and wait for the reply. If your client has a tool for asking questions with choices, use it, one question per option. Skip any option the request already answers: naming states or screens ("an empty state for the cart", "just the error picture", `/ostraca coffee cup, empty only`) answers the first, and asking for an image, a file or an SVG, or saying it will not live in code, answers the second.
 
-- **Which states.** If they name states or screens ("an empty state for the cart", "just the error picture", `/ostraca coffee cup, empty only`), draw only those, in `states`. If they say nothing about states, draw all six. Ask only when it is truly unclear, and say that fewer states means less to draw and check.
-- **A figure or a picture.** A figure is the description file, used in their app with `define()`, where the drawing can move between its states. A picture is one standalone SVG of one state, for a design file, a slide, an email or an `<img>`. If they ask for an image, a file or an SVG, or say it will not live in code, they want a picture: draw the figure for that one state and hand over the SVG (step 4).
+1. **Which states.** All six (the default), or only the ones they need: `idle` (built, nothing happening), `empty` (nothing here yet), `loading` (working on it), `success` (done), `changed` (something new) and `error` (something went wrong). Fewer states means less to draw and to check.
+2. **A figure or a picture.** A figure (the default) is the description file, used in their app with `define()`, where the drawing moves between its states. A picture is one standalone SVG of one state, for a design file, a slide, an email or an `<img>`.
+3. **For a picture:** light, dark or both (default both); the workers on or off (default off); the paper colour behind it or a transparent background (default transparent); the library's colours or their own, as any CSS colour for the lines, the workers and the paper (default the library's).
+
+Do not ask about the workers, the theme or the colours for a figure: their app passes those when it draws it (`crew`, `color`, `crewColor`, `paperColor` and the page's `color-scheme`). Say so when you hand it over.
+
+Then draw all six states as a figure if they kept the defaults, only their states if they named some, and for a picture the figure for that one state, handed over as an SVG (step 4).
 
 ### 2. Write the description file
 
@@ -105,13 +110,14 @@ For a picture, write the standalone SVG and look at its PNG before handing it ov
 node sheet.mjs path/to/<name>.js --svg <state> --theme light
 ```
 
-That writes `<name>-<state>-light.svg` beside the figure. Use the theme their surface is in, or both by leaving `--theme` out; `--crew` for the workers, `--paper` for the paper behind it, `--color`, `--crew-color` and `--paper-color` for their own colours. Give them the SVG's path and the PNG, and keep the figure file: another state or theme is one command away.
+That writes `<name>-<state>-light.svg` beside the figure. Pass the options they chose in step 1: `--theme light` or `dark`, or leave it out for both; `--crew` for the workers; `--paper` for the paper behind it; `--color`, `--crew-color` and `--paper-color` for their own colours. Give them the SVG's path and the PNG, and keep the figure file: another state or theme is one command away.
 
 For a figure, give the person:
 
 - the file's path;
 - the light sheet (and the dark one if anything differs);
 - one line on each choice they might want changed: the scale (true or stood on something), lean or sag, what the cloud goes round;
+- the options their app passes when it draws it: `crew` for the workers, `color`, `crewColor` and `paperColor` for their own colours, and light or dark from the page's `color-scheme`;
 - anything not verified. The sheets show each state at rest; say if you did not watch the motion (`sheet.mjs --motion`), or did not try it in their app.
 
 To use it, the person adds it with `define()`:

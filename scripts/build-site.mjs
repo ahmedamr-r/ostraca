@@ -153,7 +153,7 @@ function streetRow() {
 
 write("index.html", page({
   path: "/", title: "Ostraca", arriving: true,
-  description: `An agent skill that draws any object as a line illustration for the empty, loading, done and broken screens of your product, in six states. ${figures.length} figures come ready to use. MIT, no dependencies.`,
+  description: `An agent skill that draws any object as a line illustration for the empty, loading, done and broken screens of your product, in all six states or only the ones you need, as a figure or one SVG. ${figures.length} figures come ready to use. MIT, no dependencies.`,
   body: `
 <section class="hero">
   <h1>Ostraca</h1>
@@ -172,7 +172,7 @@ write("index.html", page({
   <figcaption>Street elevation: a mailbox, a noticeboard going up, a row of seats, coins, a trolley signed off, a revised calendar, a laptop and a stove out of true, with the crew on site.</figcaption>
 </figure>
 <section class="home-notes" aria-label="How it works">
-  <div><h2>Any object, one hand</h2><p>Name an object, or a moment such as <code>something for a fitness app</code>, and the agent writes one description file. The engine draws all six states from it, and the agent checks every one before you see it.</p></div>
+  <div><h2>Any object, one hand</h2><p>Ask for an illustration, or name an object or a moment such as <code>something for a fitness app</code>. The agent asks which states you need and whether you want a figure for your app or one SVG picture, then draws it and checks every state before you see it.</p></div>
   <div><h2>One subject, six states</h2><p>Pass <code>state</code> and the drawing moves there: a dashed set-out for empty, scaffolding for loading, a tick for done, a revision cloud for changed and a plumb line for an error.</p></div>
   <div><h2>Plain SVG, real values</h2><p><code>render()</code> returns a string on the server or in the browser, with no runtime dependencies. A count or a version on a drawing comes from your app through <code>figure</code> and <code>rev</code>. With nothing passed, nothing is written.</p></div>
 </section>`,
@@ -297,12 +297,12 @@ define(cup);
 const cupOpts = { state: "loading", value: 0.5, crew: true };
 write("skill.html", page({
   path: "/skill", title: "Skill",
-  description: "The Ostraca skill: your coding agent draws any object as a figure in six states, checks it against the rules and shows you the sheets.",
+  description: "The Ostraca skill: your coding agent draws any object in the states you need, as a figure for your app or one SVG picture, checks it against the rules and shows you the sheets.",
   body: `
 <section class="hero">
   <h1>Skill</h1>
   <p class="lede">Any object your product needs, in the Ostraca hand.</p>
-  <p class="sub">The Ostraca skill teaches a coding agent to draw a new figure in the same hand as the library: one description file that the engine turns into all six states. The agent checks it against the rules, draws contact sheets, looks at them and fixes what it sees before handing it over.</p>
+  <p class="sub">The Ostraca skill teaches a coding agent to draw a new figure in the same hand as the library: one description file that the engine turns into all six states, or only the ones you need. The agent checks it against the rules, draws contact sheets, looks at them and fixes what it sees before handing it over.</p>
 </section>
 <div class="docs" style="grid-template-columns:minmax(0,1fr)">
 <article class="prose">
@@ -310,12 +310,19 @@ write("skill.html", page({
 <pre class="code"><code>npx skills add ahmedamr-r/ostraca</code></pre>
 <p>It works in any agent that reads <code>SKILL.md</code> skills, such as Claude Code. The checks and sheets need Node 22 and Google Chrome or Chromium; there is nothing else to install.</p>
 <h2 id="call">Call it</h2>
+<p>Ask your agent for an illustration, for an empty state, an upload screen, a 404 or anything else in your product, and it reaches for the skill. Or call it by name:</p>
 <pre class="code"><code>/ostraca coffee cup</code></pre>
 <p>Name an object and the agent draws it. Name a moment instead, such as <code>/ostraca something for a fitness app</code>, and it offers two or three objects to pick from.</p>
-<p>You do not need all six states. Name the ones you need, as in <code>/ostraca coffee cup, empty only</code>, and the agent draws and checks only those. Ask for a picture rather than a figure and it hands you one standalone SVG of that state, for a design file, a slide or an email, with no stylesheet needed.</p>
+<h2 id="options">The options it asks for</h2>
+<p>Before it draws, the agent asks what you need, in one message, with a default for each. Say "the defaults" and it draws all six states as a figure. Anything your request already said, such as <code>/ostraca coffee cup, empty only</code>, it does not ask again.</p>
+<div class="table"><table><thead><tr><th>Option</th><th>Choices</th><th>Default</th></tr></thead><tbody>
+<tr><td>States</td><td>All six, or any of <code>idle</code>, <code>empty</code>, <code>loading</code>, <code>success</code>, <code>changed</code> and <code>error</code>. Fewer means less to draw and to check.</td><td>All six</td></tr>
+<tr><td>Output</td><td>A figure for your app, or one standalone SVG picture for a design file, a slide or an email, with no stylesheet needed</td><td>A figure</td></tr>
+<tr><td>For a picture</td><td>Light, dark or both; the workers on or off; the paper behind it or transparent; the library's colours or your own</td><td>Both, off, transparent, the library's</td></tr>
+</tbody></table></div>
 <h2 id="steps">Steps</h2>
 <ol class="steps">
-  <li><div><b>Pin the subject</b><p>The object, the product moments it serves, how it builds from the bottom, which part changes, and whether it leans or sags when something goes wrong.</p></div></li>
+  <li><div><b>Pin the subject, ask for the options</b><p>The object, the product moments it serves, how it builds from the bottom, which part changes, and whether it leans or sags when something goes wrong. Then the states, a figure or a picture, and how a picture should look.</p></div></li>
   <li><div><b>Write the description file</b><p>Geometry only: the pieces in build order, the dashed set-out, where the tick and the cloud land, where the workers stand. For fewer states, only the parts those states use. No state code.</p></div></li>
   <li><div><b>Check, draw the sheet, look</b><p>Every state it draws, with the workers on and off, mirrored, at no value and at 0 and 1. A broken rule fails the check. Then light and dark sheets, and a list of questions asked of the pixels.</p></div></li>
   <li><div><b>Hand it over</b><p>The file, or one standalone SVG if you asked for a picture, with the sheets, the choices you might want changed, and what it did not verify.</p></div></li>
@@ -356,9 +363,9 @@ write("404.html", page({
 const api = readFileSync(join(ROOT, "src/index.js"), "utf8").match(/\/\* =+\n([\s\S]*?)=+ \*\//)[1].split("\n").map((l) => l.replace(/^\s{3}/, "")).join("\n").trim();
 write("llms.txt", `# Ostraca
 
-> Illustrations for every state your product is in, drawn by your agent. An agent skill draws any object as a small building elevation in six states, for the empty, loading, done and broken screens of a product, and the engine renders it. ${figures.length} figures come ready to use. MIT licensed, no runtime dependencies, works with or without React. By Ahmed Amr (${"https://ahmedamr.com"}).
+> Illustrations for every state your product is in, drawn by your agent. An agent skill draws any object as a small building elevation, in all six states or only the ones asked for, for the empty, loading, done and broken screens of a product, and hands it over as a figure the engine renders or as one standalone SVG. ${figures.length} figures come ready to use. MIT licensed, no runtime dependencies, works with or without React. By Ahmed Amr (${"https://ahmedamr.com"}).
 
-Skill: npx skills add ahmedamr-r/ostraca, then /ostraca <object>
+Skill: npx skills add ahmedamr-r/ostraca, then ask for an illustration or /ostraca <object>. It asks which states (default all six), a figure or an SVG picture (default a figure), and for a picture the theme, the workers, the background and the colours.
 Install: npm i ostraca
 Source: https://github.com/ahmedamr-r/ostraca
 

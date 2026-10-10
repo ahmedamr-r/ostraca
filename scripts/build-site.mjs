@@ -71,6 +71,15 @@ const REMARKS = {
 };
 
 /* ---- The frame of every page ---------------------------------------------- */
+/* The theme switch: a sun, a moon and a screen for the system's, drawn in the
+   site's line. The words stay as each button's name and tooltip. */
+const THEMES = [
+  ["light", "Light", `<circle cx="8" cy="8" r="2.9"/><path d="M8 1.3V2.9M8 13.1V14.7M1.3 8H2.9M13.1 8H14.7M3.26 3.26L4.39 4.39M11.61 11.61L12.74 12.74M11.61 4.39L12.74 3.26M3.26 12.74L4.39 11.61"/>`],
+  ["dark", "Dark", `<path d="M13.6 9.3A5.9 5.9 0 1 1 6.7 2.4A4.6 4.6 0 0 0 13.6 9.3Z"/>`],
+  ["system", "System", `<rect x="1.8" y="2.6" width="12.4" height="8.6" rx="1.2"/><path d="M8 11.2V13.9M5.4 13.9H10.6"/>`],
+];
+const themeSeg = THEMES.map(([t, label, icon]) => `<button type="button" data-theme-set="${t}" aria-pressed="${t === "system"}" aria-label="${label}" title="${label}"><svg viewBox="0 0 16 16" aria-hidden="true">${icon}</svg></button>`).join("");
+
 const NAV = [["/figures", "Figures"], ["/docs", "Docs"], ["/skill", "Skill"], ["https://github.com/ahmedamr-r/ostraca", "GitHub"]];
 
 function page({ path, title, description, body, arriving = false, wide = false, noindex = false }) {
@@ -105,7 +114,7 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 <header class="bar">
   <a class="mark" href="/">Ostraca</a>
   <nav class="nav" aria-label="Site">${nav}</nav>
-  <div class="seg theme" role="group" aria-label="Theme"><span>Theme</span><button type="button" data-theme-set="light" aria-pressed="false">Light</button><button type="button" data-theme-set="dark" aria-pressed="false">Dark</button><button type="button" data-theme-set="system" aria-pressed="true">System</button></div>
+  <div class="seg theme" role="group" aria-label="Theme">${themeSeg}</div>
 </header>
 <main id="main" class="page${wide ? " wide" : ""}">
 ${body}

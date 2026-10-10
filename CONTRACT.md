@@ -1,6 +1,6 @@
 # The figure contract
 
-This is how a figure is drawn for Ostraca. A figure is one file under `src/figures/<shelf>/<name>.js`. It describes a subject in geometry. The engine in `src/engine/` turns that description into all six states, so a figure file never contains state code.
+This is how a figure is drawn for Ostraca. A figure is one file under `src/figures/<shelf>/<name>.js`. It describes a subject in geometry. The engine in `src/engine/` turns that description into all six states, or only the ones it names, so a figure file never contains state code.
 
 Two figures are the worked examples. Copy from them:
 

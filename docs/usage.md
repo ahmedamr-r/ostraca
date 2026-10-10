@@ -136,6 +136,8 @@ Pass the same options on both sides. `mount()` keeps the server's markup and sta
 
 `render()` output depends on `ostraca/styles.css`: the colours, the dashes and which state shows are all CSS. In an `<img>`, an email or a file opened on its own, the stylesheet is not there and the drawing comes out wrong.
 
+For a figure drawn with the skill, the skill does this for you: ask for a picture, or run `node sheet.mjs coffee-cup.js --svg empty` in its folder. See [just the picture](skill.md#just-the-picture).
+
 To get a standalone file, mount the drawing in a browser in the state you want, let it settle, then write every visible line out with its colour and place on it:
 
 ```js

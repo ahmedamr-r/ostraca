@@ -70,7 +70,7 @@ art.update({ state: "empty" });
 
 ## Where to go next
 
-- [Agent skill](skill.md): have your agent draw any object your product needs, in the same hand.
+- [Agent skill](skill.md): have your agent draw any object your product needs, in the same hand, in the states you need, as a figure or one SVG picture.
 - [Usage](usage.md): HTML, React, server rendering, static SVG files and Figma.
 - [States](states.md): which state to use for which moment, and the options that go with them.
 - [Options](options.md): every option, and every figure on every shelf.

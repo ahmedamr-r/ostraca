@@ -1,10 +1,15 @@
 # Ostraca
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/street-dark.svg">
+  <img alt="Ostraca figures on a street: a mailbox, a noticeboard going up, a row of seats, coins, a trolley signed off, a revised calendar, a laptop and a stove out of true, with the crew on site" src="docs/images/street-light.svg">
+</picture>
+
 Illustrations for every state your product is in, drawn by your agent.
 
-Ostraca is a skill for coding agents and the engine it draws with. Name an object and your agent draws it as a small building elevation in blueprint blue that can show six states: an empty inbox, a file uploading, a payment that went through, a page that is gone. A set of ready-drawn figures comes with it, to use as they are and to start from.
+Ostraca is a skill for coding agents and the engine it draws with. Name any object and your agent draws it as a small building elevation in blueprint blue that follows your product through its states: set out while it is empty, rising while it loads, signed off when it is done, revised when it changes, out of true when something goes wrong. Ask for all six states or only the ones you need, as a figure for your app or as one SVG picture. 34 ready-drawn figures come with it, to use as they are and to start from.
 
-MIT licensed. No runtime dependencies. Works with or without React.
+[ostraca.ahmedamr.com](https://ostraca.ahmedamr.com). MIT licensed. No runtime dependencies. Works with or without React.
 
 Ostraca are the limestone flakes Egyptian tomb builders sketched on.
 
@@ -14,11 +19,23 @@ Ostraca are the limestone flakes Egyptian tomb builders sketched on.
 npx skills add ahmedamr-r/ostraca
 ```
 
+Then ask your agent for an illustration, for an empty state, an upload screen, a 404 or anything else in your product. Or call the skill by name:
+
 ```
 /ostraca coffee cup
 ```
 
-The agent writes one description file, checks it against the library's rules, draws contact sheets in light and dark, looks at them and fixes what it sees. Name a moment instead, such as `/ostraca something for a fitness app`, and it offers two or three objects to pick from. Name only the states you need, as in `/ostraca coffee cup, empty only`, and it draws and checks just those; ask for a picture and it hands you one standalone SVG instead of a figure. Then add the figure with `define()`, and it works everywhere a ready-drawn one does:
+Before it draws, the agent asks what you need, in one message, with a default for each. Say "the defaults" and it draws all six states as a figure.
+
+| Option | Choices | Default |
+| --- | --- | --- |
+| States | All six, or any of `idle`, `empty`, `loading`, `success`, `changed` and `error` | All six |
+| Output | A figure for your app, or one standalone SVG picture | A figure |
+| For a picture | Light, dark or both; the workers on or off; the paper behind it or transparent; the library's colours or your own | Both, off, transparent, the library's |
+
+Anything your request already says, it does not ask again: `/ostraca coffee cup, empty only`, or `/ostraca a coffee cup for our empty orders page, as an svg`. Name a moment instead of an object, such as `/ostraca something for a fitness app`, and it offers two or three objects to pick from.
+
+Then it writes one description file, checks it against the library's rules, draws contact sheets in light and dark, looks at them and fixes what it sees. A figure goes into your app with `define()` and works everywhere a ready-drawn one does:
 
 ```js
 import { define } from "ostraca";
@@ -27,7 +44,7 @@ import cup from "./coffee-cup.js";
 define(cup);
 ```
 
-See [docs/skill.md](docs/skill.md).
+A picture is an SVG file with every colour written on it, for a design file, a slide, an email or an `<img>`. The skill works in any agent that reads `SKILL.md` skills, such as Claude Code, and its checks need Node 22 and Google Chrome or Chromium. See [docs/skill.md](docs/skill.md).
 
 ## Install the engine
 
@@ -74,9 +91,11 @@ art.update({ state: "success" });
 | `changed` | Something new | Revised: a revision cloud round one part, with your real version in a triangle (`rev`) |
 | `error` | Something went wrong | Out of true: it leans off a plumb line, or sags under a taut string |
 
+Every ready-drawn figure draws all six. A figure drawn with the skill can draw only the ones you asked for.
+
 ## Figures
 
-Ready-drawn subjects on shelves, to use as they are: messages, files, people, money, shopping, time, devices, and the building site the library started from. The full list, with what each one is for, is in [docs/options.md](docs/options.md#figures).
+34 ready-drawn subjects on eight shelves, to use as they are: messages, files, people, money, shopping, time, devices, and the building site the library started from. See them all, in any state, on [the site](https://ostraca.ahmedamr.com/figures). The full list, with what each one is for, is in [docs/options.md](docs/options.md#figures).
 
 ```js
 import { figures } from "ostraca";
@@ -99,14 +118,20 @@ import { figures } from "ostraca";
 | `crewColor` | `--ostraca-crew` | Any CSS colour for the workers |
 | `paperColor` | `--ostraca-paper` | Any CSS colour for the paper under it |
 
+```jsx
+<Ostraca name="inbox" state="empty" color="var(--accent)" crewColor="var(--text)" paperColor="var(--surface)" />
+```
+
 ## Docs
 
+On [the site](https://ostraca.ahmedamr.com/docs), or here:
+
 - [Start](docs/index.md)
-- [Agent skill](docs/skill.md)
+- [Agent skill](docs/skill.md): the options it asks for, fewer states, standalone pictures
 - [Usage](docs/usage.md): HTML, React, server rendering, static SVG, Figma
 - [States](docs/states.md)
 - [Options and figures](docs/options.md)
-- [Theming](docs/theming.md)
+- [Theming](docs/theming.md): colours, as tokens or as options, and dark mode
 - [Workers](docs/workers.md)
 - [Accessibility](docs/accessibility.md)
 

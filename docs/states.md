@@ -1,6 +1,6 @@
 # States
 
-Every figure draws the same six states. You pass the product word; the drawing answers with a drafting mark.
+Every figure in the library draws the same six states. You pass the product word; the drawing answers with a drafting mark. A figure drawn with the [skill](skill.md#only-the-states-you-need) can draw only the ones you need.
 
 ```js
 render("inbox", { state: "empty" });

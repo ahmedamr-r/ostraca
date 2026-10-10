@@ -2,7 +2,7 @@
 
 Copied from `CONTRACT.md` in the Ostraca repo so this folder stands alone. When the two disagree, the repo's copy wins.
 
-This is how a figure is drawn for Ostraca. A figure is one plain ESM file that default-exports a description of one subject in geometry. The engine (`engine.js` in this folder, `src/engine/` in the Ostraca repo) turns that description into all six states, so a figure file never contains state code. A figure file imports nothing: every helper arrives on `ctx`.
+This is how a figure is drawn for Ostraca. A figure is one plain ESM file that default-exports a description of one subject in geometry. The engine (`engine.js` in this folder, `src/engine/` in the Ostraca repo) turns that description into all six states, or only the ones it names, so a figure file never contains state code. A figure file imports nothing: every helper arrives on `ctx`.
 
 In the Ostraca repo a figure lives at `src/figures/<shelf>/<name>.js`. Anywhere else it can live wherever you like and be added with `define()`.
 

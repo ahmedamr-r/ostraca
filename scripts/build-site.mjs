@@ -78,9 +78,12 @@ const THEMES = [
   ["dark", "Dark", `<path d="M13.6 9.3A5.9 5.9 0 1 1 6.7 2.4A4.6 4.6 0 0 0 13.6 9.3Z"/>`],
   ["system", "System", `<rect x="1.8" y="2.6" width="12.4" height="8.6" rx="1.2"/><path d="M8 11.2V13.9M5.4 13.9H10.6"/>`],
 ];
+/* The install pills' copy button: two sheets, and the check it turns into. */
+const COPY_ICON = `<svg viewBox="0 0 16 16" aria-hidden="true"><g class="i-copy"><rect x="5.5" y="5.5" width="8.5" height="8.5" rx="1.6"/><path d="M10.5 5.5V3.6A1.6 1.6 0 0 0 8.9 2H3.6A1.6 1.6 0 0 0 2 3.6V8.9A1.6 1.6 0 0 0 3.6 10.5H5.5"/></g><path class="i-done" d="M3.5 8.5L6.5 11.5L12.5 4.5"/></svg>`;
+const copyButton = (text) => `<button type="button" class="btn copy-icon" data-copy="${esc(text)}" aria-label="Copy command" title="Copy">${COPY_ICON}</button>`;
 const themeSeg = THEMES.map(([t, label, icon]) => `<button type="button" data-theme-set="${t}" aria-pressed="${t === "system"}" aria-label="${label}" title="${label}"><svg viewBox="0 0 16 16" aria-hidden="true">${icon}</svg></button>`).join("");
 
-const NAV = [["/figures", "Figures"], ["/docs", "Docs"], ["/skill", "Skill"], ["https://github.com/ahmedamr-r/ostraca", "GitHub"]];
+const NAV = [["/skill", "Skill"], ["/figures", "Figures"], ["/docs", "Docs"], ["https://github.com/ahmedamr-r/ostraca", "GitHub"]];
 
 function page({ path, title, description, body, arriving = false, wide = false, noindex = false }) {
   const full = path === "/" ? "Ostraca" : `${title} · Ostraca`;
@@ -150,23 +153,28 @@ function streetRow() {
 
 write("index.html", page({
   path: "/", title: "Ostraca", arriving: true,
-  description: "Line illustrations for the empty, loading, done and broken screens of everyday products. Each one is a small building elevation that shows six states. MIT, no dependencies.",
+  description: `An agent skill that draws any object as a line illustration for the empty, loading, done and broken screens of your product, in six states. ${figures.length} figures come ready to use. MIT, no dependencies.`,
   body: `
 <section class="hero">
   <h1>Ostraca</h1>
-  <p class="lede">Illustrations for every state your product is in.</p>
-  <p class="sub">${figures.length} everyday things, from an inbox to a stove, each drawn as a small building elevation that can be set out, rising, built, signed off, revised or out of true. Your app passes the state and its real values, and the drawing follows.</p>
-  <div class="install"><code>npm i ostraca</code><button type="button" class="btn" data-copy="npm i ostraca">Copy</button></div>
-  <ul class="links"><li><a href="/figures">Figures</a></li><li><a href="/docs">Docs</a></li><li><a href="/skill">Skill</a></li></ul>
+  <p class="lede">Illustrations for every state your product is in, drawn by your agent.</p>
+  <p class="sub">Ostraca is a skill for coding agents and the engine it draws with. Name any object and your agent draws it as a small building elevation that can be set out, rising, built, signed off, revised or out of true, checked against the rules before it reaches you. Your app passes the state and its real values, and the drawing follows. ${figures.length} figures come ready to use, from an inbox to a stove.</p>
+  <div class="installs">
+    <div class="install"><code>npx skills add ahmedamr-r/ostraca</code>${copyButton("npx skills add ahmedamr-r/ostraca")}</div>
+    <div class="install"><code>npm i ostraca</code>${copyButton("npm i ostraca")}</div>
+  </div>
+  <p class="vh" aria-live="polite" data-copy-said></p>
+  <p class="install-note">The skill draws new figures. The package renders them, and the ${figures.length} that come with it.</p>
+  <ul class="links"><li><a href="/skill">Skill</a></li><li><a href="/figures">Figures</a></li><li><a href="/docs">Docs</a></li></ul>
 </section>
 <figure class="street">
   <div class="street-scroll"><div class="street-row">${streetRow()}</div></div>
   <figcaption>Street elevation: a mailbox, a noticeboard going up, a row of seats, coins, a trolley signed off, a revised calendar, a laptop and a stove out of true, with the crew on site.</figcaption>
 </figure>
 <section class="home-notes" aria-label="How it works">
+  <div><h2>Any object, one hand</h2><p>Name an object, or a moment such as <code>something for a fitness app</code>, and the agent writes one description file. The engine draws all six states from it, and the agent checks every one before you see it.</p></div>
   <div><h2>One subject, six states</h2><p>Pass <code>state</code> and the drawing moves there: a dashed set-out for empty, scaffolding for loading, a tick for done, a revision cloud for changed and a plumb line for an error.</p></div>
-  <div><h2>Real values only</h2><p>A count, an amount or a version on a drawing comes from your app through <code>figure</code> and <code>rev</code>. With nothing passed, nothing is written.</p></div>
-  <div><h2>Plain SVG</h2><p><code>render()</code> returns a string on the server or in the browser, with no runtime dependencies. React gets a component; anything else gets <code>mount()</code>.</p></div>
+  <div><h2>Plain SVG, real values</h2><p><code>render()</code> returns a string on the server or in the browser, with no runtime dependencies. A count or a version on a drawing comes from your app through <code>figure</code> and <code>rev</code>. With nothing passed, nothing is written.</p></div>
 </section>`,
 }));
 
@@ -174,12 +182,12 @@ write("index.html", page({
 const stateSeg = STATES.map((s) => `<button type="button" data-state-set="${s}" aria-pressed="${s === "idle"}">${s}</button>`).join("");
 write("figures.html", page({
   path: "/figures", title: "Figures",
-  description: `All ${figures.length} Ostraca figures on their shelves, in any of the six states, with or without the crew.`,
+  description: `The ${figures.length} figures that come with Ostraca, ready to use, in any of the six states, with or without the crew.`,
   body: `
 <section class="hero">
   <h1>Figures</h1>
-  <p class="lede">${figures.length} drawings on ${shelves.length} shelves.</p>
-  <p class="sub">Pick a state to see every figure in it. Each name opens the figure's sheet, where you can try the options and copy the SVG.</p>
+  <p class="lede">${figures.length} figures, ready to use, on ${shelves.length} shelves.</p>
+  <p class="sub">Each one was drawn to the rules <a href="/skill">the skill</a> follows, so a figure your agent draws sits beside them. Pick a state to see every figure in it. Each name opens the figure's sheet, where you can try the options and copy the SVG.</p>
 </section>
 <div class="switch" data-switch>
   <div class="seg" role="group" aria-label="State for every figure"><span>State</span>${stateSeg}</div>
@@ -257,7 +265,7 @@ ordered.forEach((f, k) => {
 });
 
 /* ---- /docs ------------------------------------------------------------------ */
-const DOCS = ["index", "usage", "states", "options", "theming", "workers", "accessibility", "skill"];
+const DOCS = ["index", "skill", "usage", "states", "options", "theming", "workers", "accessibility"];
 const docMeta = DOCS.map((d) => {
   const src = readFileSync(join(ROOT, "docs", `${d}.md`), "utf8");
   const route = d === "index" ? "/docs" : `/docs/${d}`;
@@ -289,12 +297,12 @@ define(cup);
 const cupOpts = { state: "loading", value: 0.5, crew: true };
 write("skill.html", page({
   path: "/skill", title: "Skill",
-  description: "The Ostraca skill teaches a coding agent to draw a new figure in the library's hand, check it and show you the sheets.",
+  description: "The Ostraca skill: your coding agent draws any object as a figure in six states, checks it against the rules and shows you the sheets.",
   body: `
 <section class="hero">
   <h1>Skill</h1>
-  <p class="lede">For the object the library does not have yet.</p>
-  <p class="sub">The Ostraca skill teaches a coding agent to draw a new figure in the same hand: one description file that the engine turns into all six states. The agent checks it against the rules, draws contact sheets, looks at them and fixes what it sees before handing it over.</p>
+  <p class="lede">Any object your product needs, in the Ostraca hand.</p>
+  <p class="sub">The Ostraca skill teaches a coding agent to draw a new figure in the same hand as the library: one description file that the engine turns into all six states. The agent checks it against the rules, draws contact sheets, looks at them and fixes what it sees before handing it over.</p>
 </section>
 <div class="docs" style="grid-template-columns:minmax(0,1fr)">
 <article class="prose">
@@ -347,17 +355,18 @@ write("404.html", page({
 const api = readFileSync(join(ROOT, "src/index.js"), "utf8").match(/\/\* =+\n([\s\S]*?)=+ \*\//)[1].split("\n").map((l) => l.replace(/^\s{3}/, "")).join("\n").trim();
 write("llms.txt", `# Ostraca
 
-> Line illustrations for the empty, loading, done and broken screens of everyday products. Each figure is a small building elevation that draws six states. MIT licensed, no runtime dependencies, works with or without React. By Ahmed Amr (${"https://ahmedamr.com"}).
+> Illustrations for every state your product is in, drawn by your agent. An agent skill draws any object as a small building elevation in six states, for the empty, loading, done and broken screens of a product, and the engine renders it. ${figures.length} figures come ready to use. MIT licensed, no runtime dependencies, works with or without React. By Ahmed Amr (${"https://ahmedamr.com"}).
 
+Skill: npx skills add ahmedamr-r/ostraca, then /ostraca <object>
 Install: npm i ostraca
 Source: https://github.com/ahmedamr-r/ostraca
 
 ## Pages
 
 - [Home](${SITE}/): what it is and how to install it
-- [Figures](${SITE}/figures): every figure on its shelf
+- [Skill](${SITE}/skill): the agent skill that draws any object as a figure
+- [Figures](${SITE}/figures): the ready-made figures, on their shelves
 ${docMeta.map((x) => `- [${x.title}](${SITE}${x.route})`).join("\n")}
-- [Skill](${SITE}/skill): the agent skill that draws new figures
 
 ## API
 

@@ -96,6 +96,9 @@ h1 { margin: 0; font-weight: 500; letter-spacing: -0.035em; line-height: 1.02; f
 }
 .check input:focus-visible { outline: 1px solid var(--notes-ink); outline-offset: 2px; }
 
+.installs { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0 0; }
+.installs .install { margin: 0; }
+.install-note { margin: 10px 0 0; font-size: 14px; color: var(--faint); }
 .install {
   display: inline-flex; align-items: center; gap: 4px; margin: 28px 0 0;
   border: 1px solid var(--rule-strong); border-radius: 999px; padding: 4px 4px 4px 16px; max-width: 100%;
@@ -104,6 +107,20 @@ h1 { margin: 0; font-weight: 500; letter-spacing: -0.035em; line-height: 1.02; f
 .install code::before { content: "$ "; color: var(--faint); }
 .install .btn { border-color: transparent; padding: 3px 12px; }
 .install .btn:hover { border-color: var(--rule-strong); }
+/* The copy button: square, an icon in the theme switch's line, and a check
+   for the moment after a copy. */
+.install .copy-icon { flex: none; width: 28px; height: 28px; padding: 0; justify-content: center; }
+.copy-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.copy-icon .i-done, .copy-icon[data-done] .i-copy { display: none; }
+.copy-icon[data-done] .i-done { display: inline; }
+/* Its focus ring on its own edge: two pixels out, it would meet the pill's. */
+.install .copy-icon:focus-visible { outline-offset: 0; }
+/* A phone fits the whole skill command: no prompt sign, a size smaller. */
+@media (max-width: 480px) {
+  .install { padding-left: 14px; }
+  .install code { font-size: 12px; letter-spacing: -0.01em; }
+  .install code::before { content: none; }
+}
 
 .links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 22px 0 0; padding: 0; list-style: none; }
 .links a { text-decoration: none; font-weight: 500; }

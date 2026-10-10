@@ -45,10 +45,20 @@ async function copyText(text, btn, done = "Copied") {
     t.remove();
   }
   if (!btn) return;
+  clearTimeout(btn._t);
+  btn.dataset.done = "";
+  if (btn.classList.contains("copy-icon")) {
+    // An icon button keeps its markup: data-done swaps the icon for the check
+    // in the stylesheet, and the live region says what happened. Emptied
+    // first, so a second copy is announced again.
+    const said = document.querySelector("[data-copy-said]");
+    if (said) { said.textContent = ""; setTimeout(() => { said.textContent = done; }, 50); }
+    btn._t = setTimeout(() => { delete btn.dataset.done; if (said) said.textContent = ""; }, 1600);
+    return;
+  }
   const label = btn.dataset.label || btn.textContent;
   btn.dataset.label = label;
-  btn.textContent = done; btn.dataset.done = "";
-  clearTimeout(btn._t);
+  btn.textContent = done;
   btn._t = setTimeout(() => { btn.textContent = label; delete btn.dataset.done; }, 1600);
 }
 document.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", () => copyText(b.dataset.copy, b)));

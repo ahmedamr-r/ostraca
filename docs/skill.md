@@ -1,6 +1,6 @@
 # Agent skill
 
-The library will not have every object your product needs. The Ostraca skill teaches a coding agent to draw a new figure in the same hand, check it against the rules and show you the result before you use it.
+Your product needs its own objects. The Ostraca skill teaches a coding agent to draw any of them in the Ostraca hand, check it against the rules and show you the result before you use it. The ready-drawn figures are there to use as they are, to start from, and to show the hand.
 
 ## Install
 

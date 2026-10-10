@@ -1,6 +1,6 @@
 # Ostraca
 
-Ostraca is a library of line illustrations for the screens every product has: an empty inbox, a file uploading, a payment that went through, a page that is gone. Each drawing is a small building elevation in blueprint blue, and each one can show six states.
+Ostraca draws illustrations for every state your product is in. It is a skill for coding agents and the engine it draws with: name an object and your agent draws it as a small building elevation in blueprint blue that can show six states. Ready-drawn figures come with it for the screens every product has: an empty inbox, a file uploading, a payment that went through, a page that is gone.
 
 It is MIT licensed, has no runtime dependencies and works with or without React.
 
@@ -31,6 +31,12 @@ Import the stylesheet once. The drawings are bare SVG without it.
 
 ```js
 import "ostraca/styles.css";
+```
+
+To draw objects of your own, add the skill to your coding agent. [Agent skill](skill.md) has the rest.
+
+```sh
+npx skills add ahmedamr-r/ostraca
 ```
 
 ## A 30 second start
@@ -64,10 +70,10 @@ art.update({ state: "empty" });
 
 ## Where to go next
 
+- [Agent skill](skill.md): have your agent draw any object your product needs, in the same hand.
 - [Usage](usage.md): HTML, React, server rendering, static SVG files and Figma.
 - [States](states.md): which state to use for which moment, and the options that go with them.
 - [Options](options.md): every option, and every figure on every shelf.
 - [Theming](theming.md): colours, dark mode and fitting your product's palette.
 - [Workers](workers.md): the crew, and why they stay home by default.
 - [Accessibility](accessibility.md): names, motion, right to left and contrast.
-- [Agent skill](skill.md): have an agent draw an object the library does not have, in the same hand.

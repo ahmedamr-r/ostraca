@@ -1,7 +1,7 @@
 {
   "name": "ostraca",
   "version": "0.1.0",
-  "description": "Illustrations for every state your product is in, drawn as building elevations.",
+  "description": "Illustrations for every state your product is in, drawn as building elevations: an agent skill that draws any object, and the engine that renders it.",
   "type": "module",
   "license": "MIT",
   "author": "Ahmed Amr",

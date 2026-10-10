@@ -1,8 +1,8 @@
 # Ostraca
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/street-dark.svg">
-  <img alt="Ostraca figures on a street: a mailbox, a noticeboard going up, a row of seats, coins, a trolley signed off, a revised calendar, a laptop and a stove out of true, with the crew on site" src="docs/images/street-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset=".github/cover-dark.png">
+  <img alt="Ostraca, illustrations for every state your product is in, drawn by your agent. A step pyramid in blueprint blue with five of its six tiers built and a worker on top holding the last block, while someone lounges in a deck chair under a parasol. The title strip reads: project, step pyramid; state, loading; started, 2670 BC; to go, one block; ETA, any minute now; supervisor, you, on a break" src=".github/cover-light.png">
 </picture>
 
 Illustrations for every state your product is in, drawn by your agent.
@@ -94,6 +94,11 @@ art.update({ state: "success" });
 Every ready-drawn figure draws all six. A figure drawn with the skill can draw only the ones you asked for.
 
 ## Figures
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/street-dark.svg">
+  <img alt="Ostraca figures on a street: a mailbox, a noticeboard going up, a row of seats, coins, a trolley signed off, a revised calendar, a laptop and a stove out of true, with the crew on site" src="docs/images/street-light.svg">
+</picture>
 
 34 ready-drawn subjects on eight shelves, to use as they are: messages, files, people, money, shopping, time, devices, and the building site the library started from. See them all, in any state, on [the site](https://ostraca.ahmedamr.com/figures). The full list, with what each one is for, is in [docs/options.md](docs/options.md#figures).
 

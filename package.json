@@ -58,6 +58,7 @@
     "registry": "node scripts/registry.mjs",
     "check": "node scripts/check.mjs",
     "sheet": "node scripts/sheet.mjs",
+    "cover": "node scripts/cover.mjs",
     "site": "node scripts/build-site.mjs",
     "site:serve": "node scripts/serve-site.mjs 4321"
   }

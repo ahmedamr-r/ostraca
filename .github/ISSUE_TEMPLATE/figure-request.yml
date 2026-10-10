@@ -1,0 +1,41 @@
+name: Request a figure
+description: An everyday object the library does not have yet.
+title: "Figure: "
+labels: ["figure request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check [the figures](https://ostraca.ahmedamr.com/figures) first: it may already be on a shelf. If you only need it for your own product, the [skill](https://ostraca.ahmedamr.com/skill) draws it for you now.
+  - type: input
+    id: object
+    attributes:
+      label: The object
+      description: Something anyone owns or has seen, as it looks from the side or the front. No brands or logos.
+      placeholder: A bicycle on its stand
+    validations:
+      required: true
+  - type: textarea
+    id: screens
+    attributes:
+      label: The screens it is for
+      description: The moments in a product where it would stand.
+      placeholder: Rides, routes, a trip in progress, a ride that was cancelled
+    validations:
+      required: true
+  - type: checkboxes
+    id: states
+    attributes:
+      label: The states you need most
+      options:
+        - label: idle, nothing to report
+        - label: empty, nothing here yet
+        - label: loading, working on it
+        - label: success, done
+        - label: changed, something new
+        - label: error, something went wrong
+  - type: textarea
+    id: more
+    attributes:
+      label: Anything else
+      description: How it might build from the ground up, which part changes, a product you would use it in.

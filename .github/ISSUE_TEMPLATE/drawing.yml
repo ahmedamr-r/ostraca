@@ -1,0 +1,33 @@
+name: Report a drawing
+description: A figure that draws wrong in some state, size, theme or browser.
+title: "Drawing: "
+labels: ["drawing"]
+body:
+  - type: input
+    id: figure
+    attributes:
+      label: The figure
+      placeholder: inbox
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: The options you passed
+      description: As you passed them to render(), mount() or the React component.
+      render: js
+      placeholder: 'render("inbox", { state: "loading", value: 0.4, crew: true })'
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What looks wrong
+      description: A screenshot helps most. A worker standing on air, a tick off the frame or a state that does not read are all worth reporting.
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Browser and theme
+      placeholder: Safari 19, dark

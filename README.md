@@ -9,6 +9,11 @@ Illustrations for every state your product is in, drawn by your agent.
 
 Ostraca is a skill for coding agents and the engine it draws with. Name any object and your agent draws it as a small building elevation in blueprint blue that follows your product through its states: set out while it is empty, rising while it loads, signed off when it is done, revised when it changes, out of true when something goes wrong. Ask for all six states or only the ones you need, as a figure for your app or as one SVG picture. 34 ready-drawn figures come with it, to use as they are and to start from.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/demo-dark.gif">
+  <img alt="An inbox, a laptop and a pile of coins going through the states together: set out while empty, rising under a ladder and scaffold while loading, signed off with a tick, revised with a cloud and version 2.4, and out of true with a plumb line" src=".github/demo-light.gif">
+</picture>
+
 [ostraca.ahmedamr.com](https://ostraca.ahmedamr.com). MIT licensed. No runtime dependencies. Works with or without React.
 
 Ostraca are the limestone flakes Egyptian tomb builders sketched on.
@@ -139,6 +144,10 @@ On [the site](https://ostraca.ahmedamr.com/docs), or here:
 - [Theming](docs/theming.md): colours, as tokens or as options, and dark mode
 - [Workers](docs/workers.md)
 - [Accessibility](docs/accessibility.md)
+
+## Contributing
+
+Ask for a figure with a [figure request](https://github.com/ahmedamr-r/ostraca/issues/new?template=figure-request.yml), or draw one for the library. [CONTRIBUTING.md](CONTRIBUTING.md) says how.
 
 ## Licence
 

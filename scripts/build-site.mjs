@@ -110,7 +110,7 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 <main id="main" class="page${wide ? " wide" : ""}">
 ${body}
 <footer class="colophon">
-  <p>Ostraca ${pkg.version}, MIT licensed. Drawn by <a href="https://ahmedamr.com">Ahmed Amr</a> in Cairo.</p>
+  <p>Ostraca ${pkg.version}, MIT licensed. Made by <a href="https://ahmedamr.com">Ahmed Amr</a> in Cairo.</p>
   <p><a href="https://github.com/ahmedamr-r/ostraca">Source</a> · <a href="https://x.com/ahmedamrr_r">X</a> · <a href="/llms.txt">llms.txt</a></p>
 </footer>
 </main>

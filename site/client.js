@@ -15,7 +15,22 @@ function setTheme(t) {
   store.set("ostraca-theme", t === "system" ? null : t);
   document.querySelectorAll("[data-theme-set]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.themeSet === (root.dataset.theme || "system"))));
 }
-document.querySelectorAll("[data-theme-set]").forEach((b) => b.addEventListener("click", () => setTheme(b.dataset.themeSet)));
+/* A switch the eye can see wipes the new theme down over the old one (the
+   theme wipe in site.css). Rapid clicks skip the running wipe and start
+   another, so only the latest one clears the attribute. While one runs, every
+   switch goes through a transition too: a running wipe may not have applied
+   its theme yet, and a switch made at once would land before it and lose.
+   Without view transitions, or with reduced motion, the theme changes at once. */
+const shown = (t) => (t === "light" || t === "dark" ? t : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+let wipeId = 0;
+function switchTheme(t) {
+  const wiping = "themeWipe" in root.dataset;
+  if (!wiping && (shown(t) === shown(root.dataset.theme) || typeof document.startViewTransition !== "function" || matchMedia("(prefers-reduced-motion: reduce)").matches)) return setTheme(t);
+  const id = ++wipeId;
+  root.dataset.themeWipe = ""; // before the old picture is taken: the stylesheet keys off it
+  document.startViewTransition(() => setTheme(t)).finished.catch(() => {}).finally(() => { if (id === wipeId) delete root.dataset.themeWipe; });
+}
+document.querySelectorAll("[data-theme-set]").forEach((b) => b.addEventListener("click", () => switchTheme(b.dataset.themeSet)));
 setTheme(root.dataset.theme || "system");
 
 /* ---- Copy buttons --------------------------------------------------------- */

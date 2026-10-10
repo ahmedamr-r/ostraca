@@ -362,3 +362,77 @@ pre.code:hover .copy, pre.code .copy:focus-visible, pre.code .copy[data-done] { 
 .actions { display: flex; gap: 10px; flex-basis: 100%; flex-wrap: wrap; align-items: center; padding-top: 4px; }
 .mono { font-family: var(--mono); }
 .seg button:focus-visible, .btn:focus-visible { border-radius: 999px; outline-offset: 2px; }
+
+/* ---------------------------------------------------------------------------
+   Theme wipe: the new theme comes down from the top over the old one, behind
+   a feathered edge. client.js sets data-theme-wipe for the length of it.
+   --------------------------------------------------------------------------- */
+/* The stop has to be a registered property. A gradient cannot be
+   animated, but a typed <percentage> can, and the gradient is redrawn
+   from it on every frame. */
+@property --theme-wipe {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+
+:root {
+  --theme-wipe-duration: 800ms;
+  --theme-wipe-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Depth of the feather, as a share of the page's height. 0% is a hard edge. */
+  --theme-wipe-bleed: 14%;
+}
+
+/* Scoped to one attribute, so nothing here touches any other view
+   transition on the page. The toggle sets it before starting and clears
+   it when the transition finishes. */
+:root[data-theme-wipe]::view-transition-old(root),
+:root[data-theme-wipe]::view-transition-new(root) {
+  /* Drops the browser's cross-fade and its plus-lighter blend, which
+     would wash the middle of the wipe out to white. */
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* The outgoing page sits still and gets covered. */
+:root[data-theme-wipe]::view-transition-old(root) {
+  z-index: 0;
+}
+
+/* The incoming page shows through the mask: opaque behind the stop,
+   transparent ahead of it, feathered across the bleed. */
+:root[data-theme-wipe]::view-transition-new(root) {
+  z-index: 1;
+  mask-image: linear-gradient(
+    to bottom,
+    #000 var(--theme-wipe),
+    transparent calc(var(--theme-wipe) + var(--theme-wipe-bleed))
+  );
+  animation: theme-wipe var(--theme-wipe-duration) var(--theme-wipe-ease) both;
+}
+
+/* Starts one bleed behind the leading edge, so the feather is off the
+   page on the first frame and none of the new theme shows early. */
+@keyframes theme-wipe {
+  from {
+    --theme-wipe: calc(-1 * var(--theme-wipe-bleed));
+  }
+  to {
+    --theme-wipe: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The toggle already skips the transition. This covers a preference that
+     changes mid-wipe, where a zeroed animation would freeze the mask on its
+     first frame and leave the new page invisible. */
+  :root[data-theme-wipe]::view-transition-new(root) {
+    mask-image: none;
+  }
+
+  :root[data-theme-wipe]::view-transition-group(*),
+  :root[data-theme-wipe]::view-transition-old(*),
+  :root[data-theme-wipe]::view-transition-new(*) {
+    animation-duration: 0s !important;
+  }
+}

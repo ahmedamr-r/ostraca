@@ -18,7 +18,7 @@ npx skills add ahmedamr-r/ostraca
 /ostraca coffee cup
 ```
 
-The agent writes one description file, checks it against the library's rules, draws contact sheets in light and dark, looks at them and fixes what it sees. Name a moment instead, such as `/ostraca something for a fitness app`, and it offers two or three objects to pick from. Then add the figure with `define()`, and it works everywhere a ready-drawn one does:
+The agent writes one description file, checks it against the library's rules, draws contact sheets in light and dark, looks at them and fixes what it sees. Name a moment instead, such as `/ostraca something for a fitness app`, and it offers two or three objects to pick from. Name only the states you need, as in `/ostraca coffee cup, empty only`, and it draws and checks just those; ask for a picture and it hands you one standalone SVG instead of a figure. Then add the figure with `define()`, and it works everywhere a ready-drawn one does:
 
 ```js
 import { define } from "ostraca";

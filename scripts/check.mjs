@@ -116,6 +116,7 @@ for (const { name } of list) {
       try {
         const { figure, parts } = inspect(name, opts);
         if (/^[a-z]/.test(figure.title) || /[–—]/.test(figure.title + figure.use)) fail(name, "title in sentence case, no dashes in title or use");
+        if (figure.states.length < STATES.length) fail(name, `draws only ${figure.states.join(", ")}: library figures draw all six states`);
         checkParts(where, figure, parts);
         checkSvg(where, figure, render(name, opts));
         checkSvg(`${where} rtl`, figure, render(name, { ...opts, dir: "rtl" }));

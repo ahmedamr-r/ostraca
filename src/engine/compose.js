@@ -185,15 +185,17 @@ export function renderFigure(fig, o) {
   const outline = p.outline ?? `<g class="dash">${p.courses.map((c) => c.svg).join("")}</g>`;
   const setout = outline + (p.contents ? `<g class="faint">${p.contents}</g>` : "");
 
-  let marks = tickMark(...p.tick) + cloudMark(p.revise, p.tag, o.rev || "");
+  // Only the marks of the states this figure draws (p.error is null without error).
+  const has = (s) => fig.states.includes(s);
+  let marks = (has("success") ? tickMark(...p.tick) : "") + (has("changed") ? cloudMark(p.revise, p.tag, o.rev || "") : "");
   if (p.error === "lean") {
     const bx = fx + p.side * (12 + (fy - p.top) * Math.tan((p.lean * Math.PI) / 180));
     const by = p.top + 3;
     marks += plumbMark(bx, by, Math.max(10, -by - 26));
-  } else marks += stringMark(...p.string);
+  } else if (p.error === "sag") marks += stringMark(...p.string);
   if (p.extras) marks += p.extras;
 
-  const { scaf, gin } = accessLayers(p);
+  const { scaf, gin } = has("loading") ? accessLayers(p) : { scaf: "", gin: "" };
   const crew = crewLayer(fig, p);
 
   let lettering = "";

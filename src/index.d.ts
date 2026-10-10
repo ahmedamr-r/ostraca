@@ -66,11 +66,13 @@ export interface Parts {
   foot?: Pt;
   /** The y of that side's top. Needed for "lean". */
   top?: number;
-  error: "lean" | "sag";
+  /** How it goes wrong. Needed when the figure draws error. */
+  error?: "lean" | "sag";
   lean?: number;
   /** The taut line for "sag". */
   string?: [Pt, Pt];
-  revise: Rect;
+  /** The part the revision cloud goes round. Needed when the figure draws changed. */
+  revise?: Rect;
   tag?: Pt;
   tick?: Pt;
   stations?: Stations;
@@ -98,10 +100,12 @@ export interface Description {
   travel?: { by: Pt; steps?: number };
   /** What the figure measures through opts.figure, for docs and sheets. */
   measures?: { what: string; unit?: string; sample: number };
+  /** The states this figure draws. Default all six; a figure for one screen can draw one. */
+  states?: State[];
   draw(ctx: Context): Parts;
 }
 
-export interface FigureInfo { name: string; title: string; shelf: string; use: string; measures?: Description["measures"] }
+export interface FigureInfo { name: string; title: string; shelf: string; use: string; measures?: Description["measures"]; /** Only on figures that draw fewer than six states. */ states?: State[] }
 export declare const figures: FigureInfo[];
 
 /** The figure as an <svg> string. Works without a DOM. */
@@ -117,11 +121,11 @@ export interface Mounted {
 export declare function mount(el: Element, figure: string | Description, opts?: Options): Mounted;
 
 /** Add a figure of your own. */
-export declare function define(description: Description): Readonly<Description & { depth: number }>;
+export declare function define(description: Description): Readonly<Description & { depth: number; states: State[] }>;
 
 /** For tools: what a figure draws in the given options. */
 export declare function inspect(figure: string | Description, opts?: Options): {
-  figure: Readonly<Description & { depth: number }>;
+  figure: Readonly<Description & { depth: number; states: State[] }>;
   parts: Parts & { stations: Record<State | "waiting", Station[]>; side: 1 | -1 };
   vars: Record<string, string | number>;
 };

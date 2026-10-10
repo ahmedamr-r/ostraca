@@ -43,6 +43,7 @@ export default {
   depth: 22,              // optional
   travel: { by: [dx, dy], steps: 8 },  // optional: the work moves instead of rising (ramp)
   measures: { what: "Unread messages", sample: 12 },  // optional: what opts.figure carries
+  states: ["empty"],      // optional: the states it draws (default all six); see Fewer states
   draw(ctx) { return parts; },
 };
 ```
@@ -52,20 +53,37 @@ export default {
 | Part | Required | Meaning |
 | --- | --- | --- |
 | `courses` | yes | Svg strings in build order, bottom first. `{ svg, still: true }` never leans (a footing, a stand). |
-| `outline` | yes (check) | The set-out, already dashed with `SET_OUT`. Include the still courses: in `empty` nothing is built. |
+| `outline` | yes (check) for empty, loading or error | The set-out, already dashed with `SET_OUT`. Include the still courses: in `empty` nothing is built. |
 | `contents` | no | Inside lines of the set-out, drawn faint. |
 | `fixed` | no | Always solid, not part of the build (a sledge, bearings, falsework under `when()`). |
 | `ground`, `hatch`, `groundLine` | no | Extra ground work; `hatch: [x0, x1]` for earth; `groundLine: false` when the figure draws its own cut (bridge). |
 | `foot`, `top` | yes for lean | The corner the work leans about and that side's top y. The work leans toward the side `foot` is on. |
-| `error` | yes | `"lean"` or `"sag"`. |
+| `error` | yes for error | `"lean"` or `"sag"`. |
 | `lean` | no | Degrees, default 6. Use 4 or 5 for tall narrow things. |
 | `string` | yes for sag | `[[x0, y0], [x1, y1]]`, the taut line the sag is measured against. |
-| `revise` | yes | `[x, y, w, h]`, the one part the cloud goes round. Must sit inside the viewBox. |
+| `revise` | yes for changed | `[x, y, w, h]`, the one part the cloud goes round. Must sit inside the viewBox. |
 | `tag`, `tick` | no | Where the revision triangle and the tick land. Defaults sit off `revise` and `foot`; set them when a worker or the work is in the way. |
 | `access` | no | `{ kind: "scaffold", at: [x0, x1] }` or `{ kind: "ladder", at, height, lean }`. Both get the gin wheel. |
 | `stations` | no | Where workers stand in each state (below). |
 | `letter` | no | `{ at, angle, arrow }`, where `opts.lettered` goes. |
 | `extras` | no | Real values drawn with the marks, such as `ctx.dimension(...)`. |
+
+### Fewer states
+
+A figure made for one screen can draw only that screen's state. Name them in `states`, and leave out every part that only the other states use:
+
+| State | Needs, beyond `courses` |
+| --- | --- |
+| `idle` | nothing |
+| `empty` | `outline` (and `contents`) |
+| `loading` | `outline`, and `access` with `foot` and `top` for a scaffold, or a ladder `height` |
+| `success` | `tick`, or `foot` and `top` for its default |
+| `changed` | `revise` (and `tag`) |
+| `error` | `outline`, `error`, then `foot`, `top` and `lean`, or `string` |
+
+Stations for states it does not draw are dropped, so give only its own. `render()` starts on the figure's first state (`idle` whenever it draws it), and any other state throws (`figure "cup" draws only empty, not "error"`). The check and the sheets cover only its states. Draw it to the same rules all the same: a figure for one state is still the same object in the same hand, so another state can be added later by adding its parts.
+
+Library figures draw all six: `scripts/check.mjs` fails one that does not, because the catalogue switches every figure through every state. Fewer states are for a figure made for one product.
 
 ### The inbox, annotated
 

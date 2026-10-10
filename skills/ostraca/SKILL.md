@@ -1,12 +1,12 @@
 ---
 name: ostraca
-description: Draw a new Ostraca figure, an everyday object as a flat line elevation on a ground line that the Ostraca engine turns into six product states (idle, empty, loading, success, changed, error). Use when someone asks for a new Ostraca figure, an illustration in the Ostraca style, or a hand drawn blueprint style empty, loading or error state illustration for a product.
-argument-hint: "[subject]"
+description: Draw a new Ostraca figure, an everyday object as a flat line elevation on a ground line that the Ostraca engine turns into product states (idle, empty, loading, success, changed, error), all six or only the ones asked for, and hand it over as a figure file or as one standalone SVG. Use when someone asks for a new Ostraca figure, an illustration in the Ostraca style, or a hand drawn blueprint style empty, loading or error state illustration for a product.
+argument-hint: "[subject], [states]"
 ---
 
 # Ostraca figures
 
-Ostraca is an open illustration library. Every figure is an everyday object drawn as a flat elevation on a ground line, in one fine line, blueprint blue on cream paper. A figure is a single description file. The engine reads it and draws all six states from it:
+Ostraca is an open illustration library. Every figure is an everyday object drawn as a flat elevation on a ground line, in one fine line, blueprint blue on cream paper. A figure is a single description file. The engine reads it and draws the states from it, all six or only the ones the person needs:
 
 | State | Drawn as |
 | --- | --- |
@@ -57,16 +57,22 @@ Never offer an object the library already has: alarm clock, bell, bin, bridge, b
 
 Stick to things anyone owns or has seen. No brand, no logo, no specific product someone could name.
 
+Then pin two more things from what the person said, without asking when it is clear:
+
+- **Which states.** If they name states or screens ("an empty state for the cart", "just the error picture", `/ostraca coffee cup, empty only`), draw only those, in `states`. If they say nothing about states, draw all six. Ask only when it is truly unclear, and say that fewer states means less to draw and check.
+- **A figure or a picture.** A figure is the description file, used in their app with `define()`, where the drawing can move between its states. A picture is one standalone SVG of one state, for a design file, a slide, an email or an `<img>`. If they ask for an image, a file or an SVG, or say it will not live in code, they want a picture: draw the figure for that one state and hand over the SVG (step 4).
+
 ### 2. Write the description file
 
 1. Read `contract.md` and `marks.md`, then read both examples top to bottom.
 2. Copy the closer example to `<name>.js` (kebab-case, the thing's plain name) and replace its geometry. Pick the `shelf` from this list: messages, files, people, money, shopping, time, devices, site. Keep its shape: constants at the top measured off one origin, a header comment saying what it is and what it is for, then the description.
-3. Draw it at the crew's scale: a worker is 45 tall. If the object is small, stand it on something (a table, a shelf, a stand) that is a still course. Fill `width` 300 to 320, `height` 90 to 135.
-4. Write `courses` bottom first, in the order it would be put together. Each solid thing is one closed path with `class="paper"`. Inside detail goes in a separate course or as `faint`.
-5. Write `outline` yourself: the profile of every course, still ones too, in one path dashed with `SET_OUT`. Put inside lines in `contents`.
-6. Choose `error`. Upright things lean (`foot`, `top`, `lean` of 4 to 6); things that span or rest across supports sag (`string`, and every moving part through `ctx.sag(build(0), build(DROP))`).
-7. Set `revise` round one part, `tick` above and clear, `tag` with 25 clear each side, `access` (a ladder for anything under about 80 tall, a scaffold for wide work), and the `stations`. Three placements catch most first drafts: in `empty` nothing is built, so the letterer stands on the ground; the success sitter sits at the other end of the top from the tick, at the top plus 3 when its feet hang over an edge; and the plumb line hangs about 12 out from the top corner on the `foot` side, so keep any table or shelf short on that side.
-8. Use only what `ctx` gives you and the nine poses: `sitter`, `leaner`, `carrier`, `shrugger`, `rope`, `hauler`, `pusher`, `letterer`, `caller`. The file imports nothing. 180 lines at most.
+3. If the person needs fewer than six states, set `states` and write only the parts those states use (the table under "Fewer states" in `contract.md`): an `empty` only figure needs its courses, its `outline` and an `empty` station, and no `error`, `revise`, `tick` or `access`. Skip the steps below that only serve the states left out.
+4. Draw it at the crew's scale: a worker is 45 tall. If the object is small, stand it on something (a table, a shelf, a stand) that is a still course. Fill `width` 300 to 320, `height` 90 to 135.
+5. Write `courses` bottom first, in the order it would be put together. Each solid thing is one closed path with `class="paper"`. Inside detail goes in a separate course or as `faint`.
+6. Write `outline` yourself: the profile of every course, still ones too, in one path dashed with `SET_OUT`. Put inside lines in `contents`.
+7. Choose `error`. Upright things lean (`foot`, `top`, `lean` of 4 to 6); things that span or rest across supports sag (`string`, and every moving part through `ctx.sag(build(0), build(DROP))`).
+8. Set `revise` round one part, `tick` above and clear, `tag` with 25 clear each side, `access` (a ladder for anything under about 80 tall, a scaffold for wide work), and the `stations`. Three placements catch most first drafts: in `empty` nothing is built, so the letterer stands on the ground; the success sitter sits at the other end of the top from the tick, at the top plus 3 when its feet hang over an edge; and the plumb line hangs about 12 out from the top corner on the `foot` side, so keep any table or shelf short on that side.
+9. Use only what `ctx` gives you and the nine poses: `sitter`, `leaner`, `carrier`, `shrugger`, `rope`, `hauler`, `pusher`, `letterer`, `caller`. The file imports nothing. 180 lines at most.
 
 Copy rules for `title`, `use` and every comment: sentence case, no em or en dashes, no full stop at the end of `use`, and the crew are "it" or called by pose name, never a gendered pronoun.
 
@@ -79,9 +85,9 @@ node check.mjs path/to/<name>.js
 node sheet.mjs path/to/<name>.js
 ```
 
-`check.mjs` renders every state with the crew off and on, mirrored, with no value and at 0 and 1, and exits 1 on a broken rule. Fix every failure. Read every warning. A clean check means the rules hold; most of what is wrong with a first draft only shows on the sheet.
+`check.mjs` renders every state the figure draws with the crew off and on, mirrored, with no value and at 0 and 1, and exits 1 on a broken rule. Fix every failure. Read every warning. A clean check means the rules hold; most of what is wrong with a first draft only shows on the sheet.
 
-`sheet.mjs` writes `sheets/<name>-light.png` and `sheets/<name>-dark.png` beside the figure. It starts its own headless Chrome on a free port and stops it after; pass `--port` only to reuse a Chrome you already run with remote debugging, and `--out` to write elsewhere. Open both and go through the look list at the end of `contract.md`, one question at a time, on the actual pixels. The ones that catch most first drafts:
+`sheet.mjs` writes `sheets/<name>-light.png` and `sheets/<name>-dark.png` beside the figure. It starts its own headless Chrome on a free port and stops it after; pass `--port` only to reuse a Chrome you already run with remote debugging, and `--out` to write elsewhere. Open both and go through the look list at the end of `contract.md`, one question at a time, on the actual pixels, for the states the figure draws. The ones that catch most first drafts:
 
 - At 240px with the crew off, can someone name the object?
 - Is the bottom half built at loading 0.5, and is the still course in the set-out?
@@ -93,7 +99,15 @@ Fix, check, draw again. Expect two or three passes.
 
 ### 4. Hand it over
 
-Give the person:
+For a picture, write the standalone SVG and look at its PNG before handing it over:
+
+```sh
+node sheet.mjs path/to/<name>.js --svg <state> --theme light
+```
+
+That writes `<name>-<state>-light.svg` beside the figure. Use the theme their surface is in, or both by leaving `--theme` out; `--crew` for the workers, `--paper` for the paper behind it, `--color`, `--crew-color` and `--paper-color` for their own colours. Give them the SVG's path and the PNG, and keep the figure file: another state or theme is one command away.
+
+For a figure, give the person:
 
 - the file's path;
 - the light sheet (and the dark one if anything differs);

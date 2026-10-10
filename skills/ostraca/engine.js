@@ -601,6 +601,9 @@ __defs.figure = (__x, __star) => {
                         success and changed stand at the end of it
        measures?,       { what, unit?, sample }: what opts.figure carries for this
                         figure (inbox: unread messages); sheets draw the sample
+       states?,         the states this figure draws (default all six). A figure
+                        made for one screen can draw only that one, and then
+                        only needs the parts that state uses (see NEEDS)
        draw(ctx),       returns the parts below; ctx carries the helpers and opts
      }
 
@@ -621,10 +624,10 @@ __defs.figure = (__x, __star) => {
      top        the y of that side's top; the plumb bracket hangs off it
                 (needed for "lean").
      error      "lean" (leans about foot off a plumb line) or "sag" (sag
-                parts drop under a taut string line).
+                parts drop under a taut string line). Error only.
      lean?      degrees for "lean" (default 6).
      string?    [[x0, y0], [x1, y1]] the taut line for "sag".
-     revise     [x, y, w, h] the part the revision cloud goes round.
+     revise     [x, y, w, h] the part the revision cloud goes round. Changed only.
      tag?       [x, y] where the revision triangle sits (default: right of the cloud).
      tick?      [x, y] where the tick's crook lands (default: above the top corner).
      stations   { empty, loading, waiting?, idle, success, changed, error }, each
@@ -642,6 +645,17 @@ const { POSE_NAMES } = __req("poses");
 const STATES = ["idle", "empty", "loading", "success", "changed", "error"];
 const STATION_KEYS = [...STATES, "waiting"];
 
+/** The parts each state draws with, beyond courses. A figure that leaves a
+    state out does not need that state's parts. */
+const NEEDS = {
+  idle: [],
+  empty: ["outline"],
+  loading: ["outline", "access"],
+  success: ["tick, or foot and top"],
+  changed: ["revise"],
+  error: ["outline", "error", "foot and top (lean)", "string (sag)"],
+};
+
 const fail = (name, msg) => {
   throw new Error(`ostraca: figure "${name}": ${msg}`);
 };
@@ -656,7 +670,13 @@ function defineFigure(d) {
   if (!(d.width > 0) || !(d.height > 0)) fail(name, "width and height must be positive");
   if (typeof d.draw !== "function") fail(name, "draw(ctx) is required");
   if (d.travel && !isPt(d.travel.by)) fail(name, "travel.by must be [dx, dy]");
-  return Object.freeze({ depth: 22, ...d });
+  let states = STATES;
+  if (d.states != null) {
+    if (!Array.isArray(d.states) || !d.states.length) fail(name, "states must be a list of one or more states");
+    for (const s of d.states) if (!STATES.includes(s)) fail(name, `states: "${s}" is not one of ${STATES.join(", ")}`);
+    states = STATES.filter((s) => d.states.includes(s));
+  }
+  return Object.freeze({ depth: 22, ...d, states: Object.freeze(states) });
 }
 
 /** Check what draw() returned and fill its defaults. */
@@ -668,16 +688,23 @@ function checkParts(fig, p) {
     if (!o || typeof o.svg !== "string") fail(name, `course ${i} is not svg`);
     return { svg: o.svg, still: !!o.still };
   });
-  if (p.error !== "lean" && p.error !== "sag") fail(name, 'error must be "lean" or "sag"');
-  if (p.error === "lean" && !isPt(p.foot)) fail(name, "foot must be [x, y]");
-  if (p.error === "lean" && !Number.isFinite(p.top)) fail(name, "top must be a number");
+  // Each state's parts are required only when the figure draws that state.
+  const has = (s) => fig.states.includes(s);
   if (p.foot != null && !isPt(p.foot)) fail(name, "foot must be [x, y]");
-  if (p.error === "sag" && p.tick == null && (p.foot == null || p.top == null)) fail(name, "a sag figure needs tick, or foot and top");
-  if (p.error === "sag" && !(Array.isArray(p.string) && p.string.every(isPt))) fail(name, "sag needs string [[x0, y0], [x1, y1]]");
+  if (has("error")) {
+    if (p.error !== "lean" && p.error !== "sag") fail(name, 'error must be "lean" or "sag"');
+    if (p.error === "lean" && !isPt(p.foot)) fail(name, "foot must be [x, y]");
+    if (p.error === "lean" && !Number.isFinite(p.top)) fail(name, "top must be a number");
+    if (p.error === "sag" && !(Array.isArray(p.string) && p.string.every(isPt))) fail(name, "sag needs string [[x0, y0], [x1, y1]]");
+  }
+  if (has("success") && p.tick == null && (p.foot == null || p.top == null)) fail(name, "success needs tick, or foot and top");
+  if (p.tick != null && !isPt(p.tick)) fail(name, "tick must be [x, y]");
   const rv = p.revise;
-  if (!(Array.isArray(rv) && rv.length === 4 && rv.every(Number.isFinite))) fail(name, "revise must be [x, y, w, h]");
+  if ((has("changed") || rv != null) && !(Array.isArray(rv) && rv.length === 4 && rv.every(Number.isFinite))) fail(name, "revise must be [x, y, w, h]");
   const stations = {};
   for (const k of STATION_KEYS) {
+    // A worker for a state the figure does not draw is never seen: dropped.
+    if (!has(k === "waiting" ? "loading" : k)) { stations[k] = []; continue; }
     const v = p.stations?.[k];
     const list = v == null ? [] : Array.isArray(v) ? v : [v];
     for (const s of list) {
@@ -689,20 +716,24 @@ function checkParts(fig, p) {
   if (!p.stations?.waiting) stations.waiting = stations.loading;
   const a = p.access;
   if (a && !(a.kind === "scaffold" && Array.isArray(a.at)) && !(a.kind === "ladder" && Number.isFinite(a.at))) fail(name, "access is { kind: 'scaffold', at: [x0, x1] } or { kind: 'ladder', at: x, height }");
+  if (a && has("loading") && a.kind === "scaffold" && !(isPt(p.foot) && Number.isFinite(p.top))) fail(name, "a scaffold needs foot and top");
+  if (a && has("loading") && a.kind === "ladder" && !Number.isFinite(a.height ?? p.top)) fail(name, "a ladder needs height, or top");
   const [fx] = p.foot ?? [fig.width / 2, 0];
   return {
     ...p,
     courses,
     stations,
+    error: has("error") ? p.error : null,
     lean: p.lean ?? 6,
     side: fx >= fig.width / 2 ? 1 : -1,
-    tick: p.tick ?? [fx + 6 * (fx >= fig.width / 2 ? 1 : -1), p.top - 7],
-    tag: p.tag ?? [rv[0] + rv[2] + 18, rv[1] - 4],
+    tick: p.tick ?? (Number.isFinite(p.top) ? [fx + 6 * (fx >= fig.width / 2 ? 1 : -1), p.top - 7] : null),
+    tag: p.tag ?? (rv ? [rv[0] + rv[2] + 18, rv[1] - 4] : null),
     letter: p.letter ?? { at: [Math.min(fx, 24), -fig.height + 18], angle: -2 },
   };
 }
 
 __x.STATES = STATES;
+__x.NEEDS = NEEDS;
 __x.defineFigure = defineFigure;
 __x.checkParts = checkParts;
 };
@@ -895,15 +926,17 @@ function renderFigure(fig, o) {
   const outline = p.outline ?? `<g class="dash">${p.courses.map((c) => c.svg).join("")}</g>`;
   const setout = outline + (p.contents ? `<g class="faint">${p.contents}</g>` : "");
 
-  let marks = tickMark(...p.tick) + cloudMark(p.revise, p.tag, o.rev || "");
+  // Only the marks of the states this figure draws (p.error is null without error).
+  const has = (s) => fig.states.includes(s);
+  let marks = (has("success") ? tickMark(...p.tick) : "") + (has("changed") ? cloudMark(p.revise, p.tag, o.rev || "") : "");
   if (p.error === "lean") {
     const bx = fx + p.side * (12 + (fy - p.top) * Math.tan((p.lean * Math.PI) / 180));
     const by = p.top + 3;
     marks += plumbMark(bx, by, Math.max(10, -by - 26));
-  } else marks += stringMark(...p.string);
+  } else if (p.error === "sag") marks += stringMark(...p.string);
   if (p.extras) marks += p.extras;
 
-  const { scaf, gin } = accessLayers(p);
+  const { scaf, gin } = has("loading") ? accessLayers(p) : { scaf: "", gin: "" };
   const crew = crewLayer(fig, p);
 
   let lettering = "";
@@ -965,7 +998,7 @@ __defs.index = (__x, __star) => {
 
      render(name, opts)       -> an <svg> string; no DOM needed (SSR, email, files)
      mount(el, name, opts)    -> { update(opts), destroy() }; updates animate
-     figures                  -> [{ name, title, shelf, use }]
+     figures                  -> [{ name, title, shelf, use, states? }]
      STATES                   -> ["idle", "empty", "loading", "success", "changed", "error"]
      define(description)      -> add a figure of your own
 
@@ -1000,12 +1033,13 @@ const table = new Map();
 for (const d of Object.values(registry)) table.set(d.name, defineFigure(d));
 
 /** Every figure in the library (and any you defined), for menus and docs. */
-const figures = [...table.values()].map(({ name, title, shelf, use, measures }) => ({ name, title, shelf, use, ...(measures ? { measures } : {}) }));
+const listed = ({ name, title, shelf, use, measures, states }) => ({ name, title, shelf, use, ...(measures ? { measures } : {}), ...(states.length < STATES.length ? { states } : {}) });
+const figures = [...table.values()].map(listed);
 
 /** Add a figure of your own. Returns the checked description. */
 function define(description) {
   const fig = defineFigure(description);
-  if (!table.has(fig.name)) figures.push({ name: fig.name, title: fig.title, shelf: fig.shelf, use: fig.use });
+  if (!table.has(fig.name)) figures.push(listed(fig));
   table.set(fig.name, fig);
   return fig;
 }
@@ -1027,9 +1061,11 @@ function colour(v, key) {
   return s;
 }
 
-function normalize(o = {}) {
-  const state = o.state ?? "idle";
+function normalize(o = {}, fig) {
+  // fig.states keeps the order of STATES, so this is idle whenever it draws idle.
+  const state = o.state ?? fig.states[0];
   if (!STATES.includes(state)) throw new Error(`ostraca: state "${state}" is not one of ${STATES.join(", ")}`);
+  if (!fig.states.includes(state)) throw new Error(`ostraca: figure "${fig.name}" draws only ${fig.states.join(", ")}, not "${state}"`);
   return {
     state,
     value: typeof o.value === "number" && Number.isFinite(o.value) ? o.value : undefined,
@@ -1048,7 +1084,8 @@ function normalize(o = {}) {
 
 /** The figure as an <svg> string. */
 function render(f, opts) {
-  return renderFigure(resolve(f), normalize(opts));
+  const fig = resolve(f);
+  return renderFigure(fig, normalize(opts, fig));
 }
 
 const supportsD = () => typeof CSS !== "undefined" && CSS.supports?.("d", 'path("M0 0")');
@@ -1060,7 +1097,7 @@ const supportsD = () => typeof CSS !== "undefined" && CSS.supports?.("d", 'path(
  */
 function mount(el, f, opts) {
   const fig = resolve(f);
-  let cur = normalize(opts);
+  let cur = normalize(opts, fig);
   const own = () => el.querySelector(`svg.ostraca[data-figure="${fig.name}"]`);
   if (!own()) el.innerHTML = renderFigure(fig, cur);
   const tpl = el.ownerDocument.createElement("template");
@@ -1076,7 +1113,7 @@ function mount(el, f, opts) {
 
   function update(next = {}) {
     const prev = cur;
-    cur = normalize({ ...prev, ...next });
+    cur = normalize({ ...prev, ...next }, fig);
     tpl.innerHTML = renderFigure(fig, cur);
     const fresh = tpl.content.firstElementChild;
     const old = own();
@@ -1115,7 +1152,7 @@ function mount(el, f, opts) {
 /** For tools: the checked parts a figure draws, in the given opts. */
 function inspect(f, opts) {
   const fig = resolve(f);
-  const o = normalize(opts);
+  const o = normalize(opts, fig);
   const parts = checkParts(fig, fig.draw(makeCtx(fig, o)));
   return { figure: fig, parts, vars: stateVars(fig, parts, o) };
 }
@@ -1133,4 +1170,4 @@ export const { ARROW_LONG, ARROW_WIDE, DIM_TICK, GLYPHS, LETTERABLE, POSES, POSE
 /** The figure styles (src/styles.css), for pages that draw figures. */
 export const STYLES = "/* ===========================================================================\n   Ostraca figure styles. Everything a drawing needs and nothing a page does.\n\n   Theming: every colour and step is a --ostraca-* custom property. The\n   defaults are light-dark() pairs, so they follow the page's color-scheme\n   (set `color-scheme: light dark` on your root, or `light` / `dark`).\n   Override any of them on :root or on a wrapper to retheme:\n\n     .my-card { --ostraca-thing: #0a5; --ostraca-paper: white; }\n\n   Motion: transitions and the crew's beat are off under\n   prefers-reduced-motion: reduce; the drawing still lands on its state.\n   =========================================================================== */\n\n:where(:root) {\n  /* Things are drawn in blueprint blue, people in the text ink. */\n  --ostraca-thing: light-dark(oklch(57% 0.09 243), oklch(80% 0.075 243));\n  --ostraca-crew: light-dark(oklch(28% 0.02 72), oklch(93% 0.004 307));\n  --ostraca-ground: light-dark(oklch(74% 0.016 80), oklch(100% 0 0 / 0.34));\n  --ostraca-label: light-dark(oklch(44% 0.021 72), oklch(83% 0.02 250));\n  /* The only fill: the paper the drawing sits on (cream pad / blueprint). */\n  --ostraca-paper: light-dark(#eee6d6, #1f3b5c);\n  /* Secondary detail is lower opacity, never a second weight. */\n  --ostraca-temp: 0.6;\n  --ostraca-faint: 0.35;\n  --ostraca-sans: \"Cubit Sans\", ui-sans-serif, system-ui, sans-serif;\n  --ostraca-mono: \"Cubit Mono\", ui-monospace, SFMono-Regular, Menlo, monospace;\n\n  /* Springs sampled into linear() (src/engine/svg.js SPRINGS). */\n  --ostraca-spring-lean: linear(0, 0.012, 0.043, 0.093, 0.154, 0.23, 0.308, 0.397, 0.484, 0.576, 0.661, 0.744, 0.826, 0.898, 0.968, 1.026, 1.08, 1.123, 1.161, 1.188, 1.21, 1.224, 1.231, 1.233, 1.229, 1.221, 1.21, 1.194, 1.177, 1.158, 1.138, 1.116, 1.096, 1.076, 1.056, 1.038, 1.021, 1.006, 0.992, 0.98, 0.97, 0.962, 0.955, 0.951, 0.948, 0.946, 0.946, 0.947, 0.949, 0.952, 0.955, 0.96, 0.964, 0.969, 0.973, 1);\n  --ostraca-spring-bob: linear(0, 0.032, 0.119, 0.25, 0.412, 0.593, 0.779, 0.959, 1.122, 1.261, 1.369, 1.444, 1.484, 1.491, 1.467, 1.418, 1.349, 1.266, 1.175, 1.084, 0.997, 0.92, 0.856, 0.807, 0.775, 0.759, 0.76, 0.776, 0.803, 0.839, 0.881, 0.926, 0.971, 1.012, 1.049, 1.078, 1.1, 1.114, 1.119, 1.116, 1.107, 1.092, 1.074, 1.052, 1.03, 1.009, 0.989, 0.972, 0.958, 0.948, 0.943, 0.941, 0.944, 0.949, 0.957, 1);\n  --ostraca-spring-sag: linear(0, 0.015, 0.052, 0.113, 0.188, 0.276, 0.379, 0.483, 0.59, 0.704, 0.808, 0.908, 1.006, 1.09, 1.168, 1.23, 1.281, 1.322, 1.35, 1.366, 1.372, 1.367, 1.354, 1.332, 1.305, 1.271, 1.235, 1.197, 1.155, 1.115, 1.076, 1.036, 1.002, 0.97, 0.941, 0.917, 0.896, 0.882, 0.871, 0.864, 0.862, 0.863, 0.868, 0.875, 0.885, 0.898, 0.911, 0.926, 0.941, 0.956, 0.971, 0.985, 0.998, 1.011, 1.021, 1);\n}\n\n@property --ostraca-built { syntax: \"<number>\"; inherits: true; initial-value: 1; }\n@property --ostraca-travel { syntax: \"<number>\"; inherits: true; initial-value: 1; }\n\n.ostraca { display: block; width: 100%; height: auto; overflow: visible; color: var(--ostraca-crew); }\n.ostraca :is(path, rect, circle, line) { vector-effect: non-scaling-stroke; }\n.ostraca .ink { fill: none; stroke: var(--ostraca-thing); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; }\n.ostraca .paper { fill: var(--ostraca-paper); }\n.ostraca .gnd { fill: none; stroke: var(--ostraca-ground); stroke-width: 1; stroke-linecap: round; }\n.ostraca .temp { opacity: var(--ostraca-temp); }\n.ostraca .faint { opacity: var(--ostraca-faint); }\n/* Dimension figures: the one place the mono face is drawn. */\n.ostraca .fig {\n  font-family: var(--ostraca-mono); font-size: 10px; fill: var(--ostraca-thing); stroke: none;\n  font-feature-settings: \"tnum\" 1; letter-spacing: 0.04em;\n}\n.ostraca .lbl { font-family: var(--ostraca-sans); font-size: 12px; fill: var(--ostraca-label); stroke: none; }\n/* Lettering is the one line that scales with the drawing, as a font would:\n   a marker's weight, about an eighth of the cap height, at any size. (The\n   pen group carries .ink, whose 1px would otherwise win by inheritance.)\n   The <text> twin is there for assistive tech and search, never shown. */\n.ostraca .lt .lt-pen { stroke-width: 1.3; }\n.ostraca .lt .lt-pen path { vector-effect: none; }\n.ostraca .lt-font { display: none; }\n\n/* The crew: two weights of line, in the ink of the text. */\n.ostraca .crew-g { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }\n.ostraca .crew-key { stroke-width: 1.6; opacity: 0.82; }\n.ostraca .crew-hair { stroke-width: 1; opacity: 0.45; }\n.ostraca .crew-g [data-pose=\"b\"] { opacity: 0; }\n\n/* ONE NUMBER: every course is drawn twice, set out and built, and the built\n   copy shows when --ostraca-built has passed its place in the order. */\n.ostraca-sub {\n  --ostraca-built: 1;\n  transition:\n    --ostraca-built var(--ostraca-t, 900ms) var(--ostraca-ease, cubic-bezier(0.2, 0.7, 0.3, 1)),\n    --ostraca-travel 240ms cubic-bezier(0.16, 0.84, 0.44, 1);\n}\n.ostraca .c { opacity: clamp(0, calc((var(--ostraca-built) * var(--n) - var(--i)) * 4), 1); }\n\n/* What each state shows. Delays on entry only. */\n.ostraca .L-setout { transition: opacity 260ms ease; }\n.ostraca-sub:is([data-state=\"idle\"], [data-state=\"success\"], [data-state=\"changed\"]) .L-setout { opacity: 0; }\n.ostraca .st, .ostraca .mk { opacity: 0; transition: opacity 160ms ease; }\n.ostraca .L-scaffold { opacity: 0; transition: opacity 200ms ease; }\n.ostraca-sub[data-state=\"loading\"] .L-scaffold { opacity: 1; transition: opacity 240ms ease; }\n.ostraca .L-gin { display: none; }\n.ostraca-sub[data-state=\"loading\"][data-unknown] .L-gin { display: inline; }\n.ostraca-sub[data-crew=\"off\"] .L-crew,\n.ostraca-sub[data-crew=\"off\"] .rest-on,\n.ostraca-sub[data-crew=\"on\"] .rest-off { display: none; }\n\n/* Stations and marks show in the states they list. */\n.ostraca-sub[data-state=\"empty\"] :is(.st, .mk)[data-st~=\"empty\"],\n.ostraca-sub[data-state=\"loading\"] :is(.st, .mk)[data-st~=\"loading\"],\n.ostraca-sub[data-state=\"idle\"] :is(.st, .mk)[data-st~=\"idle\"],\n.ostraca-sub[data-state=\"success\"] :is(.st, .mk)[data-st~=\"success\"],\n.ostraca-sub[data-state=\"changed\"] :is(.st, .mk)[data-st~=\"changed\"],\n.ostraca-sub[data-state=\"error\"] :is(.st, .mk)[data-st~=\"error\"] {\n  opacity: 1; transition: opacity 280ms ease 180ms;\n}\n.ostraca-sub[data-unknown] .st[data-known],\n.ostraca-sub:not([data-unknown]) .st[data-unknown-only] { opacity: 0 !important; }\n\n/* Standards grow up from the ground; lifts come one ahead of the work. */\n.ostraca .std { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform 300ms ease-out; }\n.ostraca-sub[data-state=\"loading\"] .std { transform: scaleY(1); }\n.ostraca .lift { transition: opacity 200ms ease, translate 200ms ease; }\n.ostraca-sub:not([data-state=\"loading\"]) .lift { opacity: 0; translate: 0 2px; transition-delay: calc((12 - var(--j, 0)) * 90ms); }\n.ostraca .board { transition: transform 240ms cubic-bezier(0.16, 0.84, 0.44, 1); }\n\n/* The tick: two strokes, the short one then the long one, each drawn from\n   its start by a scale rather than a dash offset. */\n.ostraca .tick path { stroke-width: 1.4; transform-box: fill-box; transform: scale(0); transition: transform 0ms; }\n.ostraca .tick .t1 { transform-origin: 0% 0%; }\n.ostraca .tick .t2 { transform-origin: 0% 100%; }\n.ostraca-sub[data-state=\"success\"] .tick path { transform: scale(1); transition: transform 160ms ease-out 260ms; }\n.ostraca-sub[data-state=\"success\"] .tick .t2 { transition-delay: 420ms; }\n\n/* The cloud: its scallops in clockwise order, then the tag. */\n.ostraca .cloud path { opacity: 0; transition: opacity 120ms ease; }\n.ostraca-sub[data-state=\"changed\"] .cloud path { opacity: 1; transition-delay: calc(var(--k) * 30ms + 120ms); }\n.ostraca .tag { opacity: 0; translate: 0 -4px; transition: opacity 160ms ease, translate 160ms ease; }\n.ostraca-sub[data-state=\"changed\"] .tag { opacity: 1; translate: 0 0; transition-delay: var(--tag-at, 700ms); }\n\n/* The true line: the work leans, the plumb line drops from its bracket and\n   the bob swings in and settles on a spring. */\n.ostraca .lean { transition: transform 1.6s var(--ostraca-spring-lean, ease-out); }\n.ostraca-sub[data-state=\"error\"] .lean { transform: skewX(var(--lean)); }\n.ostraca .cord { transform-box: fill-box; transform-origin: 50% 0%; transform: scaleY(0); transition: transform 0ms; }\n.ostraca-sub[data-state=\"error\"] .cord { transform: scaleY(1); transition: transform 380ms cubic-bezier(0.2, 0.8, 0.3, 1) 260ms; }\n.ostraca .bob { opacity: 0; }\n.ostraca-sub[data-state=\"error\"] .bob { opacity: 1; transition: opacity 120ms ease 560ms; }\n.ostraca-sub[data-state=\"error\"] .swing { animation: ostraca-swing 2.2s var(--ostraca-spring-bob, ease-out) 560ms both; }\n@keyframes ostraca-swing { from { transform: rotate(9deg); } to { transform: rotate(0deg); } }\n.ostraca .sag { transition: d 1.5s var(--ostraca-spring-sag, ease-out); }\n.ostraca-sub[data-state=\"error\"] .sag { d: var(--d1); }\n/* Sag drawings whose shapes cannot tween cross-fade instead. */\n.ostraca .sag-a, .ostraca .sag-b { transition: opacity 220ms ease; }\n.ostraca .sag-b, .ostraca-sub[data-state=\"error\"] .sag-a { opacity: 0; }\n.ostraca-sub[data-state=\"error\"] .sag-b { opacity: 1; }\n\n/* The default set-out: the courses again, dashed and unfilled. */\n.ostraca .dash :is(path, rect, circle, line) { stroke-dasharray: 4 3; }\n.ostraca .dash .paper { fill: none; }\n\n/* Travel: work that moves instead of rising (a load up a ramp). */\n.ostraca-sub[data-travel] .tr {\n  transform: translate(calc(var(--ostraca-travel) * var(--tx, 0px)), calc(var(--ostraca-travel) * var(--ty, 0px)));\n}\n\n/* Right to left: the drawing is mirrored, its figures read the right way. */\n.ostraca[data-dir=\"rtl\"] text.fig { transform-box: fill-box; transform-origin: 50% 50%; transform: scaleX(-1); }\n\n.ostraca .heave { transition: transform 240ms cubic-bezier(0.16, 0.84, 0.44, 1), d 240ms cubic-bezier(0.16, 0.84, 0.44, 1); }\n.ostraca .chainline { transition: d 280ms cubic-bezier(0.2, 0.8, 0.3, 1); }\n.ostraca .xfade { transition: opacity 220ms ease; }\n\n/* The gin wheel's load: the only loop, because there, work is going on. */\n.ostraca .gin-load { animation: ostraca-gin 1.6s ease-in-out infinite alternate; }\n.ostraca .gin-fall { transform-box: fill-box; transform-origin: 50% 0%; animation: ostraca-gin-fall 1.6s ease-in-out infinite alternate; }\n@keyframes ostraca-gin { from { transform: translateY(0); } to { transform: translateY(var(--gin-span)); } }\n@keyframes ostraca-gin-fall { from { transform: scaleY(1); } to { transform: scaleY(var(--gin-scale)); } }\n\n/* The worker's beat: two drawings, 3.4s, 64/36, a 2% smear. Busy halves it. */\n@media (prefers-reduced-motion: no-preference) {\n  .ostraca .crew-g [data-pose=\"a\"] { animation: ostraca-pose-a 3.4s steps(1) var(--crew-delay, 0s) infinite; }\n  .ostraca .crew-g [data-pose=\"b\"] { animation: ostraca-pose-b 3.4s steps(1) var(--crew-delay, 0s) infinite; }\n  .ostraca-sub[data-busy] .crew-g [data-pose=\"a\"] { animation: ostraca-pose-a 0.62s steps(1) 0s infinite; }\n  .ostraca-sub[data-busy] .crew-g [data-pose=\"b\"] { animation: ostraca-pose-b 0.62s steps(1) 0s infinite; }\n}\n@keyframes ostraca-pose-a { 0% { opacity: 0.62; } 2% { opacity: 1; } 62% { opacity: 0.42; } 64% { opacity: 0; } }\n@keyframes ostraca-pose-b { 0% { opacity: 0.42; } 2% { opacity: 0; } 62% { opacity: 0.62; } 64% { opacity: 1; } }\n\n/* Arrival: the drawing opens as its plan on two faint guides and inks in\n   the order it would be built. */\n.ostraca .guides { opacity: 0; transition: opacity 400ms ease; }\n.ostraca-sub[data-plan] .guides { opacity: 1; transition: none; }\n.ostraca-sub[data-plan] .L-setout { opacity: 1 !important; transition: none; }\n.ostraca-sub[data-plan] :is(.L-marks, .L-crew, .letter) { opacity: 0; transition: none; }\n.ostraca .letter { transition: opacity 300ms ease var(--letter-at, 0ms); }\n\n@media (prefers-reduced-motion: reduce) {\n  .ostraca-sub, .ostraca *, .ostraca *::before { transition-duration: 0ms !important; transition-delay: 0ms !important; }\n  .ostraca .swing, .ostraca .gin-load, .ostraca .gin-fall { animation: none !important; }\n  .ostraca .gin-load { transform: translateY(var(--gin-span)); }\n  .ostraca .gin-fall { transform: scaleY(var(--gin-scale)); }\n}\n";
 /** A hash of the sources this file was built from. */
-export const ENGINE_HASH = "22f9e1843c8110c1";
+export const ENGINE_HASH = "2609ea6dc5e4c59b";

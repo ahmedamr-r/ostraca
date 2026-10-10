@@ -30,13 +30,37 @@ Name an object and the agent draws it. Name a moment instead and it offers you t
 
 You pick one, and it carries on. Check the [figures](options.md#figures) first: the thing you want may already be on a shelf.
 
+### Only the states you need
+
+A figure draws all six states unless you say otherwise. Name the ones you need and the agent draws only those, which is less to draw and less to check:
+
+```
+/ostraca coffee cup, empty only
+```
+
+```
+/ostraca a parcel locker for the done and error screens of checkout
+```
+
+The figure file says so with `states: ["empty"]`, and leaves out every part only the other states use: an empty only figure has no revision cloud, tick, plumb line or scaffold. A state can be added later by adding its parts.
+
+### Just the picture
+
+Ask for an image instead of a figure, for a design file, a slide, an email or an `<img>`, and the agent hands you one standalone SVG of the state you asked for:
+
+```
+/ostraca a coffee cup for our empty orders page, as an svg
+```
+
+The file needs no stylesheet and no JavaScript: every line has its colour written on it. It comes in light, dark or both, with or without the workers and the paper behind it, in the library's colours or yours.
+
 ## What it does
 
 1. **Pins the subject.** The object, the product moments it serves, how it builds bottom first, which part changes, and whether it leans or sags when something goes wrong.
-2. **Writes one description file.** Geometry only: the pieces in build order, the dashed set-out, where the tick and the cloud land, where the workers stand. The engine draws the six states from it, so the file has no state code.
-3. **Checks it.** Every state, workers on and off, mirrored, at no value and at 0 and 1. A broken rule fails the check, and the agent fixes it.
-4. **Draws contact sheets and looks at them.** Light and dark, every state, then a list of questions on the actual pixels: can you name the object at 240px, is the bottom half built at 0.5, does the tick stay inside the frame. It expects two or three passes.
-5. **Hands it over.** The file, the sheets, the choices you might want changed, and what it did not verify (it looks at each state at rest, so it says when it has not watched the motion).
+2. **Writes one description file.** Geometry only: the pieces in build order, the dashed set-out, where the tick and the cloud land, where the workers stand, or only the parts the states you asked for use. The engine draws the states from it, so the file has no state code.
+3. **Checks it.** Every state it draws, workers on and off, mirrored, at no value and at 0 and 1. A broken rule fails the check, and the agent fixes it.
+4. **Draws contact sheets and looks at them.** Light and dark, every state it draws, then a list of questions on the actual pixels: can you name the object at 240px, is the bottom half built at 0.5, does the tick stay inside the frame. It expects two or three passes.
+5. **Hands it over.** The file, or the standalone SVG if you asked for a picture, with the sheets, the choices you might want changed, and what it did not verify (it looks at each state at rest, so it says when it has not watched the motion).
 
 Then you add the figure to your app with `define()`:
 
@@ -48,7 +72,13 @@ define(cup);
 el.innerHTML = render("coffee-cup", { state: "loading", value: 0.4 });
 ```
 
-After `define()`, the new figure works everywhere a library figure does: `render()`, `mount()`, the React component and the `figures` list.
+After `define()`, the new figure works everywhere a library figure does: `render()`, `mount()`, the React component and the `figures` list. A figure that draws fewer states starts on its first one, lists them in `figures`, and throws if asked for a state it does not draw.
+
+For another picture of the same figure, in a different state or theme, run the skill's sheet script on the file:
+
+```sh
+node sheet.mjs coffee-cup.js --svg empty --theme light --paper
+```
 
 ## What it will not do
 

@@ -3,7 +3,7 @@
 
      render(name, opts)       -> an <svg> string; no DOM needed (SSR, email, files)
      mount(el, name, opts)    -> { update(opts), destroy() }; updates animate
-     figures                  -> [{ name, title, shelf, use }]
+     figures                  -> [{ name, title, shelf, use, states? }]
      STATES                   -> ["idle", "empty", "loading", "success", "changed", "error"]
      define(description)      -> add a figure of your own
 
@@ -37,12 +37,13 @@ const table = new Map();
 for (const d of Object.values(registry)) table.set(d.name, defineFigure(d));
 
 /** Every figure in the library (and any you defined), for menus and docs. */
-export const figures = [...table.values()].map(({ name, title, shelf, use, measures }) => ({ name, title, shelf, use, ...(measures ? { measures } : {}) }));
+const listed = ({ name, title, shelf, use, measures, states }) => ({ name, title, shelf, use, ...(measures ? { measures } : {}), ...(states.length < STATES.length ? { states } : {}) });
+export const figures = [...table.values()].map(listed);
 
 /** Add a figure of your own. Returns the checked description. */
 export function define(description) {
   const fig = defineFigure(description);
-  if (!table.has(fig.name)) figures.push({ name: fig.name, title: fig.title, shelf: fig.shelf, use: fig.use });
+  if (!table.has(fig.name)) figures.push(listed(fig));
   table.set(fig.name, fig);
   return fig;
 }
@@ -64,9 +65,11 @@ function colour(v, key) {
   return s;
 }
 
-function normalize(o = {}) {
-  const state = o.state ?? "idle";
+function normalize(o = {}, fig) {
+  // fig.states keeps the order of STATES, so this is idle whenever it draws idle.
+  const state = o.state ?? fig.states[0];
   if (!STATES.includes(state)) throw new Error(`ostraca: state "${state}" is not one of ${STATES.join(", ")}`);
+  if (!fig.states.includes(state)) throw new Error(`ostraca: figure "${fig.name}" draws only ${fig.states.join(", ")}, not "${state}"`);
   return {
     state,
     value: typeof o.value === "number" && Number.isFinite(o.value) ? o.value : undefined,
@@ -85,7 +88,8 @@ function normalize(o = {}) {
 
 /** The figure as an <svg> string. */
 export function render(f, opts) {
-  return renderFigure(resolve(f), normalize(opts));
+  const fig = resolve(f);
+  return renderFigure(fig, normalize(opts, fig));
 }
 
 const supportsD = () => typeof CSS !== "undefined" && CSS.supports?.("d", 'path("M0 0")');
@@ -97,7 +101,7 @@ const supportsD = () => typeof CSS !== "undefined" && CSS.supports?.("d", 'path(
  */
 export function mount(el, f, opts) {
   const fig = resolve(f);
-  let cur = normalize(opts);
+  let cur = normalize(opts, fig);
   const own = () => el.querySelector(`svg.ostraca[data-figure="${fig.name}"]`);
   if (!own()) el.innerHTML = renderFigure(fig, cur);
   const tpl = el.ownerDocument.createElement("template");
@@ -113,7 +117,7 @@ export function mount(el, f, opts) {
 
   function update(next = {}) {
     const prev = cur;
-    cur = normalize({ ...prev, ...next });
+    cur = normalize({ ...prev, ...next }, fig);
     tpl.innerHTML = renderFigure(fig, cur);
     const fresh = tpl.content.firstElementChild;
     const old = own();
@@ -152,7 +156,7 @@ export function mount(el, f, opts) {
 /** For tools: the checked parts a figure draws, in the given opts. */
 export function inspect(f, opts) {
   const fig = resolve(f);
-  const o = normalize(opts);
+  const o = normalize(opts, fig);
   const parts = checkParts(fig, fig.draw(makeCtx(fig, o)));
   return { figure: fig, parts, vars: stateVars(fig, parts, o) };
 }

@@ -4,8 +4,9 @@
 
    Usage: node check.mjs path/to/figure.js [--quiet]
 
-   It renders the figure in all six states, crew off and on, mirrored and
-   with no loading value, and fails (exit 1) on anything that breaks a rule:
+   It renders the figure in every state it draws (all six, or the ones its
+   states field names), crew off and on, mirrored and with no loading
+   value, and fails (exit 1) on anything that breaks a rule:
    invalid SVG, a colour or fill, a gradient or filter, <text> outside a
    dimension figure, a part missing, a revise box outside the frame, an
    unknown pose, state code, a dash in the copy, a file over 180 lines.
@@ -13,7 +14,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname, join, basename } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { define, render, inspect, STATES, POSE_NAMES } from "./engine.js";
+import { define, render, inspect, POSE_NAMES } from "./engine.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -88,13 +89,18 @@ function checkSvg(where, fig, svg) {
 
 const inside = (fig, [x, y], padX = 0) => x - padX >= 0 && x + padX <= fig.width && y >= -fig.height && y <= fig.depth;
 
+// Each rule holds only for the states the figure draws: a figure for one
+// screen needs that screen's parts and no others.
 function checkParts(where, fig, p) {
-  if (!p.outline) fail(where, "no outline: draw the set-out yourself, dashed with SET_OUT, still courses included");
-  if (!p.foot) fail(where, "no foot");
-  const [x, y, w, h] = p.revise;
-  if (x < 0 || y < -fig.height || x + w > fig.width || y + h > fig.depth) fail(where, `revise box [${p.revise}] runs outside the viewBox`);
-  if (!inside(fig, p.tick)) fail(where, `tick [${p.tick}] lands outside the viewBox`);
-  if (!inside(fig, p.tag, 12)) warn(fig.name, `tag [${p.tag}] is within 12 of the frame; a long version will be cut`);
+  const has = (s) => fig.states.includes(s);
+  if (!p.outline && (has("empty") || has("loading") || has("error"))) fail(where, "no outline: draw the set-out yourself, dashed with SET_OUT, still courses included");
+  if (!p.foot && has("error")) fail(where, "no foot");
+  if (has("changed")) {
+    const [x, y, w, h] = p.revise;
+    if (x < 0 || y < -fig.height || x + w > fig.width || y + h > fig.depth) fail(where, `revise box [${p.revise}] runs outside the viewBox`);
+    if (!inside(fig, p.tag, 12)) warn(fig.name, `tag [${p.tag}] is within 12 of the frame; a long version will be cut`);
+  }
+  if (has("success") && !inside(fig, p.tick)) fail(where, `tick [${p.tick}] lands outside the viewBox`);
   for (const [st, list] of Object.entries(p.stations))
     for (const s of list) {
       if (!POSE_NAMES.includes(s.pose)) fail(where, `station ${st} uses "${s.pose}", not one of ${POSE_NAMES.join(", ")}`);
@@ -105,7 +111,7 @@ function checkParts(where, fig, p) {
   // the work. Ground and fixed parts are always drawn, so they can carry a worker.
   if (!p.ground && !p.fixed)
     for (const s of p.stations.empty) if (s.y < 0) warn(fig.name, `the empty ${s.pose} stands at y ${s.y}; in empty nothing is built, so stand it on the ground`);
-  for (const st of ["empty", "loading", "idle", "success", "changed", "error"])
+  for (const st of fig.states)
     if (!p.stations[st]?.length) warn(fig.name, `no ${st} station; with crew on, that state has nobody`);
 }
 
@@ -138,7 +144,7 @@ if (fig) {
   const samples = fig.measures ? [null, 0, 1, fig.measures.sample] : [null];
   for (const sample of samples)
     for (const crew of [false, true])
-      for (const state of STATES) {
+      for (const state of fig.states) {
         const figure = sample == null ? { value: 3, unit: "items" } : { value: sample, unit: fig.measures.unit };
         const opts = { state, crew, value: state === "loading" ? 0.5 : undefined, rev: "2.4.1", figure, lettered: "sent" };
         const where = `${fig.name} ${state}${crew ? " crew" : ""}${sample == null ? "" : ` figure ${sample}`}`;
@@ -170,4 +176,4 @@ if (failures.length) {
   console.error(`check: ${uniq(failures).length} failure${uniq(failures).length === 1 ? "" : "s"} in ${rel}`);
   process.exit(1);
 }
-console.log(`check: ${rel}, ${renders} renders, all good${warnings.length ? `, ${uniq(warnings).length} warning${uniq(warnings).length === 1 ? "" : "s"}` : ""}`);
+console.log(`check: ${rel}, ${renders} renders${fig.states.length < 6 ? ` (${fig.states.join(", ")} only)` : ""}, all good${warnings.length ? `, ${uniq(warnings).length} warning${uniq(warnings).length === 1 ? "" : "s"}` : ""}`);

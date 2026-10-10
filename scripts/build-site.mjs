@@ -312,12 +312,13 @@ write("skill.html", page({
 <h2 id="call">Call it</h2>
 <pre class="code"><code>/ostraca coffee cup</code></pre>
 <p>Name an object and the agent draws it. Name a moment instead, such as <code>/ostraca something for a fitness app</code>, and it offers two or three objects to pick from.</p>
+<p>You do not need all six states. Name the ones you need, as in <code>/ostraca coffee cup, empty only</code>, and the agent draws and checks only those. Ask for a picture rather than a figure and it hands you one standalone SVG of that state, for a design file, a slide or an email, with no stylesheet needed.</p>
 <h2 id="steps">Steps</h2>
 <ol class="steps">
   <li><div><b>Pin the subject</b><p>The object, the product moments it serves, how it builds from the bottom, which part changes, and whether it leans or sags when something goes wrong.</p></div></li>
-  <li><div><b>Write the description file</b><p>Geometry only: the pieces in build order, the dashed set-out, where the tick and the cloud land, where the workers stand. No state code.</p></div></li>
-  <li><div><b>Check, draw the sheet, look</b><p>Every state with the workers on and off, mirrored, at no value and at 0 and 1. A broken rule fails the check. Then light and dark sheets, and a list of questions asked of the pixels.</p></div></li>
-  <li><div><b>Hand it over</b><p>The file, the sheets, the choices you might want changed, and what it did not verify.</p></div></li>
+  <li><div><b>Write the description file</b><p>Geometry only: the pieces in build order, the dashed set-out, where the tick and the cloud land, where the workers stand. For fewer states, only the parts those states use. No state code.</p></div></li>
+  <li><div><b>Check, draw the sheet, look</b><p>Every state it draws, with the workers on and off, mirrored, at no value and at 0 and 1. A broken rule fails the check. Then light and dark sheets, and a list of questions asked of the pixels.</p></div></li>
+  <li><div><b>Hand it over</b><p>The file, or one standalone SVG if you asked for a picture, with the sheets, the choices you might want changed, and what it did not verify.</p></div></li>
   <li><div><b>Revise on request</b><p>Changes go back through the check and the sheets before they come back to you.</p></div></li>
 </ol>
 <h2 id="example">The figure it made</h2>

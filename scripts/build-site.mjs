@@ -31,6 +31,8 @@ for (const f of ["CubitSans-Variable.woff2", "CubitMono-Variable.woff2", "CubitS
 }
 write("assets/site.css", readFileSync(join(ROOT, "src/styles.css"), "utf8") + "\n" + readFileSync(join(ROOT, "site/site.css"), "utf8"));
 write("assets/client.js", readFileSync(join(ROOT, "site/client.js"), "utf8"));
+cpSync(join(ROOT, "site/og"), join(OUT, "og"), { recursive: true });
+cpSync(join(ROOT, ".github/cover-light.png"), join(OUT, "og/cover.png"));
 write("favicon.svg", `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#eee6d6"/><path d="M5 25H27" stroke="#9a8f80" stroke-width="1.5" stroke-linecap="round"/><path d="M9 25V12H23V25" fill="none" stroke="#3b78a8" stroke-width="1.5" stroke-dasharray="3 2.4"/><path d="M11.5 16.5L15 20L22 9" fill="none" stroke="#3b78a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
 
 /* ---- Order and sheet numbers (catalogue order, OS-101 onwards) -------------- */
@@ -85,7 +87,11 @@ const themeSeg = THEMES.map(([t, label, icon]) => `<button type="button" data-th
 
 const NAV = [["/skill", "Skill"], ["/figures", "Figures"], ["/docs", "Docs"], ["https://github.com/ahmedamr-r/ostraca", "GitHub"]];
 
-function page({ path, title, description, body, arriving = false, wide = false, noindex = false }) {
+/* The picture a shared link shows: the README cover, or a figure's own card
+   (scripts/og.mjs). Width and height let X and the rest lay it out at once. */
+const COVER = { src: "/og/cover.png", width: 2560, height: 1280, alt: "Ostraca: illustrations for every state your product is in, drawn by your agent. A step pyramid in blueprint blue with one block to go, and someone in a deck chair." };
+
+function page({ path, title, description, body, arriving = false, wide = false, noindex = false, image = COVER }) {
   const full = path === "/" ? "Ostraca" : `${title} · Ostraca`;
   const nav = NAV.map(([href, label]) => {
     const cur = href !== "/" && (path === href || path.startsWith(href + "/"));
@@ -103,7 +109,12 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${SITE}${path}">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="${SITE}${image.src}">
+<meta property="og:image:width" content="${image.width}">
+<meta property="og:image:height" content="${image.height}">
+<meta property="og:image:alt" content="${esc(image.alt)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${SITE}${image.src}">
 <meta name="twitter:creator" content="@ahmedamrr_r">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -216,6 +227,7 @@ ordered.forEach((f, k) => {
   const measureField = m ? `<label class="field">${esc(m.what)}${m.unit ? ` <span class="faint-unit">(${esc(m.unit)})</span>` : ""}<input type="text" data-measure inputmode="${typeof m.sample === "number" ? "decimal" : "text"}" autocomplete="off" aria-describedby="fig-note"></label>` : "";
   write(`figures/${f.name}.html`, page({
     path: `/figures/${f.name}`, title: f.title,
+    image: { src: `/og/${f.name}.png`, width: 1800, height: 945, alt: `${f.title}, an Ostraca figure, signed off with its crew on site: ${f.use}` },
     description: `${f.title}, an Ostraca figure for ${f.use.charAt(0).toLowerCase() + f.use.slice(1)}. Six states, MIT licensed.`,
     body: `
 <nav class="crumbs" aria-label="Breadcrumb"><a href="/figures">Figures</a><span aria-hidden="true">/</span><a href="/figures#${shelf?.key}">${esc(shelf?.title || f.shelf)}</a></nav>

@@ -59,6 +59,7 @@
     "check": "node scripts/check.mjs",
     "sheet": "node scripts/sheet.mjs",
     "cover": "node scripts/cover.mjs",
+    "og": "node scripts/og.mjs",
     "site": "node scripts/build-site.mjs",
     "site:serve": "node scripts/serve-site.mjs 4321"
   }

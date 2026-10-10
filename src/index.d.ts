@@ -33,6 +33,12 @@ export interface Options {
   decorative?: boolean;
   /** "rtl" mirrors the drawing; lettering and figures still read left to right. */
   dir?: "ltr" | "rtl";
+  /** Any CSS colour for the drawing's lines, marks and figures. Default: `--ostraca-thing`. */
+  color?: string;
+  /** Any CSS colour for the workers. Default: `--ostraca-crew`. */
+  crewColor?: string;
+  /** Any CSS colour for the paper the drawing sits on: the fill behind each part. Default: `--ostraca-paper`. */
+  paperColor?: string;
 }
 
 export interface Station {

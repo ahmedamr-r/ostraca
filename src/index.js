@@ -17,6 +17,9 @@
      title       the accessible name (default: the figure's title and state)
      decorative  true hides it from assistive tech
      dir         "rtl" mirrors the drawing, not its lettering or figures
+     color       any CSS colour for the drawing's lines (default: --ostraca-thing)
+     crewColor   any CSS colour for the workers (default: --ostraca-crew)
+     paperColor  any CSS colour for the paper under the drawing (default: --ostraca-paper)
    =========================================================================== */
 import { defineFigure, STATES } from "./engine/figure.js";
 import { renderFigure, stateVars, makeCtx } from "./engine/compose.js";
@@ -53,6 +56,14 @@ function resolve(f) {
   return table.get(f?.name) === f ? f : defineFigure(f);
 }
 
+/* A colour is written into a style attribute, so it may not carry a ; or markup. */
+function colour(v, key) {
+  if (v == null || v === "") return "";
+  const s = String(v).trim();
+  if (/[;{}<>"'\\]/.test(s)) throw new Error(`ostraca: ${key} "${s}" is not a colour`);
+  return s;
+}
+
 function normalize(o = {}) {
   const state = o.state ?? "idle";
   if (!STATES.includes(state)) throw new Error(`ostraca: state "${state}" is not one of ${STATES.join(", ")}`);
@@ -66,6 +77,9 @@ function normalize(o = {}) {
     title: o.title ?? "",
     decorative: !!o.decorative,
     dir: o.dir === "rtl" ? "rtl" : "ltr",
+    color: colour(o.color, "color"),
+    crewColor: colour(o.crewColor, "crewColor"),
+    paperColor: colour(o.paperColor, "paperColor"),
   };
 }
 
@@ -104,7 +118,7 @@ export function mount(el, f, opts) {
     const fresh = tpl.content.firstElementChild;
     const old = own();
     if (!old || prev.dir !== cur.dir) { el.replaceChildren(fresh); settleSag(); return; }
-    for (const a of ["role", "aria-label", "aria-hidden", "focusable"]) {
+    for (const a of ["role", "aria-label", "aria-hidden", "focusable", "style"]) {
       fresh.hasAttribute(a) ? old.setAttribute(a, fresh.getAttribute(a)) : old.removeAttribute(a);
     }
     const t0 = old.querySelector(":scope > title"), t1 = fresh.querySelector(":scope > title");

@@ -231,7 +231,10 @@ ${ground}
   const label = labelFor(fig, o);
   const a11y = o.decorative ? `aria-hidden="true" focusable="false"` : `role="img" aria-label="${esc(label)}"`;
   const title = o.decorative ? "" : `<title>${esc(label)}</title>`;
-  return `<svg class="ostraca" data-figure="${fig.name}"${rtl ? ' data-dir="rtl"' : ""} viewBox="0 ${-H} ${W} ${H + D}" ${a11y} xmlns="http://www.w3.org/2000/svg">${title}<g transform="translate(0.5 -0.5)">${drawing}${letterG}</g></svg>`;
+  // Colours passed as options sit on the drawing itself, over the stylesheet's.
+  const inks = [["--ostraca-thing", o.color], ["--ostraca-crew", o.crewColor], ["--ostraca-paper", o.paperColor]]
+    .filter(([, v]) => v).map(([k, v]) => `${k}:${v}`).join(";");
+  return `<svg class="ostraca" data-figure="${fig.name}"${rtl ? ' data-dir="rtl"' : ""}${inks ? ` style="${esc(inks)}"` : ""} viewBox="0 ${-H} ${W} ${H + D}" ${a11y} xmlns="http://www.w3.org/2000/svg">${title}<g transform="translate(0.5 -0.5)">${drawing}${letterG}</g></svg>`;
 }
 
 export { SET_OUT };

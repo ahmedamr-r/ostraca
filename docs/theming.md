@@ -11,6 +11,20 @@ Every colour in a drawing comes from a `--ostraca-*` custom property in `ostraca
 
 The defaults are set inside `:where(:root)`, so any rule of yours wins without `!important`.
 
+## From options
+
+For one drawing, pass the colours as options instead. `color` sets `--ostraca-thing`, `crewColor` sets `--ostraca-crew` and `paperColor` sets `--ostraca-paper`, on that drawing only:
+
+```jsx
+<Ostraca name="seats" state="success" crew color="#2f6f4f" crewColor="#1c1917" paperColor="#ffffff" />
+```
+
+```js
+render("seats", { state: "success", crew: true, color: "light-dark(#2f6f4f, #9fd6b6)" });
+```
+
+They take any CSS colour, `var()` and `light-dark()` included, and win over any stylesheet. The same advice holds as for the tokens below: the paper should match the surface, and the lines need 3:1 against it.
+
 ## The tokens
 
 | Token | Light | Dark | Used for |

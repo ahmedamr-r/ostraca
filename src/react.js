@@ -24,7 +24,7 @@ export function Ostraca(props) {
   useEffect(() => {
     api.current?.update(opts);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [opts.state, opts.value, opts.rev, f?.value, f?.unit, opts.crew, opts.lettered, opts.title, opts.decorative, opts.dir]);
+  }, [opts.state, opts.value, opts.rev, f?.value, f?.unit, opts.crew, opts.lettered, opts.title, opts.decorative, opts.dir, opts.color, opts.crewColor, opts.paperColor]);
 
   return createElement(as, {
     ref,

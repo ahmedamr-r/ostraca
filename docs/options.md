@@ -21,6 +21,9 @@ render("inbox", {
 | `title` | string | the figure's title and state | The accessible name |
 | `decorative` | boolean | `false` | Hides the drawing from assistive tech |
 | `dir` | `"ltr"` or `"rtl"` | `"ltr"` | `"rtl"` mirrors the drawing for right to left pages |
+| `color` | CSS colour | `--ostraca-thing` | The colour of the drawing: its lines, marks and figures |
+| `crewColor` | CSS colour | `--ostraca-crew` | The colour of the workers |
+| `paperColor` | CSS colour | `--ostraca-paper` | The paper the drawing sits on |
 
 ## `state`
 
@@ -97,6 +100,18 @@ render("tin-can-line", { state: "error", dir: "rtl" });
 ```
 
 Mirrors the drawing so it faces the way your page reads. Lettering and dimension figures still read left to right. See [right to left](accessibility.md#right-to-left).
+
+## `color`, `crewColor` and `paperColor`
+
+```js
+render("inbox", { state: "loading", crew: true, color: "#c2410c", crewColor: "#1c1917" });
+```
+
+```jsx
+<Ostraca name="inbox" state="loading" crew color="var(--accent-600)" crewColor="var(--text)" />
+```
+
+The colours of one drawing: `color` for the thing and everything drawn on it, `crewColor` for the workers, `paperColor` for the surface it sits on. Any CSS colour works, including `var()` and `light-dark()`. Each one sets its `--ostraca-*` token on that drawing only, so leave it out and the stylesheet's colour stays. Change one with `update()` or a new prop and the drawing takes it at once. [Theming](theming.md#from-options) says which colours work.
 
 ## Figures
 

@@ -72,6 +72,9 @@ import { figures } from "ostraca";
 | `title` | title and state | The accessible name |
 | `decorative` | `false` | Hides it from assistive tech |
 | `dir` | `"ltr"` | `"rtl"` mirrors the drawing |
+| `color` | `--ostraca-thing` | Any CSS colour for the drawing |
+| `crewColor` | `--ostraca-crew` | Any CSS colour for the workers |
+| `paperColor` | `--ostraca-paper` | Any CSS colour for the paper under it |
 
 ## Docs
 

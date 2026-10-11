@@ -1,0 +1,44 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Figures, skill and site
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # Every library figure in every state, and the skill's copy of the
+      # engine and of the inbox and laptop built from the sources as they are.
+      - name: Library figures
+        run: npm run check
+
+      - name: The skill's examples
+        run: for f in skills/ostraca/examples/*.js; do node skills/ostraca/check.mjs "$f"; done
+
+      - name: The site builds
+        run: node scripts/build-site.mjs
+
+      - name: Nothing generated is out of date
+        run: |
+          node scripts/registry.mjs
+          node scripts/bundle-skill.mjs
+          git status --short
+          test -z "$(git status --porcelain)"

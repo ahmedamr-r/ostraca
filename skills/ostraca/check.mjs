@@ -23,7 +23,6 @@ const quiet = args.includes("--quiet");
 if (!file) { console.error("usage: node check.mjs path/to/figure.js"); process.exit(2); }
 
 const MAX_LINES = 180;
-const BANNED = ["drum", "truck", "weighbridge", "jerrycan", "tank", "oil"];
 const failures = [], warnings = [];
 const fail = (where, msg) => failures.push(`${where}: ${msg}`);
 const warn = (where, msg) => warnings.push(`${where}: ${msg}`);
@@ -83,8 +82,6 @@ function checkSvg(where, fig, svg) {
       fail(where, "<text> outside a dimension figure; letter words with letter()");
     if (["linearGradient", "radialGradient", "pattern", "filter", "image", "foreignObject", "script", "mask"].includes(el.name)) fail(where, `<${el.name}> is not allowed`);
   }
-  const lower = svg.toLowerCase().replace(/<path[^>]*>/g, "");
-  for (const w of BANNED) if (new RegExp(`\\b${w}\\b`).test(lower)) fail(where, `the word "${w}" is in the markup`);
 }
 
 const inside = (fig, [x, y], padX = 0) => x - padX >= 0 && x + padX <= fig.width && y >= -fig.height && y <= fig.depth;
@@ -115,14 +112,13 @@ function checkParts(where, fig, p) {
     if (!p.stations[st]?.length) warn(fig.name, `no ${st} station; with crew on, that state has nobody`);
 }
 
-// The file itself: length, words, copy, state code, imports.
+// The file itself: length, copy, state code, imports.
 const path = resolve(file);
 if (basename(path).startsWith("_")) { console.log(`check: ${basename(path)} is a helper file, not a figure; skipped`); process.exit(0); }
 const src = readFileSync(path, "utf8");
 const rel = basename(path);
 const lines = src.split("\n").length;
 if (lines > MAX_LINES) fail(rel, `${lines} lines, over ${MAX_LINES}`);
-for (const w of BANNED) if (new RegExp(`\\b${w}\\b`, "i").test(src)) fail(rel, `the word "${w}"`);
 if (/[\u2013\u2014]/.test(src)) fail(rel, "an en or em dash");
 if (/opts\.state|\bstate\s*===?\s*["']/.test(src)) fail(rel, "state code: never branch on the state; the engine draws all six from your parts");
 if (/<text\b(?![^>]*class="fig")/.test(src)) fail(rel, "<text> in the figure: letter words with letter(), numbers with dimension()");

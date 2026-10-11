@@ -24,6 +24,8 @@ Ostraca are the limestone flakes Egyptian tomb builders sketched on.
 npx skills add ahmedamr-r/ostraca
 ```
 
+Add `-g` to install it for every project, or [download the zip](https://skills.ahmedamr.com/ostraca/ostraca.zip) and unzip it into your agent's skills folder if you do not use the skills CLI ([every way in](docs/skill.md#install)).
+
 Then ask your agent for an illustration, for an empty state, an upload screen, a 404 or anything else in your product. Or call the skill by name:
 
 ```

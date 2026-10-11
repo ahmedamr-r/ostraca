@@ -4,8 +4,18 @@ Your product needs its own objects. The Ostraca skill teaches a coding agent to 
 
 ## Install
 
+| For | Run |
+| --- | --- |
+| You, in every project | `npx skills add ahmedamr-r/ostraca -g` |
+| This project only | `npx skills add ahmedamr-r/ostraca` |
+| Without the skills CLI | Download [ostraca.zip](https://skills.ahmedamr.com/ostraca/ostraca.zip) and unzip it into your agent's skills folder |
+
+The skills CLI asks which agents to set it up for; add `-a claude-code` to pick Claude Code alone. `npx skills update` brings it up to date.
+
+The zip holds the same folder the CLI installs. For Claude Code, in every project:
+
 ```sh
-npx skills add ahmedamr-r/ostraca
+curl -fsSLo ostraca.zip https://skills.ahmedamr.com/ostraca/ostraca.zip && unzip -o ostraca.zip -d ~/.claude/skills
 ```
 
 This adds the `ostraca` skill to your agent. It works in any agent that reads `SKILL.md` skills, such as Claude Code.
@@ -30,7 +40,7 @@ Name an object and the agent draws it. Name a moment instead and it offers you t
 > 2. A water bottle on a bench: daily goals, a streak kept. Builds bench, bottle, cap; the cloud goes round the cap; it leans.
 > 3. A treadmill from the side: a run in progress, a plan finished. Builds deck, uprights, console; the cloud goes round the console; it leans.
 
-You pick one, and it carries on. Check the [figures](options.md#figures) first: the thing you want may already be on a shelf.
+You pick one, and it carries on. If the thing you asked for is already on a [shelf](options.md#figures), or one of the figures was made for your screen, it says so first and shows you how to use that one, in your app or as an SVG from its sheet.
 
 ### The options it asks for
 
@@ -73,7 +83,7 @@ The file needs no stylesheet and no JavaScript: every line has its colour writte
 
 ## What it does
 
-1. **Pins the subject and asks for your options.** The object, the product moments it serves, how it builds bottom first, which part changes, and whether it leans or sags when something goes wrong. Then the states, a figure or a picture, and for a picture how it should look.
+1. **Pins the subject and asks for your options.** First, whether the library already has it. Then the object, the product moments it serves, how it builds bottom first, which part changes, and whether it leans or sags when something goes wrong. Then the states, a figure or a picture, and for a picture how it should look.
 2. **Writes one description file.** Geometry only: the pieces in build order, the dashed set-out, where the tick and the cloud land, where the workers stand, or only the parts the states you asked for use. The engine draws the states from it, so the file has no state code.
 3. **Checks it.** Every state it draws, workers on and off, mirrored, at no value and at 0 and 1. A broken rule fails the check, and the agent fixes it.
 4. **Draws contact sheets and looks at them.** Light and dark, every state it draws, then a list of questions on the actual pixels: can you name the object at 240px, is the bottom half built at 0.5, does the tick stay inside the frame. It expects two or three passes.
@@ -113,4 +123,4 @@ The skill keeps to the library's grammar. Ask it for any of these and it will sa
 
 ## Inside the skill
 
-The skill folder holds what the agent reads and runs: the instructions, the figure contract, a reference of what each mark means, two worked examples (an inbox that leans and a laptop that sags), the engine in one file, and the check and sheet scripts. You can read them on [GitHub](https://github.com/ahmedamr-r/ostraca/tree/main/skills/ostraca).
+The skill folder holds what the agent reads and runs: the instructions, the figure contract, a reference of what each mark means, four worked examples (an inbox that leans, a laptop that sags, a coffee cup on a table and a bookcase that draws only `empty`), the engine in one file, the check and sheet scripts, and the test prompts the skill is measured against (`evals/evals.json`). You can read them on [GitHub](https://github.com/ahmedamr-r/ostraca/tree/main/skills/ostraca).

@@ -15,6 +15,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { render, figures, STATES, define } from "../src/index.js";
 import { md, esc } from "./md.mjs";
+import { zip } from "./zip.mjs";
 import { STREET, HERO } from "../site/street.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -38,6 +39,14 @@ for (const f of ["CubitSans-Variable.woff2", "CubitMono-Variable.woff2", "CubitS
 write(at("/assets/site.css"), readFileSync(join(ROOT, "src/styles.css"), "utf8") + "\n" + readFileSync(join(ROOT, "site/site.css"), "utf8"));
 write(at("/assets/client.js"), readFileSync(join(ROOT, "site/client.js"), "utf8"));
 cpSync(join(ROOT, "site/og"), join(OUT, at("/og")), { recursive: true });
+/* The skill as one download, for anyone without the skills CLI: unzipped
+   into an agent's skills folder, it is the folder npx skills add installs.
+   Sheets drawn while working on a figure, and dot files, stay out. */
+const skillFiles = (dir, base) => readdirSync(dir, { withFileTypes: true })
+  .filter((e) => e.name !== "sheets" && !e.name.startsWith("."))
+  .sort((a, b) => a.name.localeCompare(b.name))
+  .flatMap((e) => e.isDirectory() ? skillFiles(join(dir, e.name), `${base}/${e.name}`) : [{ name: `${base}/${e.name}`, data: readFileSync(join(dir, e.name)) }]);
+write(at("/ostraca.zip"), zip(skillFiles(join(ROOT, "skills/ostraca"), "ostraca")));
 cpSync(join(ROOT, ".github/cover-light.png"), join(OUT, at("/og/cover.png")));
 write(at("/favicon.svg"), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#eee6d6"/><path d="M5 25H27" stroke="#9a8f80" stroke-width="1.5" stroke-linecap="round"/><path d="M9 25V12H23V25" fill="none" stroke="#3b78a8" stroke-width="1.5" stroke-dasharray="3 2.4"/><path d="M11.5 16.5L15 20L22 9" fill="none" stroke="#3b78a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
 
@@ -369,7 +378,13 @@ write(at("/skill") + ".html", page({
 <div class="docs" style="grid-template-columns:minmax(0,1fr)">
 <article class="prose">
 <h2 id="install">Install</h2>
-<pre class="code"><code>npx skills add ahmedamr-r/ostraca</code></pre>
+<div class="table"><table><thead><tr><th>For</th><th>Run</th></tr></thead><tbody>
+<tr><td>You, in every project</td><td><code>npx skills add ahmedamr-r/ostraca -g</code></td></tr>
+<tr><td>This project only</td><td><code>npx skills add ahmedamr-r/ostraca</code></td></tr>
+<tr><td>Without the skills CLI</td><td><a href="${at("/ostraca.zip")}" download>Download ostraca.zip</a> and unzip it into your agent's skills folder</td></tr>
+</tbody></table></div>
+<p>The skills CLI asks which agents to set it up for; add <code>-a claude-code</code> to pick Claude Code alone. <code>npx skills update</code> brings it up to date. The zip holds the same folder the CLI installs. For Claude Code, in every project:</p>
+<pre class="code"><code>curl -fsSLo ostraca.zip ${SITE}${at("/ostraca.zip")} &amp;&amp; unzip -o ostraca.zip -d ~/.claude/skills</code></pre>
 <p>It works in any agent that reads <code>SKILL.md</code> skills, such as Claude Code. The checks and sheets need Node 22 and Google Chrome or Chromium; there is nothing else to install.</p>
 <h2 id="call">Call it</h2>
 <p>Ask your agent for an illustration, for an empty state, an upload screen, a 404 or anything else in your product, and it reaches for the skill. Or call it by name:</p>
@@ -384,7 +399,7 @@ write(at("/skill") + ".html", page({
 </tbody></table></div>
 <h2 id="steps">Steps</h2>
 <ol class="steps">
-  <li><div><b>Pin the subject, ask for the options</b><p>The object, the product moments it serves, how it builds from the bottom, which part changes, and whether it leans or sags when something goes wrong. Then the states, a figure or a picture, and how a picture should look.</p></div></li>
+  <li><div><b>Pin the subject, ask for the options</b><p>First, whether the library already has it: then it shows you that figure instead. Otherwise the object, the product moments it serves, how it builds from the bottom, which part changes, and whether it leans or sags when something goes wrong. Then the states, a figure or a picture, and how a picture should look.</p></div></li>
   <li><div><b>Write the description file</b><p>Geometry only: the pieces in build order, the dashed set-out, where the tick and the cloud land, where the workers stand. For fewer states, only the parts those states use. No state code.</p></div></li>
   <li><div><b>Check, draw the sheet, look</b><p>Every state it draws, with the workers on and off, mirrored, at no value and at 0 and 1. A broken rule fails the check. Then light and dark sheets, and a list of questions asked of the pixels.</p></div></li>
   <li><div><b>Hand it over</b><p>The file, or one standalone SVG if you asked for a picture, with the sheets, the choices you might want changed, and what it did not verify.</p></div></li>
@@ -427,7 +442,7 @@ write(at("/llms.txt"), `# Ostraca
 
 > Illustrations for every state your product is in, drawn by your agent. An agent skill draws any object as a small building elevation, in all six states or only the ones asked for, for the empty, loading, done and broken screens of a product, and hands it over as a figure the engine renders or as one standalone SVG. ${figures.length} figures come ready to use. MIT licensed, no runtime dependencies, works with or without React. By Ahmed Amr (${"https://ahmedamr.com"}).
 
-Skill: npx skills add ahmedamr-r/ostraca, then ask for an illustration or /ostraca <object>. It asks which states (default all six), a figure or an SVG picture (default a figure), and for a picture the theme, the workers, the background and the colours.
+Skill: npx skills add ahmedamr-r/ostraca (add -g for every project), or unzip ${SITE}${at("/ostraca.zip")} into the agent's skills folder, then ask for an illustration or /ostraca <object>. It asks which states (default all six), a figure or an SVG picture (default a figure), and for a picture the theme, the workers, the background and the colours.
 Install: npm i ostraca
 Source: https://github.com/ahmedamr-r/ostraca
 

@@ -11,3 +11,8 @@ export const STREET = [
   ["laptop", { state: "idle" }],
   ["stove", { state: "error" }],
 ];
+
+/* The figures the hero sheet hands round, in order, each through every
+   state with the crew on. After changing it, run the same script, which
+   measures how far each reaches in any state into site/hero.json. */
+export const HERO = ["inbox", "calendar", "trolley", "parcel", "laptop"];

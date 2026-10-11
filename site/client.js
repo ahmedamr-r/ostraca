@@ -69,16 +69,25 @@ document.querySelectorAll("pre.code").forEach((pre) => {
   pre.append(b);
 });
 
-/* ---- Arrival: plan first, then ink (home) -------------------------------- */
+/* ---- Arrival: plan first, then ink (home) --------------------------------
+   The street sits below the hero sheet, so it waits as its plan until it is
+   in view. data-street tells the page's fallback (which inks it after 6s if
+   this script never runs) that the street is in hand. */
 if (root.classList.contains("arriving")) {
   const street = [...document.querySelectorAll(".street [data-art]")];
   street.forEach((el, k) => el.style.setProperty("--arrive-at", `${k * 170}ms`));
   const inked = (street.length - 1) * 170 + 1500;
-  requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => {
-    root.classList.add("inking");
-    root.classList.remove("arriving");
-    setTimeout(() => root.classList.remove("inking"), inked);
-  }, 450)));
+  const seen = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return;
+    seen.disconnect();
+    setTimeout(() => {
+      root.classList.add("inking");
+      root.classList.remove("arriving");
+      setTimeout(() => root.classList.remove("inking"), inked);
+    }, 450);
+  }, { threshold: 0.4 });
+  root.dataset.street = "";
+  seen.observe(document.querySelector(".street"));
 }
 
 /* ---- Figures: adopt the server markup ------------------------------------ */
@@ -93,6 +102,96 @@ await Promise.all([...document.querySelectorAll("[data-art]")].map(async (el) =>
   const opts = JSON.parse(el.dataset.opts || "{}");
   arts.set(el, mount(el, await figureFor(el), opts));
 }));
+
+/* ---- The hero sheet (home) ------------------------------------------------
+   The figure on the stage goes through the states as an app would pass them:
+   set out, rising as the value climbs, built, signed off, revised, out of
+   true. Then the sheet goes to the next figure, set out again. A state picked
+   in the title block holds there until Play. The run waits while the sheet is
+   off screen or the tab is hidden, and starts paused under reduced motion. */
+const hero = document.querySelector("[data-hero]");
+if (hero) {
+  const { cast, remarks } = JSON.parse(hero.dataset.hero);
+  const stage = hero.querySelector("[data-hero-stage]");
+  const picks = [...hero.querySelectorAll("[data-hero-state]")];
+  const play = hero.querySelector("[data-hero-play]");
+  const nameLink = hero.querySelector("[data-hero-name]");
+  const codeOut = hero.querySelector("[data-hero-code]");
+  const remarkOut = hero.querySelector("[data-hero-remark]");
+  const RISE = 10; // loading climbs in tenths
+  const RUN = [
+    [{ state: "empty" }, 1900],
+    ...Array.from({ length: RISE + 1 }, (_, k) => [{ state: "loading", value: k / RISE }, k === RISE ? 700 : 280]),
+    [{ state: "idle" }, 1700],
+    [{ state: "success" }, 2300],
+    [{ state: "changed", rev: "2.4" }, 2700],
+    [{ state: "error" }, 3400],
+  ];
+  // Where a picked state lands, and where Play goes on from.
+  const PICK = Object.fromEntries(picks.map(({ dataset: { heroState: s } }) => [s, RUN.findIndex(([o]) => o.state === s && (s !== "loading" || o.value === 0.6))]));
+
+  let who = 0, at = 0, timer = 0;
+  let layer = stage.querySelector(".hs-layer");
+  let art = arts.get(layer.querySelector("[data-art]"));
+  let paused = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let onScreen = true;
+
+  const code = (name, o) => {
+    const attr = (k, v) => ` <i>${k}</i>=<b>${v}</b>`;
+    return `&lt;Ostraca${attr("name", `"${name}"`)}${attr("state", `"${o.state}"`)}${o.value != null ? attr("value", `{${o.value}}`) : ""}${o.rev ? attr("rev", `"${o.rev}"`) : ""} <i>crew</i> /&gt;`;
+  };
+  const show = ([o]) => {
+    art.update({ value: undefined, rev: "", ...o });
+    picks.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.heroState === o.state)));
+    codeOut.innerHTML = code(cast[who].name, o);
+    remarkOut.textContent = remarks[o.state];
+  };
+  // The next figure comes on set out over the last one, which fades.
+  const nextFigure = () => {
+    who = (who + 1) % cast.length;
+    const f = cast[who];
+    const el = document.createElement("div");
+    el.className = "hs-layer";
+    el.style.cssText = f.style;
+    el.dataset.entering = "";
+    const mounted = mount(el, f.name, { state: "empty", crew: true });
+    stage.append(el);
+    const old = layer;
+    old.dataset.leaving = "";
+    setTimeout(() => old.remove(), 600);
+    requestAnimationFrame(() => requestAnimationFrame(() => delete el.dataset.entering));
+    layer = el; art = mounted;
+    nameLink.href = f.href;
+    nameLink.querySelector("b").textContent = f.title;
+    nameLink.querySelector("span").textContent = f.no;
+  };
+  const step = () => {
+    clearTimeout(timer);
+    if (paused || !onScreen || document.hidden) return;
+    show(RUN[at]);
+    timer = setTimeout(() => {
+      at = (at + 1) % RUN.length;
+      if (at === 0) nextFigure();
+      step();
+    }, RUN[at][1]);
+  };
+  const setPaused = (p) => {
+    paused = p;
+    play.toggleAttribute("data-paused", p);
+    play.querySelector("span").textContent = p ? "Play" : "Pause";
+    p ? clearTimeout(timer) : step();
+  };
+
+  play.addEventListener("click", () => setPaused(!paused));
+  picks.forEach((b) => b.addEventListener("click", () => {
+    at = PICK[b.dataset.heroState];
+    setPaused(true);
+    show(RUN[at]);
+  }));
+  new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; onScreen ? step() : clearTimeout(timer); }).observe(stage);
+  document.addEventListener("visibilitychange", () => (document.hidden ? clearTimeout(timer) : step()));
+  setPaused(paused);
+}
 
 /* ---- The page-wide switch (figures index) -------------------------------- */
 const sw = document.querySelector("[data-switch]");

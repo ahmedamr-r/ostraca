@@ -15,7 +15,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { render, figures, STATES, define } from "../src/index.js";
 import { md, esc } from "./md.mjs";
-import { STREET } from "../site/street.mjs";
+import { STREET, HERO } from "../site/street.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const OUT = join(ROOT, "dist");
@@ -127,7 +127,7 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 <link rel="icon" href="${at("/favicon.svg")}" type="image/svg+xml">
 <link rel="preload" href="${at("/assets/fonts/CubitSans-Variable.woff2")}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${at("/assets/site.css")}">
-<script>try{var t=localStorage.getItem("ostraca-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}${arriving ? `if(!matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("arriving");setTimeout(function(){document.documentElement.classList.remove("arriving","inking")},6000)}` : ""}</script>
+<script>try{var t=localStorage.getItem("ostraca-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}${arriving ? `if(!matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("arriving");setTimeout(function(){if(!document.documentElement.hasAttribute("data-street"))document.documentElement.classList.remove("arriving","inking")},6000)}` : ""}</script>
 <script type="module" src="${at("/assets/client.js")}"></script>
 </head>
 <body>
@@ -169,22 +169,65 @@ function streetRow() {
   }).join("");
 }
 
+/* The hero is a drawing sheet, like the README cover, with a live figure on
+   it: client.js walks it through the states in the order of STATE_ROWS, then
+   hands the sheet to the next figure in HERO. The title block reads out the
+   state, the props an app would pass for it and the remark.
+
+   The stage is cropped to how far the figures reach in any state
+   (site/hero.json, from scripts/measure-street.mjs), and every figure is
+   drawn at one scale: as wide as its drawing against the widest reach, its
+   reach centred, sunk by its depth below the ground. */
+const REACH = JSON.parse(readFileSync(join(ROOT, "site/hero.json"), "utf8"));
+const HERO_PAD = 8;
+const heroSpan = Math.max(...HERO.map((n) => REACH[n][1] - REACH[n][0])) + 2 * HERO_PAD;
+const heroRise = -Math.min(...HERO.map((n) => REACH[n][2])) + HERO_PAD;
+const heroCast = HERO.map((name) => {
+  const [, top, w, h] = render(name).match(/viewBox="([^"]+)"/)[1].split(" ").map(Number);
+  const [x0, x1] = REACH[name];
+  const pct = (v) => `${+(v * 100).toFixed(3)}%`;
+  const style = `--fw:${pct(w / heroSpan)};--fx:${pct(-(x0 + x1) / 2 / w)};--sink:${pct((h + top) / h)}`;
+  return { name, title: byName.get(name).title, no: sheetNo.get(name), href: at(`/figures/${name}`), style };
+});
+const heroCode = (name, o) => {
+  const attr = (k, v) => ` <i>${k}</i>=<b>${v}</b>`;
+  return `&lt;Ostraca${attr("name", `"${name}"`)}${attr("state", `"${o.state}"`)}${o.value != null ? attr("value", `{${o.value}}`) : ""}${o.rev ? attr("rev", `"${o.rev}"`) : ""} <i>crew</i> /&gt;`;
+};
+const heroPicks = STATE_ROWS.map(([s, label, , icon]) => `<button type="button" data-hero-state="${s}" aria-pressed="${s === "empty"}"><svg viewBox="0 0 34 22" aria-hidden="true"><g class="ink">${icon}</g></svg><span>${label}</span></button>`).join("");
+const PLAY_ICON = `<svg viewBox="0 0 16 16" aria-hidden="true"><path class="i-pause" d="M5.5 3.5V12.5M10.5 3.5V12.5"/><path class="i-play" d="M5 3.2V12.8L12.6 8Z"/></svg>`;
+
 write(at("/") + ".html", page({
   path: "/", title: "Ostraca", arriving: true,
   description: `An agent skill that draws any object as a line illustration for the empty, loading, done and broken screens of your product, in all six states or only the ones you need, as a figure or one SVG. ${figures.length} figures come ready to use. MIT, no dependencies.`,
   body: `
-<section class="hero">
-  <h1>Ostraca</h1>
-  <p class="lede">Illustrations for every state your product is in, drawn by your agent.</p>
-  <p class="sub">Ostraca is a skill for coding agents and the engine it draws with. Name any object and your agent draws it as a small building elevation that can be set out, rising, built, signed off, revised or out of true, checked against the rules before it reaches you. Your app passes the state and its real values, and the drawing follows. ${figures.length} figures come ready to use, from an inbox to a stove.</p>
-  <div class="installs">
-    <div class="install"><code>npx skills add ahmedamr-r/ostraca</code>${copyButton("npx skills add ahmedamr-r/ostraca")}</div>
-    <div class="install"><code>npm i ostraca</code>${copyButton("npm i ostraca")}</div>
+<section class="hero hero-sheet" data-hero="${esc(JSON.stringify({ cast: heroCast, remarks: REMARKS }))}">
+  <div class="hs-top">
+    <div class="hs-words">
+      <h1>Ostraca</h1>
+      <p class="lede">Illustrations for every state your product is in, drawn by your agent.</p>
+      <div class="installs">
+        <div class="install"><code>npx skills add ahmedamr-r/ostraca</code>${copyButton("npx skills add ahmedamr-r/ostraca")}</div>
+        <div class="install"><code>npm i ostraca</code>${copyButton("npm i ostraca")}</div>
+      </div>
+      <p class="vh" aria-live="polite" data-copy-said></p>
+      <p class="install-note">The skill draws new figures. The package renders them, and the ${figures.length} that come with it.</p>
+      <ul class="links"><li><a href="${at("/skill")}">Skill</a></li><li><a href="${at("/figures")}">Figures</a></li><li><a href="${at("/docs")}">Docs</a></li></ul>
+    </div>
+    <div class="hs-stage" data-hero-stage style="aspect-ratio:${heroSpan} / ${heroRise}">
+      <div class="hs-layer" style="${heroCast[0].style}">${art(HERO[0], { state: "empty", crew: true })}</div>
+    </div>
   </div>
-  <p class="vh" aria-live="polite" data-copy-said></p>
-  <p class="install-note">The skill draws new figures. The package renders them, and the ${figures.length} that come with it.</p>
-  <ul class="links"><li><a href="${at("/skill")}">Skill</a></li><li><a href="${at("/figures")}">Figures</a></li><li><a href="${at("/docs")}">Docs</a></li></ul>
+  <div class="hs-block">
+    <div class="hs-cell hs-name"><span class="hs-k">Drawing</span><a href="${heroCast[0].href}" data-hero-name><b>${esc(heroCast[0].title)}</b><span>${heroCast[0].no}</span></a></div>
+    <div class="hs-cell hs-states">
+      <div class="hs-head"><span class="hs-k" id="hs-states">State</span><button type="button" class="btn hs-play" data-hero-play>${PLAY_ICON}<span>Pause</span></button></div>
+      <div class="hs-picks" role="group" aria-labelledby="hs-states">${heroPicks}</div>
+    </div>
+    <div class="hs-cell hs-code"><span class="hs-k">Your app passes</span><code data-hero-code>${heroCode(HERO[0], { state: "empty" })}</code></div>
+    <div class="hs-cell hs-remark"><span class="hs-k">Remarks</span><p data-hero-remark>${REMARKS.empty}</p></div>
+  </div>
 </section>
+<p class="home-intro">Ostraca is a skill for coding agents and the engine it draws with. Name any object and your agent draws it as a small building elevation that can be set out, rising, built, signed off, revised or out of true, checked against the rules before it reaches you. Your app passes the state and its real values, and the drawing follows. ${figures.length} figures come ready to use, from an inbox to a stove.</p>
 <figure class="street">
   <div class="street-scroll"><div class="street-row">${streetRow()}</div></div>
   <figcaption>Street elevation: a mailbox, a noticeboard going up, a row of seats, coins, a trolley signed off, a revised calendar, a laptop and a stove out of true, with the crew on site.</figcaption>

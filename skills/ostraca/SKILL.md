@@ -21,6 +21,24 @@ Optional line people (the crew) stand where the description says. They are off b
 
 Your job is the description file. You never write state code, never draw the marks above yourself, and never change the engine.
 
+## The one idea
+
+**The object says where you are. The marks say what is happening.** Pick an everyday thing that belongs to the screen it will sit on, so a reader knows the place from the object alone: a trolley for a cart, a door frame for a page that is gone. Then leave the state to the engine. The object never acts a state out. It is not drawn half built for loading, broken for an error or bare for empty, because the set-out, the rising work, the tick, the cloud and the plumb line already say so, the same way in every figure.
+
+The hard moments are the ones with no object of their own. The library answered them like this:
+
+| Moment | Object | Builds | Cloud round | Out of true |
+| --- | --- | --- | --- | --- |
+| A page that is gone | A door frame on a step, the door ajar | step, jambs, head, door | the door | leans |
+| Integrations and sync | A bridge between two banks | from both banks to the middle | the middle of the span | sags |
+| Uploads and imports | A stone hauled up a ramp on a sledge | the stone moves up in heaves | the stone | the rope goes slack |
+| Onboarding and first run | A flight of stairs | a step at a time, bottom to top | the top step | leans |
+| Live connections, offline | Two cans on posts and a string | a post and can, the other, the string | the far can | the string goes slack |
+| Sign in and permissions | A field gate, padlocked | posts, the leaf bar by bar, the padlock | the padlock | the leaf drops at its latch |
+| Away and out of office | A deck chair under a parasol | chair, pole, canopy | the canopy | the parasol leans |
+
+Each one is put together from the ground up, has one part that can change on its own, and goes wrong in a way you can see: it leans or it sags. Look for all three in every object you offer.
+
 ## What is in this folder
 
 - `contract.md`: the description format, every part, the poses and their points, every helper, the rules, the traps. Read it before writing anything.
@@ -28,6 +46,7 @@ Your job is the description file. You never write state code, never draw the mar
 - `examples/inbox.js`: a subject that leans in error and draws a real count. Start here for anything upright.
 - `examples/laptop.js`: a subject that sags in error, every moving part drawn twice. Start here for anything that spans or rests on a surface.
 - `examples/coffee-cup.js`: a small object brought up to working height on a stand, written by following this skill.
+- `examples/bookcase.js`: a figure for one screen that draws only `empty`, so it carries only the parts that state uses. Start here when they asked for fewer states.
 - `engine.js`: the engine in one file, with no dependencies. `check.mjs` and `sheet.mjs` use it.
 - `check.mjs`: checks one figure file. `sheet.mjs`: draws its contact sheets.
 
@@ -38,6 +57,8 @@ Everything runs with Node 22 and Google Chrome or Chromium. Nothing to install. 
 ### 1. Pin the subject and ask for the options
 
 If the person named a concrete object ("a coffee cup", "a bicycle"), take it.
+
+If the library already has their object, or one of its figures is plainly for their screen (an inbox for an empty inbox, a trolley for a cart, a magnifier for search with no results, a door frame for a 404), say so before anything else and show how to use that one. In their app, after `npm i ostraca`: `import { Ostraca } from "ostraca/react"` and `<Ostraca name="inbox" state="empty" />` in React, or `import { render } from "ostraca"` and `render("inbox", { state: "empty" })` anywhere else, with `import "ostraca/styles.css"` once, without which the drawing is bare. As a picture: from its sheet at `https://skills.ahmedamr.com/ostraca/figures/<name>`, which downloads any state as an SVG. It is already drawn, checked and moves through all six states. Draw a new one only if they still want their own.
 
 Otherwise offer two or three readings, one line each, and wait for a pick. Each reading names:
 
@@ -71,7 +92,7 @@ Then draw all six states as a figure if they kept the defaults, only their state
 
 1. Read `contract.md` and `marks.md`, then read both examples top to bottom.
 2. Copy the closer example to `<name>.js` (kebab-case, the thing's plain name) and replace its geometry. Pick the `shelf` from this list: messages, files, people, money, shopping, time, devices, site. Keep its shape: constants at the top measured off one origin, a header comment saying what it is and what it is for, then the description.
-3. If the person needs fewer than six states, set `states` and write only the parts those states use (the table under "Fewer states" in `contract.md`): an `empty` only figure needs its courses, its `outline` and an `empty` station, and no `error`, `revise`, `tick` or `access`. Skip the steps below that only serve the states left out.
+3. If the person needs fewer than six states, set `states` and write only the parts those states use (the table under "Fewer states" in `contract.md`, and `examples/bookcase.js` for `empty` alone): an `empty` only figure needs its courses, its `outline` and an `empty` station, and no `error`, `revise`, `tick` or `access`. Skip the steps below that only serve the states left out.
 4. Draw it at the crew's scale: a worker is 45 tall. If the object is small, stand it on something (a table, a shelf, a stand) that is a still course. Fill `width` 300 to 320, `height` 90 to 135.
 5. Write `courses` bottom first, in the order it would be put together. Each solid thing is one closed path with `class="paper"`. Inside detail goes in a separate course or as `faint`.
 6. Write `outline` yourself: the profile of every course, still ones too, in one path dashed with `SET_OUT`. Put inside lines in `contents`.
@@ -92,7 +113,7 @@ node sheet.mjs path/to/<name>.js
 
 `check.mjs` renders every state the figure draws with the crew off and on, mirrored, with no value and at 0 and 1, and exits 1 on a broken rule. Fix every failure. Read every warning. A clean check means the rules hold; most of what is wrong with a first draft only shows on the sheet.
 
-`sheet.mjs` writes `sheets/<name>-light.png` and `sheets/<name>-dark.png` beside the figure. It starts its own headless Chrome on a free port and stops it after; pass `--port` only to reuse a Chrome you already run with remote debugging, and `--out` to write elsewhere. Open both and go through the look list at the end of `contract.md`, one question at a time, on the actual pixels, for the states the figure draws. The ones that catch most first drafts:
+`sheet.mjs` writes `sheets/<name>-light.png` and `sheets/<name>-dark.png` beside the figure. It starts its own headless Chrome on a free port and stops it after; pass `--port` only to reuse a Chrome you already run with remote debugging, and `--out` to write elsewhere. Open both and go through the look list at the end of `contract.md`, one question at a time, on the actual pixels, for the states the figure draws. A figure that does not draw `idle` also gets one panel of its courses built, for reference, since none of its states shows them: look at it too, but it is not part of what you hand over. The ones that catch most first drafts:
 
 - At 240px with the crew off, can someone name the object?
 - Is the bottom half built at loading 0.5, and is the still course in the set-out?
@@ -118,7 +139,7 @@ For a figure, give the person:
 - the light sheet (and the dark one if anything differs);
 - one line on each choice they might want changed: the scale (true or stood on something), lean or sag, what the cloud goes round;
 - the options their app passes when it draws it: `crew` for the workers, `color`, `crewColor` and `paperColor` for their own colours, and light or dark from the page's `color-scheme`;
-- anything not verified. The sheets show each state at rest; say if you did not watch the motion (`sheet.mjs --motion`), or did not try it in their app.
+- anything not verified. The sheets show each state at rest; say if you did not watch the motion (`sheet.mjs --motion`), or did not try it in their app. Claim only what a run you made showed: reading the code is not watching it move.
 
 To use it, the person adds it with `define()`:
 
@@ -129,8 +150,8 @@ define(cup);
 el.innerHTML = render("coffee-cup", { state: "loading", value: 0.4 });
 ```
 
-In the Ostraca repo, put the file under `src/figures/<shelf>/` and run `node scripts/registry.mjs` and `node scripts/check.mjs` instead.
+Only when you are working in the Ostraca repo itself, adding a figure to the library, put the file under `src/figures/<shelf>/` and run `node scripts/registry.mjs` and `node scripts/check.mjs` instead. That is not for the person's own project, so leave it out of what you tell them.
 
 ### 5. Revise on request
 
-Revisions change the geometry and leave the marks alone. If the person asks for a mark to mean something new, a colour, a shadow, a perspective view or a word of the figure's own, say which rule in `marks.md` it breaks and offer what the grammar can do instead. After every change run the check and the sheet again and show the new sheet.
+Revisions change the geometry and leave the marks alone. If the person asks for a mark to mean something new, a colour, a shadow, a perspective view or a word of the figure's own, say in plain words which rule it breaks (the rules are in `marks.md`, which the person has never seen, so name the rule, not the file) and offer what the drawing can do instead. After every change run the check and the sheet again and show the new sheet.

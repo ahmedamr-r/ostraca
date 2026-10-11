@@ -15,7 +15,9 @@
    figure draws at 240px with the crew off and then on, and at 720px:
    loading at 0.5, error, loading with no value, changed with a long
    version and a word lettered, and the same mirrored, as far as the
-   figure draws those states.
+   figure draws those states. A figure that does not draw idle also gets
+   its courses drawn built, once, for reference, since none of its states
+   shows them.
 
    With --svg it writes one standalone picture instead: the figure in that
    state (the state can be left out when the figure draws only one), as
@@ -48,7 +50,12 @@ let port = Number(flag("port", 0)); // 0: start a Chrome of our own on a free po
 const out = resolve(flag("out", join(dirname(resolve(file)), "sheets")));
 const motion = args.includes("--motion");
 const themes = flag("theme") ? [flag("theme")] : ["light", "dark"];
-const fig = define((await import(pathToFileURL(resolve(file)).href)).default);
+const desc = (await import(pathToFileURL(resolve(file)).href)).default;
+const fig = define(desc);
+// A figure that does not draw idle never shows its courses built, so the
+// sheet draws them once, from a copy that draws idle too: a look at the
+// object itself, not at a state the figure draws.
+const built = fig.states.includes("idle") ? null : define({ ...desc, name: `${fig.name}-built`, states: ["idle", ...fig.states] });
 // --svg's state is whatever follows it unless that is the figure's own path.
 const svgAt = args.indexOf("--svg");
 const svgState = svgAt < 0 ? null : args[svgAt + 1] && !args[svgAt + 1].startsWith("--") && args[svgAt + 1] !== file ? args[svgAt + 1] : fig.states.length === 1 ? fig.states[0] : "";
@@ -129,7 +136,7 @@ figure { margin: 0; } figcaption { margin-top: 6px; }
 figure > div { outline: 1px solid color-mix(in oklab, var(--ostraca-ground) 50%, transparent); }
 </style></head><body>
 <h1>${fig.title}, ${fig.shelf} shelf. ${fig.use}.${fig.states.length < STATES.length ? ` Draws ${fig.states.join(", ")} only.` : ""}</h1>
-<div class="row">${row(false)}</div>
+<div class="row">${row(false)}${built ? `<figure style="width:240px"><div>${render(built, { state: "idle", figure: sample })}</div><figcaption>built, for reference only</figcaption></figure>` : ""}</div>
 <div class="row">${row(true)}</div>
 ${bigRows.join("\n")}
 </body></html>`;

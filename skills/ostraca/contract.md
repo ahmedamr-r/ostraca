@@ -87,7 +87,7 @@ A figure made for one screen can draw only that screen's state. Name them in `st
 
 Stations for states it does not draw are dropped, so give only its own. `render()` starts on the figure's first state (`idle` whenever it draws it), and any other state throws (`figure "cup" draws only empty, not "error"`). The check and the sheets cover only its states. Draw it to the same rules all the same: a figure for one state is still the same object in the same hand, so another state can be added later by adding its parts.
 
-The figures in the Ostraca library draw all six. Fewer states are for a figure made for one product, such as the picture on its empty cart page.
+The figures in the Ostraca library draw all six. Fewer states are for a figure made for one product, such as the picture on its empty cart page. `examples/bookcase.js` is one: it draws only `empty`, so it returns its courses, `outline`, `contents` and one station, and nothing else.
 
 ### The inbox, annotated
 

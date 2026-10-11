@@ -5,8 +5,13 @@
   "installCommand": "",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/", "has": [{ "type": "host", "value": "ostraca.ahmedamr.com" }], "destination": "https://skills.ahmedamr.com/ostraca", "permanent": true },
+    { "source": "/:path*", "has": [{ "type": "host", "value": "ostraca.ahmedamr.com" }], "destination": "https://skills.ahmedamr.com/ostraca/:path*", "permanent": true },
+    { "source": "/", "destination": "/ostraca", "permanent": false }
+  ],
   "headers": [
-    { "source": "/assets/fonts/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
-    { "source": "/llms.txt", "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }] }
+    { "source": "/ostraca/assets/fonts/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
+    { "source": "/ostraca/llms.txt", "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }] }
   ]
 }

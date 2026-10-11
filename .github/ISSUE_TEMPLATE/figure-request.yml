@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Check [the figures](https://ostraca.ahmedamr.com/figures) first: it may already be on a shelf. If you only need it for your own product, the [skill](https://ostraca.ahmedamr.com/skill) draws it for you now.
+        Check [the figures](https://skills.ahmedamr.com/ostraca/figures) first: it may already be on a shelf. If you only need it for your own product, the [skill](https://skills.ahmedamr.com/ostraca/skill) draws it for you now.
   - type: input
     id: object
     attributes:

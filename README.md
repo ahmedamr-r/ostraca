@@ -14,7 +14,7 @@ Ostraca is a skill for coding agents and the engine it draws with. Name any obje
   <img alt="An inbox, a laptop and a pile of coins going through the states together: set out while empty, rising under a ladder and scaffold while loading, signed off with a tick, revised with a cloud and version 2.4, and out of true with a plumb line" src=".github/demo-light.gif">
 </picture>
 
-[ostraca.ahmedamr.com](https://ostraca.ahmedamr.com). MIT licensed. No runtime dependencies. Works with or without React.
+[skills.ahmedamr.com/ostraca](https://skills.ahmedamr.com/ostraca). MIT licensed. No runtime dependencies. Works with or without React.
 
 Ostraca are the limestone flakes Egyptian tomb builders sketched on.
 
@@ -105,7 +105,7 @@ Every ready-drawn figure draws all six. A figure drawn with the skill can draw o
   <img alt="Ostraca figures on a street: a mailbox, a noticeboard going up, a row of seats, coins, a trolley signed off, a revised calendar, a laptop and a stove out of true, with the crew on site" src="docs/images/street-light.svg">
 </picture>
 
-34 ready-drawn subjects on eight shelves, to use as they are: messages, files, people, money, shopping, time, devices, and the building site the library started from. See them all, in any state, on [the site](https://ostraca.ahmedamr.com/figures). The full list, with what each one is for, is in [docs/options.md](docs/options.md#figures).
+34 ready-drawn subjects on eight shelves, to use as they are: messages, files, people, money, shopping, time, devices, and the building site the library started from. See them all, in any state, on [the site](https://skills.ahmedamr.com/ostraca/figures). The full list, with what each one is for, is in [docs/options.md](docs/options.md#figures).
 
 ```js
 import { figures } from "ostraca";
@@ -134,7 +134,7 @@ import { figures } from "ostraca";
 
 ## Docs
 
-On [the site](https://ostraca.ahmedamr.com/docs), or here:
+On [the site](https://skills.ahmedamr.com/ostraca/docs), or here:
 
 - [Start](docs/index.md)
 - [Agent skill](docs/skill.md): the options it asks for, fewer states, standalone pictures

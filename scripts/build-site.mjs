@@ -4,8 +4,12 @@
 
      node scripts/build-site.mjs
 
-   Pages: / , /figures , /figures/<name> , /docs , /docs/<page> , /skill ,
-   /llms.txt and a 404. vercel.json serves them with clean URLs. */
+   The site lives at skills.ahmedamr.com/ostraca, beside the other skills:
+   the skills.ahmedamr.com project rewrites /ostraca to this one. So every
+   page and file goes under BASE, and at() puts BASE on a path of this
+   site: / , /figures , /figures/<name> , /docs , /docs/<page> , /skill and
+   /llms.txt. Only the 404 stays at the root, where Vercel looks for it.
+   vercel.json serves them with clean URLs. */
 import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,7 +19,9 @@ import { STREET } from "../site/street.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const OUT = join(ROOT, "dist");
-const SITE = "https://ostraca.ahmedamr.com";
+const SITE = "https://skills.ahmedamr.com";
+const BASE = "/ostraca";
+const at = (path) => (path === "/" ? BASE : BASE + path);
 const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
 const catalogue = JSON.parse(readFileSync(join(ROOT, "catalogue.json"), "utf8"));
 
@@ -23,17 +29,17 @@ rmSync(OUT, { recursive: true, force: true });
 const write = (path, text) => { const f = join(OUT, path); mkdirSync(dirname(f), { recursive: true }); writeFileSync(f, text); };
 
 /* ---- Assets ---------------------------------------------------------------- */
-cpSync(join(ROOT, "src"), join(OUT, "lib/ostraca"), { recursive: true, filter: (p) => !p.endsWith(".d.ts") });
-cpSync(join(ROOT, "skills/ostraca/examples/coffee-cup.js"), join(OUT, "lib/examples/coffee-cup.js"));
-mkdirSync(join(OUT, "assets/fonts"), { recursive: true });
+cpSync(join(ROOT, "src"), join(OUT, at("/lib/ostraca")), { recursive: true, filter: (p) => !p.endsWith(".d.ts") });
+cpSync(join(ROOT, "skills/ostraca/examples/coffee-cup.js"), join(OUT, at("/lib/examples/coffee-cup.js")));
+mkdirSync(join(OUT, at("/assets/fonts")), { recursive: true });
 for (const f of ["CubitSans-Variable.woff2", "CubitMono-Variable.woff2", "CubitSans-OFL.txt", "CubitMono-OFL.txt"]) {
-  cpSync(join(ROOT, "site/fonts", f), join(OUT, "assets/fonts", f));
+  cpSync(join(ROOT, "site/fonts", f), join(OUT, at("/assets/fonts"), f));
 }
-write("assets/site.css", readFileSync(join(ROOT, "src/styles.css"), "utf8") + "\n" + readFileSync(join(ROOT, "site/site.css"), "utf8"));
-write("assets/client.js", readFileSync(join(ROOT, "site/client.js"), "utf8"));
-cpSync(join(ROOT, "site/og"), join(OUT, "og"), { recursive: true });
-cpSync(join(ROOT, ".github/cover-light.png"), join(OUT, "og/cover.png"));
-write("favicon.svg", `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#eee6d6"/><path d="M5 25H27" stroke="#9a8f80" stroke-width="1.5" stroke-linecap="round"/><path d="M9 25V12H23V25" fill="none" stroke="#3b78a8" stroke-width="1.5" stroke-dasharray="3 2.4"/><path d="M11.5 16.5L15 20L22 9" fill="none" stroke="#3b78a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+write(at("/assets/site.css"), readFileSync(join(ROOT, "src/styles.css"), "utf8") + "\n" + readFileSync(join(ROOT, "site/site.css"), "utf8"));
+write(at("/assets/client.js"), readFileSync(join(ROOT, "site/client.js"), "utf8"));
+cpSync(join(ROOT, "site/og"), join(OUT, at("/og")), { recursive: true });
+cpSync(join(ROOT, ".github/cover-light.png"), join(OUT, at("/og/cover.png")));
+write(at("/favicon.svg"), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#eee6d6"/><path d="M5 25H27" stroke="#9a8f80" stroke-width="1.5" stroke-linecap="round"/><path d="M9 25V12H23V25" fill="none" stroke="#3b78a8" stroke-width="1.5" stroke-dasharray="3 2.4"/><path d="M11.5 16.5L15 20L22 9" fill="none" stroke="#3b78a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
 
 /* ---- Order and sheet numbers (catalogue order, OS-101 onwards) -------------- */
 const byName = new Map(figures.map((f) => [f.name, f]));
@@ -95,7 +101,8 @@ function page({ path, title, description, body, arriving = false, wide = false, 
   const full = path === "/" ? "Ostraca" : `${title} · Ostraca`;
   const nav = NAV.map(([href, label]) => {
     const cur = href !== "/" && (path === href || path.startsWith(href + "/"));
-    return `<a href="${href}"${cur ? ' aria-current="page"' : ""}${href.startsWith("http") ? ' rel="noopener"' : ""}>${label}</a>`;
+    const out = href.startsWith("http");
+    return `<a href="${out ? href : at(href)}"${cur ? ' aria-current="page"' : ""}${out ? ' rel="noopener"' : ""}>${label}</a>`;
   }).join("");
   return `<!doctype html>
 <html lang="en">
@@ -104,29 +111,29 @@ function page({ path, title, description, body, arriving = false, wide = false, 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(full)}</title>
 <meta name="description" content="${esc(description)}">
-${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${SITE}${path}">`}
+${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${SITE}${at(path)}">`}
 <meta property="og:title" content="${esc(full)}">
 <meta property="og:description" content="${esc(description)}">
-<meta property="og:url" content="${SITE}${path}">
+<meta property="og:url" content="${SITE}${at(path)}">
 <meta property="og:type" content="website">
-<meta property="og:image" content="${SITE}${image.src}">
+<meta property="og:image" content="${SITE}${at(image.src)}">
 <meta property="og:image:width" content="${image.width}">
 <meta property="og:image:height" content="${image.height}">
 <meta property="og:image:alt" content="${esc(image.alt)}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="${SITE}${image.src}">
+<meta name="twitter:image" content="${SITE}${at(image.src)}">
 <meta name="twitter:creator" content="@ahmedamrr_r">
 <meta name="color-scheme" content="light dark">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="preload" href="/assets/fonts/CubitSans-Variable.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="${at("/favicon.svg")}" type="image/svg+xml">
+<link rel="preload" href="${at("/assets/fonts/CubitSans-Variable.woff2")}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="${at("/assets/site.css")}">
 <script>try{var t=localStorage.getItem("ostraca-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}${arriving ? `if(!matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("arriving");setTimeout(function(){document.documentElement.classList.remove("arriving","inking")},6000)}` : ""}</script>
-<script type="module" src="/assets/client.js"></script>
+<script type="module" src="${at("/assets/client.js")}"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="bar">
-  <a class="mark" href="/">Ostraca</a>
+  <a class="mark" href="${at("/")}">Ostraca</a>
   <nav class="nav" aria-label="Site">${nav}</nav>
   <div class="seg theme" role="group" aria-label="Theme">${themeSeg}</div>
 </header>
@@ -134,7 +141,7 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 ${body}
 <footer class="colophon">
   <p>Ostraca ${pkg.version}, MIT licensed. Made by <a href="https://ahmedamr.com">Ahmed Amr</a> in Cairo.</p>
-  <p><a href="https://github.com/ahmedamr-r/ostraca">Source</a> · <a href="https://x.com/ahmedamrr_r">X</a> · <a href="/llms.txt">llms.txt</a></p>
+  <p><a href="https://github.com/ahmedamr-r/ostraca">Source</a> · <a href="https://x.com/ahmedamrr_r">X</a> · <a href="${at("/llms.txt")}">llms.txt</a></p>
 </footer>
 </main>
 </body>
@@ -162,7 +169,7 @@ function streetRow() {
   }).join("");
 }
 
-write("index.html", page({
+write(at("/") + ".html", page({
   path: "/", title: "Ostraca", arriving: true,
   description: `An agent skill that draws any object as a line illustration for the empty, loading, done and broken screens of your product, in all six states or only the ones you need, as a figure or one SVG. ${figures.length} figures come ready to use. MIT, no dependencies.`,
   body: `
@@ -176,7 +183,7 @@ write("index.html", page({
   </div>
   <p class="vh" aria-live="polite" data-copy-said></p>
   <p class="install-note">The skill draws new figures. The package renders them, and the ${figures.length} that come with it.</p>
-  <ul class="links"><li><a href="/skill">Skill</a></li><li><a href="/figures">Figures</a></li><li><a href="/docs">Docs</a></li></ul>
+  <ul class="links"><li><a href="${at("/skill")}">Skill</a></li><li><a href="${at("/figures")}">Figures</a></li><li><a href="${at("/docs")}">Docs</a></li></ul>
 </section>
 <figure class="street">
   <div class="street-scroll"><div class="street-row">${streetRow()}</div></div>
@@ -191,14 +198,14 @@ write("index.html", page({
 
 /* ---- /figures --------------------------------------------------------------- */
 const stateSeg = STATES.map((s) => `<button type="button" data-state-set="${s}" aria-pressed="${s === "idle"}">${s}</button>`).join("");
-write("figures.html", page({
+write(at("/figures") + ".html", page({
   path: "/figures", title: "Figures",
   description: `The ${figures.length} figures that come with Ostraca, ready to use, in any of the six states, with or without the crew.`,
   body: `
 <section class="hero">
   <h1>Figures</h1>
   <p class="lede">${figures.length} figures, ready to use, on ${shelves.length} shelves.</p>
-  <p class="sub">Each one was drawn to the rules <a href="/skill">the skill</a> follows, so a figure your agent draws sits beside them. Pick a state to see every figure in it. Each name opens the figure's sheet, where you can try the options and copy the SVG.</p>
+  <p class="sub">Each one was drawn to the rules <a href="${at("/skill")}">the skill</a> follows, so a figure your agent draws sits beside them. Pick a state to see every figure in it. Each name opens the figure's sheet, where you can try the options and copy the SVG.</p>
 </section>
 <div class="switch" data-switch>
   <div class="seg" role="group" aria-label="State for every figure"><span>State</span>${stateSeg}</div>
@@ -208,7 +215,7 @@ ${shelves.map((s) => `
 <section class="shelf" id="${s.key}" aria-labelledby="shelf-${s.key}">
   <div class="shelf-head"><h2 id="shelf-${s.key}">${esc(s.title)}</h2><p>${esc(SHELF_LINE[s.key] || "")}</p></div>
   ${s.figures.map((f) => `
-  <a class="row" href="/figures/${f.name}">
+  <a class="row" href="${at(`/figures/${f.name}`)}">
     <span class="row-words"><span class="row-no">${sheetNo.get(f.name)}</span><span class="row-name">${esc(f.title)}</span><span class="row-use">${esc(f.use)}</span></span>
     <span class="row-cell">${art(f.name, { decorative: true })}</span>
   </a>`).join("")}
@@ -225,12 +232,12 @@ ordered.forEach((f, k) => {
         <svg viewBox="0 0 34 22" aria-hidden="true"><g class="ink">${icon}</g></svg>
         <b>${label}<code>${s}</code></b><i>${means}</i></label>`).join("");
   const measureField = m ? `<label class="field">${esc(m.what)}${m.unit ? ` <span class="faint-unit">(${esc(m.unit)})</span>` : ""}<input type="text" data-measure inputmode="${typeof m.sample === "number" ? "decimal" : "text"}" autocomplete="off" aria-describedby="fig-note"></label>` : "";
-  write(`figures/${f.name}.html`, page({
+  write(at(`/figures/${f.name}`) + ".html", page({
     path: `/figures/${f.name}`, title: f.title,
     image: { src: `/og/${f.name}.png`, width: 1800, height: 945, alt: `${f.title}, an Ostraca figure, signed off with its crew on site: ${f.use}` },
     description: `${f.title}, an Ostraca figure for ${f.use.charAt(0).toLowerCase() + f.use.slice(1)}. Six states, MIT licensed.`,
     body: `
-<nav class="crumbs" aria-label="Breadcrumb"><a href="/figures">Figures</a><span aria-hidden="true">/</span><a href="/figures#${shelf?.key}">${esc(shelf?.title || f.shelf)}</a></nav>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="${at("/figures")}">Figures</a><span aria-hidden="true">/</span><a href="${at("/figures")}#${shelf?.key}">${esc(shelf?.title || f.shelf)}</a></nav>
 <h1 class="sheet-title">${esc(f.title)}</h1>
 <article class="sheet" data-sheet data-remarks="${esc(JSON.stringify(REMARKS))}"${m?.unit ? ` data-unit="${esc(m.unit)}"` : ""}${Array.isArray(m?.sample) ? " data-series" : ""}>
   <div class="sheet-body">
@@ -270,8 +277,8 @@ ordered.forEach((f, k) => {
   </dl>
 </article>
 <nav class="pager" aria-label="Other sheets">
-  ${prev ? `<a href="/figures/${prev.name}">${sheetNo.get(prev.name)} <b>${esc(prev.title)}</b></a>` : "<span></span>"}
-  ${next ? `<a href="/figures/${next.name}"><b>${esc(next.title)}</b> ${sheetNo.get(next.name)}</a>` : "<span></span>"}
+  ${prev ? `<a href="${at(`/figures/${prev.name}`)}">${sheetNo.get(prev.name)} <b>${esc(prev.title)}</b></a>` : "<span></span>"}
+  ${next ? `<a href="${at(`/figures/${next.name}`)}"><b>${esc(next.title)}</b> ${sheetNo.get(next.name)}</a>` : "<span></span>"}
 </nav>`,
   }));
 });
@@ -288,15 +295,15 @@ const docLink = (href) => {
   if (/^(https?:|mailto:|#)/.test(href)) return href;
   const [file, hash] = href.split("#");
   const base = file.replace(/^\.\//, "").replace(/^docs\//, "");
-  if (routeOf[base]) return routeOf[base] + (hash ? `#${hash}` : "");
+  if (routeOf[base]) return at(routeOf[base]) + (hash ? `#${hash}` : "");
   if (/^\.\.\//.test(file) || /^(skills|src|LICENSE)/.test(file)) return `https://github.com/ahmedamr-r/ostraca/blob/main/${file.replace(/^\.\.\//, "")}${hash ? `#${hash}` : ""}`;
   return href;
 };
 for (const x of docMeta) {
   const { html, title } = md(x.src, { link: docLink });
-  const side = docMeta.map((y) => `<li><a href="${y.route}"${y === x ? ' aria-current="page"' : ""}>${esc(y.title)}</a></li>`).join("");
+  const side = docMeta.map((y) => `<li><a href="${at(y.route)}"${y === x ? ' aria-current="page"' : ""}>${esc(y.title)}</a></li>`).join("");
   const first = x.src.split("\n").find((l) => l.trim() && !l.startsWith("#")) || "";
-  write(x.d === "index" ? "docs.html" : `docs/${x.d}.html`, page({
+  write(at(x.route) + ".html", page({
     path: x.route, title: x.d === "index" ? "Docs" : title,
     description: first.replace(/[`*[\]]/g, "").replace(/\(([^)]*)\)/g, "").slice(0, 200),
     body: `<div class="docs"><nav class="docs-nav" aria-label="Docs"><h2>Docs</h2><ul>${side}</ul></nav><article class="prose">${html}</article></div>`,
@@ -307,7 +314,7 @@ for (const x of docMeta) {
 const cup = (await import(join(ROOT, "skills/ostraca/examples/coffee-cup.js"))).default;
 define(cup);
 const cupOpts = { state: "loading", value: 0.5, crew: true };
-write("skill.html", page({
+write(at("/skill") + ".html", page({
   path: "/skill", title: "Skill",
   description: "The Ostraca skill: your coding agent draws any object in the states you need, as a figure for your app or one SVG picture, checks it against the rules and shows you the sheets.",
   body: `
@@ -343,7 +350,7 @@ write("skill.html", page({
 <h2 id="example">The figure it made</h2>
 <p>Following the skill from outside the repo, an agent drew this coffee cup on its saucer, on a cafe table. It is kept in the skill as a worked example.</p>
 <figure class="example">
-  <div class="example-art"><div>${`<div data-art="coffee-cup" data-module="/lib/examples/coffee-cup.js" data-opts="${esc(JSON.stringify(cupOpts))}">${render("coffee-cup", cupOpts)}</div>`}</div></div>
+  <div class="example-art"><div>${`<div data-art="coffee-cup" data-module="${at("/lib/examples/coffee-cup.js")}" data-opts="${esc(JSON.stringify(cupOpts))}">${render("coffee-cup", cupOpts)}</div>`}</div></div>
   <div class="controls" data-example><div class="seg" role="group" aria-label="State of the coffee cup"><span>State</span>${STATES.map((s) => `<button type="button" data-example-state="${s}" aria-pressed="${s === "loading"}">${s}</button>`).join("")}</div></div>
   <figcaption>The coffee cup from the skill's examples. Use it with <code>define(cup)</code>, then like any library figure.</figcaption>
 </figure>
@@ -353,27 +360,27 @@ import cup from "./coffee-cup.js";
 define(cup);
 el.innerHTML = render("coffee-cup", { state: "loading", value: 0.4 });</code></pre>
 <h2 id="source">Source</h2>
-<p>Read the instructions the agent follows in <a href="https://github.com/ahmedamr-r/ostraca/blob/main/skills/ostraca/SKILL.md">SKILL.md</a>, and the rest of the folder, with the figure contract, the marks and the examples, <a href="https://github.com/ahmedamr-r/ostraca/tree/main/skills/ostraca">on GitHub</a>. <a href="/docs/skill">The skill page in the docs</a> lists what it will not draw.</p>
+<p>Read the instructions the agent follows in <a href="https://github.com/ahmedamr-r/ostraca/blob/main/skills/ostraca/SKILL.md">SKILL.md</a>, and the rest of the folder, with the figure contract, the marks and the examples, <a href="https://github.com/ahmedamr-r/ostraca/tree/main/skills/ostraca">on GitHub</a>. <a href="${at("/docs/skill")}">The skill page in the docs</a> lists what it will not draw.</p>
 </article>
 </div>`,
 }));
 
 /* ---- 404 -------------------------------------------------------------------- */
-write("404.html", page({
+write("/404.html", page({
   path: "/404", title: "Not found", noindex: true,
   description: "There is nothing at this address.",
   body: `
 <section class="hero">
   <h1>Not found</h1>
   <p class="lede">There is nothing at this address. It may have moved.</p>
-  <ul class="links"><li><a href="/">Home</a></li><li><a href="/figures">Figures</a></li><li><a href="/docs">Docs</a></li></ul>
+  <ul class="links"><li><a href="${at("/")}">Home</a></li><li><a href="${at("/figures")}">Figures</a></li><li><a href="${at("/docs")}">Docs</a></li></ul>
 </section>
 <figure class="street" style="max-width:560px">${art("door-frame", { state: "empty", crew: true, title: "A door frame, set out" })}</figure>`,
 }));
 
 /* ---- /llms.txt -------------------------------------------------------------- */
 const api = readFileSync(join(ROOT, "src/index.js"), "utf8").match(/\/\* =+\n([\s\S]*?)=+ \*\//)[1].split("\n").map((l) => l.replace(/^\s{3}/, "")).join("\n").trim();
-write("llms.txt", `# Ostraca
+write(at("/llms.txt"), `# Ostraca
 
 > Illustrations for every state your product is in, drawn by your agent. An agent skill draws any object as a small building elevation, in all six states or only the ones asked for, for the empty, loading, done and broken screens of a product, and hands it over as a figure the engine renders or as one standalone SVG. ${figures.length} figures come ready to use. MIT licensed, no runtime dependencies, works with or without React. By Ahmed Amr (${"https://ahmedamr.com"}).
 
@@ -383,10 +390,10 @@ Source: https://github.com/ahmedamr-r/ostraca
 
 ## Pages
 
-- [Home](${SITE}/): what it is and how to install it
-- [Skill](${SITE}/skill): the agent skill that draws any object as a figure
-- [Figures](${SITE}/figures): the ready-made figures, on their shelves
-${docMeta.map((x) => `- [${x.title}](${SITE}${x.route})`).join("\n")}
+- [Home](${SITE}${at("/")}): what it is and how to install it
+- [Skill](${SITE}${at("/skill")}): the agent skill that draws any object as a figure
+- [Figures](${SITE}${at("/figures")}): the ready-made figures, on their shelves
+${docMeta.map((x) => `- [${x.title}](${SITE}${at(x.route)})`).join("\n")}
 
 ## API
 
@@ -404,9 +411,9 @@ ${STATE_ROWS.map(([s, label, means]) => `- ${s}: ${label.toLowerCase()}. ${means
 
 ## Figures
 
-${shelves.map((s) => `### ${s.title}\n\n${s.figures.map((f) => `- ${f.name} (${sheetNo.get(f.name)}): ${f.use}${f.measures ? `. figure: ${f.measures.what}${f.measures.unit ? `, unit "${f.measures.unit}"` : ""}` : ""}. ${SITE}/figures/${f.name}`).join("\n")}`).join("\n\n")}
+${shelves.map((s) => `### ${s.title}\n\n${s.figures.map((f) => `- ${f.name} (${sheetNo.get(f.name)}): ${f.use}${f.measures ? `. figure: ${f.measures.what}${f.measures.unit ? `, unit "${f.measures.unit}"` : ""}` : ""}. ${SITE}${at(`/figures/${f.name}`)}`).join("\n")}`).join("\n\n")}
 `);
 
 /* ---- vercel.json lives at the repo root; this only reports. ------------------ */
-const count = readdirSync(join(OUT, "figures")).length;
-console.log(`site: ${count} figure sheets, ${docMeta.length} docs pages -> dist/`);
+const count = readdirSync(join(OUT, at("/figures"))).length;
+console.log(`site: ${count} figure sheets, ${docMeta.length} docs pages -> dist${BASE}/`);

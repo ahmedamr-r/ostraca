@@ -6,8 +6,8 @@
 
      node scripts/og.mjs [--port 9491]   writes site/og/<name>.png
 
-   The site build copies them to dist/og/, beside the README cover, which
-   every other page uses. Chrome as in cover.mjs. Motion is emulated as
+   The site build copies them to dist/ostraca/og/, beside the README cover,
+   which every other page uses. Chrome as in cover.mjs. Motion is emulated as
    reduced, so each drawing is shot at rest. */
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { spawn } from "node:child_process";
@@ -62,7 +62,7 @@ function page(f, k) {
   const svg = render(f.name, { state: "success", crew: true, decorative: true });
   const font = (file) => pathToFileURL(join(ROOT, "site/fonts", file)).href;
   const css = pathToFileURL(join(ROOT, "src/styles.css")).href;
-  const strip = [["Drawing", f.title], ["State", "signed off"], ["Sheet", `OS-${101 + k}`], ["Online", `ostraca.ahmedamr.com/figures/${f.name}`]];
+  const strip = [["Drawing", f.title], ["State", "signed off"], ["Sheet", `OS-${101 + k}`], ["Online", `skills.ahmedamr.com/ostraca/figures/${f.name}`]];
   return `<!doctype html><html style="color-scheme:light"><head><meta charset="utf-8"><link rel="stylesheet" href="${css}">
 <style>
 @font-face { font-family: "Cubit Sans"; src: url("${font("CubitSans-Variable.woff2")}") format("woff2"); font-weight: 100 900; }
@@ -81,7 +81,7 @@ h1 { margin: 18px 0 0; font-weight: 500; font-size: 78px; line-height: 1; letter
 .art { position: absolute; left: 0; top: 0; }
 .art .gnd { display: none; }
 .ground { position: absolute; left: ${FRAME}px; right: ${FRAME}px; top: ${GROUND - 1}px; height: 1px; background: var(--ostraca-ground); }
-.strip { position: absolute; z-index: 1; background: var(--ostraca-paper); left: ${FRAME}px; right: ${FRAME}px; bottom: ${FRAME}px; height: ${STRIP}px; border-top: 1px solid var(--rule-strong); display: grid; grid-template-columns: 1.15fr 0.9fr 0.75fr 2.4fr; }
+.strip { position: absolute; z-index: 1; background: var(--ostraca-paper); left: ${FRAME}px; right: ${FRAME}px; bottom: ${FRAME}px; height: ${STRIP}px; border-top: 1px solid var(--rule-strong); display: grid; grid-template-columns: 1.05fr 0.8fr 0.7fr 2.65fr; }
 .strip > div { padding: 14px 18px 0; border-left: 1px solid var(--rule); min-width: 0; }
 .strip > div:first-child { border-left: 0; padding-left: 40px; }
 .strip span { display: block; font: 500 12px/1 var(--ostraca-mono); letter-spacing: 0.09em; text-transform: uppercase; color: var(--notes); }

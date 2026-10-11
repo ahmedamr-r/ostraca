@@ -1,7 +1,7 @@
 /* The catalogue's one script. Every drawing on the page is the package's own
    render() output from the build; this adopts it with mount() so the state
    switches animate with the package's own transitions. */
-import { mount, render } from "/lib/ostraca/index.js";
+import { mount, render } from "../lib/ostraca/index.js";
 
 const root = document.documentElement;
 const store = {

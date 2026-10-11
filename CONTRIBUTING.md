@@ -4,9 +4,9 @@ Thank you for wanting to add to Ostraca. There are three ways in, from the small
 
 ## Ask for a figure
 
-Open a [figure request](https://github.com/ahmedamr-r/ostraca/issues/new?template=figure-request.yml). Name the object, the screens it is for and the states you need most. Check [the figures](https://ostraca.ahmedamr.com/figures) first: it may already be on a shelf.
+Open a [figure request](https://github.com/ahmedamr-r/ostraca/issues/new?template=figure-request.yml). Name the object, the screens it is for and the states you need most. Check [the figures](https://skills.ahmedamr.com/ostraca/figures) first: it may already be on a shelf.
 
-If you only need it for your own product, you do not have to wait. The [skill](https://ostraca.ahmedamr.com/skill) draws it for you in the same hand.
+If you only need it for your own product, you do not have to wait. The [skill](https://skills.ahmedamr.com/ostraca/skill) draws it for you in the same hand.
 
 ## Report a drawing that is wrong
 
@@ -35,7 +35,7 @@ A library figure draws all six states, passes the check, and keeps to one line w
 
 - `npm run check` must pass. It renders every figure in every state.
 - After any change under `src/engine/`, `src/index.js` or `src/styles.css`, run `node scripts/bundle-skill.mjs` so the skill's copy of the engine matches.
-- `npm run site` builds the site into `dist/`, and `npm run site:serve` serves it at http://127.0.0.1:4321.
+- `npm run site` builds the site into `dist/ostraca/`, as it sits on skills.ahmedamr.com, and `npm run site:serve` serves it at http://127.0.0.1:4321/ostraca.
 - `npm run cover`, `npm run og` and `node scripts/demo.mjs` redraw the README cover, the link previews and the README demo. They need Google Chrome, and the demo needs ffmpeg.
 - The package has no runtime dependencies, and it stays that way.
 

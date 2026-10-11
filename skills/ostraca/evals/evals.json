@@ -1,0 +1,115 @@
+{
+  "skill_name": "ostraca",
+  "evals": [
+    {
+      "id": 1,
+      "name": "moment-offers-readings",
+      "prompt": "/ostraca something for a habit tracker app",
+      "expected_output": "Offers two or three readings, one line each, and waits for a pick without drawing. Each reading names an everyday object drawn from the side or the front, the habit tracker moments it serves (a streak kept, a day missed, a goal reached), how it builds from the bottom, the one part the revision cloud goes round, and whether it leans or sags in error. No object is already in the library, none is a brand, and each belongs to the moment rather than acting a state out (not a broken thing for a missed day).",
+      "files": [],
+      "expectations": [
+        "Offers readings and waits, writing no figure file",
+        "Offers two or three readings, one line each",
+        "Every reading names the object, the moments it serves, how it builds bottom first, the one part the cloud goes round, and whether it leans or sags",
+        "No reading offers an object the library already has (alarm clock, bell, bin, bridge, bust, calendar, camera, card reader, coins, deck chair, door frame, filing cabinet, flip chart, gate, hourglass, inbox, laptop, magnifier, mailbox, market stall, noticeboard, parcel, phone, ramp, receipt, safe, seats, server rack, stair, stove, tin can line, trolley, trophy, wall)",
+        "No reading makes the object act a state out: nothing is broken, wilting, empty, half built or failing in order to stand for a missed day, a lost streak or any other state",
+        "No reading names a brand or a specific product"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "library-object-reused",
+      "prompt": "can you make me an illustration for the empty inbox screen in our email client? we use react",
+      "expected_output": "Says before anything else that the library already has an inbox figure for exactly this screen, and shows how to use it in React: npm i ostraca, the Ostraca component from ostraca/react, the stylesheet, and <Ostraca name=\"inbox\" state=\"empty\" />. Offers to draw a different object only if they want their own. Draws no new inbox.",
+      "files": [],
+      "expectations": [
+        "Draws no new inbox: writes no figure file",
+        "Says before anything else that the library already has an inbox figure for this screen",
+        "Shows the React line <Ostraca name=\"inbox\" state=\"empty\" />",
+        "Says where the component comes from: npm i ostraca and the import from ostraca/react",
+        "Says the stylesheet, ostraca/styles.css, has to be imported",
+        "Offers to draw a different object only if they want their own"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "branded-product-declined",
+      "prompt": "Draw an iPhone 16 Pro for our 'connect your phone' onboarding screen, as an svg",
+      "expected_output": "Draws no iPhone and nothing a reader could take for a real product: says the library keeps to plain objects with no brand. Points to the library's own generic phone figure, which already covers this moment and downloads as an SVG in any state from its sheet, or offers a generic object instead. Draws nothing before the person answers.",
+      "files": [],
+      "expectations": [
+        "Writes no figure file before the person answers",
+        "Declines to draw the iPhone 16 Pro, saying the library draws no brand and nothing a reader could take for a real product",
+        "Points to the library's own phone figure for this screen",
+        "Says how to get the library's phone as an SVG right away, without drawing anything new",
+        "Does not ask again whether they want a figure or a picture, since \"as an svg\" answers it"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "grammar-limits-explained",
+      "prompt": "make an isometric illustration of a desk lamp with soft shadows and a warm glow, for the empty state of our settings page",
+      "expected_output": "Before drawing, says which rules the request runs into: every figure is a flat side or front elevation on a ground line, never isometric, with no shading, shadows, glow or second colour. Offers what the drawing can do instead: a desk lamp as a flat elevation in the blueprint line, empty drawn as a dashed set-out. Takes empty from the request and asks only for what is still open, in one message, then waits.",
+      "files": [],
+      "expectations": [
+        "Writes no figure file before the answer",
+        "Says figures are flat side or front elevations, never isometric",
+        "Says there is no shading, shadow or glow, and no second colour",
+        "Offers the desk lamp as a flat elevation instead",
+        "Takes empty from the request and does not ask which states"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "empty-only-figure",
+      "prompt": "/ostraca a fish tank, empty only",
+      "expected_output": "Takes the object and the state from the request, asks at most whether they want a figure or a picture, and with the defaults draws a figure. The file sets states: [\"empty\"] and returns courses bottom first, its own outline dashed with SET_OUT that includes any stand, faint contents and an empty station with a letterer on the ground. It carries no error, foot, top, lean, string, revise, tag, tick or access, and no station for another state. check.mjs passes, the file is 180 lines or fewer, and light and dark sheets were drawn and looked at. The handover gives the file, the sheet, the scale choice, how to add it with define(), and says the motion was not watched.",
+      "files": [],
+      "expectations": [
+        "Writes a figure file that sets states: [\"empty\"]",
+        "check.mjs passes on the figure",
+        "The figure carries none of error, foot, top, lean, string, revise, tag, tick or access",
+        "The figure has a station for empty only",
+        "The figure file is 180 lines or fewer",
+        "Light and dark sheets were drawn into the outputs",
+        "Does not ask which states; asks at most whether a figure or a picture",
+        "The handover gives the file, the sheet, the scale choice and how to add it with define()",
+        "The handover says the motion was not watched, or what else was not verified"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "empty-picture-svg",
+      "prompt": "we need an illustration for the empty state of our plant care app's 'my plants' page, a plant pot on a little stool would be nice. just the empty state as an svg i can drop into figma, dark theme, transparent background",
+      "expected_output": "The states (empty), the output (a picture), the theme (dark) and the background (transparent) are all answered, so it asks at most about the workers and the colours, and takes the defaults: workers off, the library's colours. It draws a figure with states: [\"empty\"] and only the parts empty uses, the pot on a stool, and check.mjs passes. Then it writes the picture with sheet.mjs --svg empty --theme dark, without --paper or --crew, looks at the PNG drawn from the file, and hands over the SVG and the PNG, keeping the figure file for another state or theme.",
+      "files": [],
+      "expectations": [
+        "Writes a figure file that sets states: [\"empty\"]",
+        "check.mjs passes on the figure",
+        "The figure carries none of the parts only other states use",
+        "Writes a dark SVG of the empty state",
+        "The SVG is transparent and has no workers",
+        "The SVG stands alone, with no classes or stylesheet",
+        "Asks at most about the workers and the colours, not the state, the output, the theme or the background",
+        "Hands over the SVG and its PNG, and keeps the figure file for another state or theme"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "six-state-figure",
+      "prompt": "/ostraca a bicycle",
+      "expected_output": "Asks in one message which states and whether a figure or a picture, each with its default, and on the defaults draws all six states as a figure: courses bottom first, its own outline, an error that leans or sags with the parts it needs, a revision cloud round one part, a tick, access, and stations for every state. check.mjs passes, light and dark sheets were drawn and looked at, and the handover names the scale, lean or sag, what the cloud goes round, the options the app passes (crew, color, crewColor, paperColor, the page's color-scheme) and what was not verified.",
+      "files": [],
+      "expectations": [
+        "Writes a figure file that draws all six states",
+        "check.mjs passes on the figure",
+        "The figure has error, revise, tick and access, and a station for every state",
+        "The figure file is 180 lines or fewer",
+        "Light and dark sheets were drawn into the outputs",
+        "Asks which states and whether a figure or a picture in one message, each with its default",
+        "The handover names the scale, lean or sag, and what the cloud goes round",
+        "The handover names the options the app passes (crew, color, crewColor, paperColor, color-scheme) and what was not verified"
+      ]
+    }
+  ]
+}
